@@ -86,7 +86,14 @@ $ busybox httpd -p 80
 $ sudo systemctl start ssh
 ```
 
-The scan was taking too long, so I changed the timing template to `T5` 
+The scan was taking too long, so I `ctrl+c`:d the operation and changed the timing template to `T5`:
+
+<img width="1582" height="832" alt="2026-03-24-19:59:05" src="https://github.com/user-attachments/assets/6a2c1438-a459-44ab-83b1-43eab0295148" />
 
 
+
+
+This time `nmap` found 2 open ports and identified the SSH version. It even managed to give us some hints on the OS.
+
+The scan took over one minute tho, I suspect it's because it was trying to find any HTML pages, but couldn't find any as the web server was just serving my home directory 😂
 
