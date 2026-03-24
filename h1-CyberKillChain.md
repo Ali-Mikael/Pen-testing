@@ -95,7 +95,7 @@ _Source: nmap man pages_
 - Install two arbitrary daemons and scan again
 
 
-I didn't install anything, I simply used `busybox` to setup a simple web server and started the SSH server
+I didn't install anything, I simply used `busybox` to setup a simple web server and started the `SSH server`
 
 ```bash
 $ busybox httpd -p 80
@@ -106,9 +106,27 @@ The scan was taking too long, so I `ctrl+c`:d the operation and changed the timi
 
 <img width="1582" height="832" alt="2026-03-24-19:59:05" src="https://github.com/user-attachments/assets/6a2c1438-a459-44ab-83b1-43eab0295148" />
 
+--some output redacted--
+
 <img width="1579" height="651" alt="2026-03-24-19:59:48" src="https://github.com/user-attachments/assets/14f7584f-d7b0-423d-9c29-bfb8ea7ecdf4" />
 
 
-This time `nmap` found 2 open ports, 80 serving http requests and 22 for SSH, it even identified the version on the latter. This time it also managed to give us some hints on the OS.
+This time `nmap` found 2 open ports:
+- Port `80` listening for http requests
+- Port `22` waiting for SSH connections. It also identified the SSH version
+- It also managed to give us some hints on the OS!
 
-The scan took over one minute tho, I suspect it's because it was trying to find nonexisting HTML pages 🤷‍♂️.
+Even with the T level "insane" it took way over 1 minute to complete the scan... I suspect it's because it was probing for nonexisting HTML pages 🤷‍♂️.
+
+
+
+------
+
+
+
+
+# E) HTB
+**Objective**
+- Solve a box of your choosing from HackTheBox
+
+
