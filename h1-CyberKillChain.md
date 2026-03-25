@@ -24,13 +24,18 @@ Greg Linares A.K.A Laughing Mantis
 - Big note from Greg: Never overlook layer 2 (data-link) attacks in penetration testing / red-teaming. That's that bread and butter!
 
 
+
+------
+
+
+
 ## X.2 [Intelligence-Driven Computer Network Defence Informed by Analysis of Adversary Campaigns and Intrusion Kill Chains](<https://lockheedmartin.com/content/dam/lockheed-martin/rms/documents/cyber/LM-White-Paper-Intel-Driven-Defense.pdf>)
 
-**Abstract**
+### Abstract
 - APT / Advanced Persistent Threat = A class of threats representing well-resourced and trained adversaries conducting multi-year intrusion campaigns
 - Network defence techniques leveraging knowledge about these adversaries can create an intelligence feedback loop, coupled with a kill chain model to describe phases of intrusion, among other things, form the basis of intelligence-driven CND (Computer Network Defense)
 
-**3.2 Intrusion Kill Chain**
+### Chapter 3.2 - Intrusion Kill Chain
 - Kill chain => a systematic process to **target** and **engage** an adversary to _create desired effects_
 - U.S military doctrine defines:
   - **Find** (targets)
@@ -51,15 +56,20 @@ Greg Linares A.K.A Laughing Mantis
 
 
 
+-------
+
+
+
+
 # X.3 - [The Art of Hacking](<https://learning.oreilly.com/videos/the-art-of/9780135767849/9780135767849-SPTT_04_00>)
 
-**4.1 Understanding Active Reconnaissance**
+### Chapter 4.1 - Understanding Active Reconnaissance
 - Active recon entails sending traffic into the target network. Port scans, vulnerability scans etc
   - For contrast, with _passive reconnaissance_ **no traffic** is directly sent to the target environment
 - While doing the recon, the traffic being sent progressively gets louder, this happens for 2 reasons: The scans get more aggressive, and we want to know if somebody is actually looking/monitoring.
 
 
-**4.2 - Exploring Active Reconnaissance Methodologies from an Ethical Hacker Perspective**
+### Chapter 4.2 - Exploring Active Reconnaissance Methodologies from an Ethical Hacker Perspective
 - Due to time constraints, having a solid methology is a must!
 - Reconnaissance is key in sifting through large amounts of data in order to pinpoint worthy targets to attack
 - Example:
@@ -72,10 +82,28 @@ Greg Linares A.K.A Laughing Mantis
        - Done last, as this one creates a lot of noice and most likely to set off alarms
 
 
-4.3 - Surveying Essential Tools for Active Reconnaissance: 
+### Chapter 4.3 - Surveying Essential Tools for Active Reconnaissance
+**Port Scanning**
+- **Nmap**
+  - The most versatile and stable
+  - Using the `-Pn` flag is helpful in bypassing firewalls when scanning from outside a network
+  - You might want to scan ports randomly to avoid detection
+- **Masscan**
+  - The fastest port scanner
+- **Udpprotoscanner**
+  - Fast UDP port scanner
+
+**Web Service Review**
+- **EyeWitness**
+  - When provided with a target list, EyeWitness will go through it, mapping out high value targets
+  - It will write you a report consisting of details about each website along with screenshots
 
 
-4.4 - Surveing Essential Tools fo Active Reconnaissance: Network and Web Vulnerability Scanners
+### Chapter 4.4 - Surveying Essential Tools fo Active Reconnaissance: Network and Web Vulnerability Scanners
+Vulnerability scanning
+
+
+
 
 ------
 
