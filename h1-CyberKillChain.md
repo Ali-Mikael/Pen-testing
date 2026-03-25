@@ -229,4 +229,9 @@ Even with the T level "insane" it took way over 1 minute to complete the scan...
 **Objective**
 - Solve a box of your choosing from HackTheBox
 
+I already have an account set up and a few labs under my belt, so I navigated to HTB Labs --> `Starting point` --> `Tier 1 - Fundamental Exploitation` and chose the box called `Sequel` 
+
+
+
+
 
