@@ -1,11 +1,12 @@
 # X) Read/watch/listen/summarize
 
 ## X.1 Darknet Diaries - [EP 106: Greg](<https://darknetdiaries.com/episode/160/>)
-This ep tells a story about how Greg Linares (AKA Laughing Mantis) became the youngest hacker to arrested in Arizona.
+Greg Linares A.K.A Laughing Mantis
 - Found exploits and wrote malware in MIDDLESCHOOL
 - Actually used the malware he wrote on criminals
 - In high school: Why bother attending the boring classes when you can just hack the system and give yourself perfect attendance and passing grades
   - Well, it works until it doesn't, and he ended up getting arrested and thrown into juvie
+  - This made him the youngest hacker to be arrested in Arizona at the time
 - Greg was blessed, as the police fumbled the evidence and the case got dropped
 - This didn't stop him from being kicked out of his home tho, so he ended up living in a halfway home until 18
 - He did some music and toured the world for a bit
@@ -13,11 +14,11 @@ This ep tells a story about how Greg Linares (AKA Laughing Mantis) became the yo
   - That's how he got scouted by a cyber security company
   - At the company he worked with a team finding zero days
   - The work entailed a lot of reverse engineering and modifying/cracking binaries
-- He found a remote code execution vulnerability from the latest microsoft word version
+- He found a remote code execution vulnerability from the latest Microsoft word version
   - Make the program crash --> take control of a pointer --> inject shell code into memory during the crash ==> Arbitrary remote code execution
   - Only problem was that it could only be done with a debugger attached to the program
   - Because he didn't verify it all the way, and the press release was already out, his career was now on the line
-  - He got one chance of redeeming himself, and after a 3 day bender found a vulnerability in the microsoft visio program
+  - He got one chance to redeem himself, and after a 3 day bender found a vulnerability in the microsoft visio program
   - Face of the company saved and greg got to keep his job
 - Greg went on to have a pretty succesful red-teaming career
 - Big note from Greg: Never overlook layer 2 (data-link) attacks in penetration testing / red-teaming. That's that bread and butter!
@@ -50,7 +51,31 @@ This ep tells a story about how Greg Linares (AKA Laughing Mantis) became the yo
 
 
 
+# X.3 - [The Art of Hacking](<https://learning.oreilly.com/videos/the-art-of/9780135767849/9780135767849-SPTT_04_00>)
 
+**4.1 Understanding Active Reconnaissance**
+- Active recon entails sending traffic into the target network. Port scans, vulnerability scans etc
+  - For contrast, with _passive reconnaissance_ **no traffic** is directly sent to the target environment
+- While doing the recon, the traffic being sent progressively gets louder, this happens for 2 reasons: The scans get more aggressive, and we want to know if somebody is actually looking/monitoring.
+
+
+**4.2 - Exploring Active Reconnaissance Methodologies from an Ethical Hacker Perspective**
+- Due to time constraints, having a solid methology is a must!
+- Reconnaissance is key in sifting through large amounts of data in order to pinpoint worthy targets to attack
+- Example:
+    1. Port Scanning
+       - Confirm passive recon intel is correct, plus find additional open ports
+    3. Web Service Review
+       - What services/applications are in play?
+       - Which ones do we want to focus on?
+    5. Vulnerability Scanning
+       - Done last, as this one creates a lot of noice and most likely to set off alarms
+
+
+4.3 - Surveying Essential Tools for Active Reconnaissance: 
+
+
+4.4 - Surveing Essential Tools fo Active Reconnaissance: Network and Web Vulnerability Scanners
 
 ------
 
