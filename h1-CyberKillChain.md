@@ -1,6 +1,53 @@
 # X) Read/watch/listen/summarize
 
-## X.1 
+## X.1 Darknet Diaries - [EP 106: Greg](<https://darknetdiaries.com/episode/160/>)
+This ep tells a story about how Greg Linares (AKA Laughing Mantis) became the youngest hacker to arrested in Arizona.
+- Found exploits and wrote malware in MIDDLESCHOOL
+- Actually used the malware he wrote on criminals
+- In high school: Why bother attending the boring classes when you can just hack the system and give yourself perfect attendance and passing grades
+  - Well, it works until it doesn't, and he ended up getting arrested and thrown into juvie
+- Greg was blessed, as the police fumbled the evidence and the case got dropped
+- This didn't stop him from being kicked out of his home tho, so he ended up living in a halfway home until 18
+- He did some music and toured the world for a bit
+- After his music career, he got a job coding backend at this massage parlor, while creating exploits and publishing them online on the side
+  - That's how he got scouted by a cyber security company
+  - At the company he worked with a team finding zero days
+  - The work entailed a lot of reverse engineering and modifying/cracking binaries
+- He found a remote code execution vulnerability from the latest microsoft word version
+  - Make the program crash --> take control of a pointer --> inject shell code into memory during the crash ==> Arbitrary remote code execution
+  - Only problem was that it could only be done with a debugger attached to the program
+  - Because he didn't verify it all the way, and the press release was already out, his career was now on the line
+  - He got one chance of redeeming himself, and after a 3 day bender found a vulnerability in the microsoft visio program
+  - Face of the company saved and greg got to keep his job
+- Greg went on to have a pretty succesful red-teaming career
+- Big note from Greg: Never overlook layer 2 (data-link) attacks in penetration testing / red-teaming. That's that bread and butter!
+
+
+## X.2 [Intelligence-Driven Computer Network Defence Informed by Analysis of Adversary Campaigns and Intrusion Kill Chains](<https://lockheedmartin.com/content/dam/lockheed-martin/rms/documents/cyber/LM-White-Paper-Intel-Driven-Defense.pdf>)
+
+**Abstract**
+- APT / Advanced Persistent Threat = A class of threats representing well-resourced and trained adversaries conducting multi-year intrusion campaigns
+- Network defence techniques leveraging knowledge about these adversaries can create an intelligence feedback loop, coupled with a kill chain model to describe phases of intrusion, among other things, form the basis of intelligence-driven CND (Computer Network Defense)
+
+**3.2 Intrusion Kill Chain**
+- Kill chain => a systematic process to **target** and **engage** an adversary to _create desired effects_
+- U.S military doctrine defines:
+  - **Find** (targets)
+  - **Fix** (their location)
+  - **Track** (and observe)
+  - **Target** (with suitable weapon/asset)
+  - **Engage** (adversary)
+  - **Asses** (effects)
+- The paper expands on this concept by building a new kill chain model, one specifically for intrusions
+- Defined as:
+  - **Reconnaissance**
+  - **Weaponization** (weaponizing a deliverable such as documents and PDFs)
+  - **Delivery**
+  - **Exploitation**
+  - **Installation** (remote access trojan or backdoor --> creating a persistent foothold)
+  - **Command & Control**
+  - **Actions on Objectives** (only after all aforementioned steps are completed can the intruder take actions to achieve their original objectives)
+
 
 
 
