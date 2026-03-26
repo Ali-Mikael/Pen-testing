@@ -116,6 +116,11 @@ Greg Linares A.K.A Laughing Mantis
 
 
 
+# X.4 - [KK:2003:36](<https://www.finlex.fi/fi/oikeuskaytanto/korkein-oikeus/ennakkopaatokset/2003/36>)
+A teenager had port scanned servers belonging to a bank and ended up having to pay a pretty hefty fine for it.
+
+What can we learn from this?
+- Always be careful even when doing ethical hacking / penetration testing so that you don't touch stuff you don't have permission to, even by accident!
 
 ------
 
