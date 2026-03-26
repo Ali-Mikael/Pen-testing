@@ -207,7 +207,7 @@ _Source: nmap man pages_
 - Install two arbitrary daemons and scan again
 
 
-I didn't install anything, I simply used `busybox` to setup a simple web server and started the `SSH server`
+Everything you need is already installed, so I simply spin up a web server using `busybox` and the `SSH server` using `systemctl`
 
 ```bash
 $ busybox httpd -p 80
@@ -228,7 +228,7 @@ This time `nmap` found 2 open ports:
 - Port `22` waiting for SSH connections. It also identified the SSH version
 - It also managed to give us some hints on the OS!
 
-Even with the T level "insane" it took way over 1 minute to complete the scan... I suspect it's because it was probing for nonexisting HTML pages 🤷‍♂️.
+Even with T level "insane" it took way over 1 minute to complete the scan... I suspect it's because it was probing for nonexisting HTML pages 🤷‍♂️
 
 
 
@@ -244,7 +244,7 @@ Even with the T level "insane" it took way over 1 minute to complete the scan...
 ## Setting up
 I already have an account set up and a few labs under my belt, so I navigated to --> `HTB Labs` --> `Starting point` --> `Tier 1 - Fundamental Exploitation` and chose the box called `Sequel` 
 
-I connected to the HTB network using OpenVPN:
+Connect to the HTB network using OpenVPN:
 ```bash
 $ sudo openvpn ./starting_points_eu-starting-point-1-dhcp.ovpn
 ```
@@ -267,20 +267,18 @@ Next we try connecting to the server using the SQL CLI client:
 
 <img width="1174" height="116" alt="2026-03-26-17:13:14" src="https://github.com/user-attachments/assets/722aaf3d-a108-411b-a9a5-87916c6e7cab" />
 
-There was an error with TLS (which is on by default), so we search the man pages for a solution.
+There was an error with TLS (which is used by default), so we search the man pages for a solution.
 ```Terminal
 $ man mysql
 ```
-We find the correct flag to use (--skip-tls) and try again.
-
-This time we get `access denied`, so I remove the `-p` flag (password) and try again. 
-
-It doesn't work either, so I try a third time by switching user to `root`:
+1. We find the correct flag to use (--skip-tls) and try again.
+2. This time we get `access denied`, so I remove the `-p` flag (password) and try again.
+3. It doesn't work either, so we change user to  `root`:
 
 <img width="1324" height="536" alt="2026-03-26-17:17:08" src="https://github.com/user-attachments/assets/91cea834-4d7c-4c05-9f84-9465f9ef5b56" />
 
 
-The root account wasn't secured properly, so we're able to access the database.
+The root account wasn't secured properly, so we're able to access the database!
 
 > [!TIP]
 > Search for "SQL cheat sheet" online and place it so that you can quickly recall the syntax!
