@@ -100,7 +100,19 @@ Greg Linares A.K.A Laughing Mantis
 
 
 ### Chapter 4.4 - Surveying Essential Tools fo Active Reconnaissance: Network and Web Vulnerability Scanners
-Vulnerability scanning
+**Network Vulnerability Scanners**
+- OpenVAS (free & open source)
+- Nessus, Nexpose, Qualys
+- Nmap (limited vuln scanning)
+  - Uses the NSE (Nmap Scripting Engine)
+
+**Web Vulnerability Scanners**
+- Nikto
+- WPScan (specific to WordPress websites)
+- SQLMap (SQLi etc..)
+- Burp Suite 
+- Zed Attack Proxy (similar to burp but free)
+
 
 
 
@@ -229,9 +241,62 @@ Even with the T level "insane" it took way over 1 minute to complete the scan...
 **Objective**
 - Solve a box of your choosing from HackTheBox
 
-I already have an account set up and a few labs under my belt, so I navigated to HTB Labs --> `Starting point` --> `Tier 1 - Fundamental Exploitation` and chose the box called `Sequel` 
+I already have an account set up and a few labs under my belt, so I navigated to --> `HTB Labs` --> `Starting point` --> `Tier 1 - Fundamental Exploitation` and chose the box called `Sequel` 
+
+I connected to the HTB network using OpenVPN:
+```Terminal
+$ sudo openvpn ./starting_points_eu-starting-point-1-dhcp.ovpn
+```
+
+<img width="1415" height="422" alt="2026-03-26-16:53:33" src="https://github.com/user-attachments/assets/1355710b-a692-42a0-8d71-b231db41e419" />
 
 
+## Workflow
+I started by doing a default script scan (`-sC`) on the target
+
+```Terminal
+$ nmap -sC -T4 10.129.42.29
+```
+<img width="1684" height="570" alt="2026-03-26-17:01:45" src="https://github.com/user-attachments/assets/bab75602-a92a-439b-ab35-d39791ba9854" />
 
 
+We immediately notice that we're working with a db-server and get the version of MySQL. From capabilities we can atleast know that it's running an interactive client.
+
+Next we try connecting to the server using the SQL CLI client:
+
+<img width="1174" height="116" alt="2026-03-26-17:13:14" src="https://github.com/user-attachments/assets/722aaf3d-a108-411b-a9a5-87916c6e7cab" />
+
+```Terminal
+$ man mysql
+```
+Find the correct flag to use (--skip-tls) and try again --> This time Access denied, so I remove the -p option to login without a password, doesn't work, so I try a third time by switching to user `root`:
+
+<img width="1324" height="536" alt="2026-03-26-17:17:08" src="https://github.com/user-attachments/assets/91cea834-4d7c-4c05-9f84-9465f9ef5b56" />
+
+
+The root account wasn't secured properly so we're able to access the database.
+
+> [!TIP]
+> Search for "SQL cheat sheet" online and place it so that you can quickly recall the syntax!
+
+Once inside, we want to know what databases are present, se we issue the command
+```sql
+MariaDB > show databases;
+```
+
+<img width="304" height="227" alt="2026-03-26-17:23:31" src="https://github.com/user-attachments/assets/fb7915e5-3c30-4265-8ab7-0f25bfba59c5" />
+
+
+The other DBs are standard, so we take `htb` under inspection
+```sql
+MariaDB > use htb;
+MariaDB [htb]> show tables;
+MariaDB [htb]> select * from config;
+```
+<img width="1052" height="545" alt="2026-03-26-17:29:33" src="https://github.com/user-attachments/assets/bafcb9ee-fe4a-488b-9459-b42060879c8b" />
+
+
+And there you have it!
+
+<img width="451" height="63" alt="2026-03-26-17:31:27" src="https://github.com/user-attachments/assets/3557ce44-941d-410d-8066-ea52f9a569bb" />
 
