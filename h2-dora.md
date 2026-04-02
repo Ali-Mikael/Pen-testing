@@ -103,14 +103,15 @@ As i'm using `KVM/QEMU` for virtualization we'll start off by converting the `vm
 **A:** It's a _virtual hard disk_ format used by QEMU!
 
 > [!NOTE]
-> I'm not going to give an in-depth explanation on the conversion, as it's outside the scope of this assigment, check out `$ man qemu-img` for more! E
+> I'm not going to give an in-depth explanation on the conversion, as it's outside the scope of this assigment, check out `$ man qemu-img` for more!
+
 
 Here's the command used to convert a `vmdk` image file to `qcow`
 ```bash
 $ qemu-img convert -p -f vmdk -O qcow2 Metasploitable.vmdk metasploitable2.qcow2
 ```
 
-I noticed the disk was on the smaller side, so I doubled it before starting up the VM (we still have to make available to the system once inside the VM)
+I noticed the disk was on the smaller side, so I doubled it before starting up the VM (we still have to make the new space available to the system once inside the VM)
 
 <img width="1381" height="567" alt="2026-04-03-00:08:03" src="https://github.com/user-attachments/assets/48d36854-97b2-4f8e-8e24-aab6fb5781d9" />
 
@@ -119,7 +120,7 @@ I noticed the disk was on the smaller side, so I doubled it before starting up t
 
 
 
-We then move it to the `libvirt` image pool:
+We then move the disk to the `libvirt` image pool:
 ```bash
 $ sudo mv metasploitable.qcow2 /var/lib/libvirt/images
 ```
@@ -132,7 +133,7 @@ Inside `virt-manager`:
 - Assign 4MB of RAM along with 2 vCPU's
 - Use virtual NAT networking
 
-When the configs are done, we spin up the VM and login with `User`/`Password?` == `msfadmin`. 
+When the configs are done, we spin up the VM and login with `User` & `Password` == `msfadmin`. 
 
 First order of business: load correct keyboard
 
