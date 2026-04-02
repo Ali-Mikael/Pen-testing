@@ -80,4 +80,119 @@
 
 
 
-# A) Install Metasploitable
+# A) Metasploitable
+**Objective**
+- Install Metasploitable 2 on a VM
+
+## Walkthrough
+
+I downloaded the `metasploitable` zip file from [here](<https://www.rapid7.com/products/metasploit/metasploitable/>).
+
+By unzipping the file we're left with a `Metasploitable2-linux` directory containing data we then use to create the VM. 
+
+By issuing the `file` command we get additional information on the content:
+
+<img width="1702" height="259" alt="2026-04-02-22:49:46" src="https://github.com/user-attachments/assets/3c82e6d5-ef31-4b64-a4f0-1eb770208983" />
+
+
+We're mainly concerned with the `Metasploitable.vmdk` file which is the `disk image` for the VM, and as i'm using KVM/QEMU for virtualization we'll convert into a `qcow` image. 
+
+**Q:** What's `qcow`? 
+
+**A:** It's a _virtual hard disk_ format used by QEMU!
+
+> [!NOTE]
+> I'm not going to give an in-depth explanation on the conversion, as it's outside the scope of this assigment, check out `$ man qemu-img` for more! E
+
+Here's the command used to convert a `vmdk` image file to `qcow`
+```bash
+$ qemu-img convert -p -f vmdk -O qcow2 Metasploitable.vmdk metasploitable2.qcow2
+```
+
+I noticed the disk was on the smaller side, so I doubled it before starting up the VM (we still have to make available to the system once inside the VM)
+
+<img width="1381" height="567" alt="2026-04-03-00:08:03" src="https://github.com/user-attachments/assets/48d36854-97b2-4f8e-8e24-aab6fb5781d9" />
+
+<img width="1423" height="252" alt="2026-04-03-00:08:42" src="https://github.com/user-attachments/assets/0c5f65a9-07ff-457e-9c92-26f703661af8" />
+
+
+
+
+We then move it to the `libvirt` image pool:
+```bash
+$ sudo mv metasploitable.qcow2 /var/lib/libvirt/images
+```
+
+
+Inside `virt-manager`:
+- We create a new virtual machine and use option `Import existing disk image`
+  - <img width="663" height="549" alt="2026-04-02-23:20:49" src="https://github.com/user-attachments/assets/6693fa72-3ea8-4dc3-b889-807d1b36b5d4" />
+- Choose the `metasploitable.qcow2` image as the volume
+- Assign 4MB of RAM along with 2 vCPU's
+- Use virtual NAT networking
+
+When the configs are done, we spin up the VM and login with `User`/`Password?` == `msfadmin`. 
+
+First order of business: load correct keyboard
+
+<img width="963" height="200" alt="2026-04-03-00:25:29" src="https://github.com/user-attachments/assets/a800052c-9b4d-4910-9d24-573d5cf7399d" />
+
+
+Now we can make the new space we created earlier available to the system -->
+
+## Resize Workflow
+1. Identify what needs to be changed
+
+<img width="1521" height="780" alt="2026-04-03-00:41:03" src="https://github.com/user-attachments/assets/99787c08-cd9d-45be-8b6e-d3434a3eb394" />
+
+
+2. Modify partitions using the `fdisk` utility
+
+<img width="1595" height="952" alt="2026-04-03-00:54:25" src="https://github.com/user-attachments/assets/6c2bd2a7-e8ed-44dd-9ba8-b7ff3310cfed" />
+
+<img width="1592" height="451" alt="2026-04-03-00:56:09" src="https://github.com/user-attachments/assets/91ca75ef-b2a1-471a-a562-07879c7e55e0" />
+
+
+3. Reboot the the system
+4. Resize the "physical" volume
+5. Extend the root LV to use all available free space
+6. Expand the filesystem to utilize this newly provided space
+
+
+<img width="1762" height="840" alt="2026-04-03-01:05:50" src="https://github.com/user-attachments/assets/bada8892-3117-418e-afaf-90e83653283f" />
+
+
+<img width="1284" height="161" alt="2026-04-03-01:06:14" src="https://github.com/user-attachments/assets/0cf4e553-3ae4-4426-b6d9-da4544c53853" />
+
+And there you have it!
+
+
+
+-----
+
+
+
+
+
+# B) Virtual Networking
+**Objective**
+- Create a virtual network for `kali` & `metasploitable`
+
+
+
+
+
+
+------
+
+
+
+
+
+# C) No lurking!
+**Objective**
+- Show with test that
+  - The VMs cannot reach the internet
+  - The VMs can reach each other
+
+
