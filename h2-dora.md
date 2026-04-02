@@ -86,16 +86,17 @@
 
 ## Walkthrough
 
-I downloaded the `metasploitable` zip file from [here](<https://www.rapid7.com/products/metasploit/metasploitable/>).
+Download the `metasploitable` zip file from [here](<https://www.rapid7.com/products/metasploit/metasploitable/>).
 
-By unzipping the file we're left with a `Metasploitable2-linux` directory containing data we then use to create the VM. 
+Unzipping the file leaves us with the `Metasploitable2-linux` directory containing data for creating the VM.
 
 By issuing the `file` command we get additional information on the content:
 
 <img width="1702" height="259" alt="2026-04-02-22:49:46" src="https://github.com/user-attachments/assets/3c82e6d5-ef31-4b64-a4f0-1eb770208983" />
 
 
-We're mainly concerned with the `Metasploitable.vmdk` file which is the `disk image` for the VM, and as i'm using KVM/QEMU for virtualization we'll convert into a `qcow` image. 
+We're mainly concerned with the `Metasploitable.vmdk` file which is the `disk image` for the VM. 
+As i'm using `KVM/QEMU` for virtualization we'll start off by converting the `vmdk` image to `qcow`.
 
 **Q:** What's `qcow`? 
 
