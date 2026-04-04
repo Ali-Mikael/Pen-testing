@@ -15,7 +15,7 @@
 **TIBER**
 - Threat Intelligence-Based Ethical Red Teaming
 - TIBER-EU > TIBER-FI
-- Following TIBER, a financial entity ensures their project is well-controlled, produces good results and fulfils requirements
+- Following TIBER, a financial entity ensures their project is well-controlled, produces good results and fullfils requirements
 - TIBER projects
   - Key roles:
     - Control Team (CT), Control Team Lead (CTL)
@@ -46,7 +46,7 @@
 **Article 27: Requirements for testers for the carrying out of TLPT**
 - Testers shall:
   - Be of the highest suitability and reputability
-  - Posses expertise in threat intelligence, penetration testing and red team testing
+  - Possess expertise in threat intelligence, penetration testing and red team testing
   - Be certified by an accreditation body or adhere to formal codes of conduct or ethical testing
 - When using internal testers:
   - Use has been approved by the relevant competent authority or by the single public authority designated in accordance with Article 29(9) and (10)
