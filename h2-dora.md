@@ -176,25 +176,59 @@ And there you have it!
 
 
 
-# B) Virtual Networking
+# B) Virtual Networking && C) No Lurking!
 **Objective**
 - Create a virtual network for `kali` & `metasploitable`
-
-
-
-
-
-
-------
-
-
-
-
-
-# C) No lurking!
-**Objective**
 - Show with test that
   - The VMs cannot reach the internet
   - The VMs can reach each other
 
 
+## Virtual network
+I'm using the default virtual network provided and managed by `libvirt`. 
+
+By issuing the command `$ ip a` we can notice the bridge device `virbr0` which acts kind of like the switch for the virtual network logically speaking. 
+
+<img width="1674" height="132" alt="2026-04-04-20:05:37" src="https://github.com/user-attachments/assets/e37d5b4a-d886-4568-ac66-41756ae57727" />
+
+
+On our `kali VM` we can confirm it has an IP address from the correct range:
+
+<img width="1249" height="172" alt="2026-04-04-20:05:56" src="https://github.com/user-attachments/assets/75316cd6-e15e-42a3-9f9c-a2069f28ae2c" />
+
+Same thing with the `metasploitable VM`:
+
+<img width="1788" height="202" alt="2026-04-04-20:06:17" src="https://github.com/user-attachments/assets/ac16e460-34d4-4283-a93e-0ad8ce25e9c5" />
+
+
+## Disconnected
+As the host is only connected as a wireless client via `wlan0` to my home network, all we really need to do is put that interface down (on the host):
+```
+$ nmcli device down wlan0
+```
+<img width="712" height="72" alt="2026-04-04-20:12:43" src="https://github.com/user-attachments/assets/fd1f63d8-af85-43f5-b1d1-d75d212e8cd7" />
+
+
+Now we do the following test to prove objective: Make each VM ping a host outside the virtual network, and then each other:
+
+#### Kali
+
+<img width="1077" height="484" alt="2026-04-04-20:13:27" src="https://github.com/user-attachments/assets/04b0ab4a-3f39-4e8f-8f6a-e75eb8c74576" />
+
+
+
+#### Metasploitable
+<img width="1801" height="709" alt="2026-04-04-20:14:26" src="https://github.com/user-attachments/assets/cec2d598-afb5-4fba-af2a-71fa309cbfee" />
+
+
+And there you have, we're ready to start blasting!
+
+
+
+
+
+# E) Scan
+**Objective**
+- Port scan metasploitable
+- Pick 2-3 ports of interest from a hackers perspective
+- Explain and analyze results
