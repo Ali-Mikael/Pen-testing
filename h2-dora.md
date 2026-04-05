@@ -88,7 +88,7 @@
 
 Download the `metasploitable` zip file from [here](<https://www.rapid7.com/products/metasploit/metasploitable/>).
 
-Unzipping the file leaves us with the `Metasploitable2-linux` directory containing data for creating the VM.
+Unzipping the file leaves us with the `Metasploitable2-linux` directory.
 
 By issuing the `file` command we get additional information on the content:
 
@@ -102,11 +102,8 @@ As i'm using `KVM/QEMU` for virtualization we'll start off by converting the `vm
 
 **A:** It's a _virtual hard disk_ format used by QEMU!
 
-> [!NOTE]
-> I'm not going to give an in-depth explanation on the conversion, as it's outside the scope of this assigment, check out `$ man qemu-img` for more!
 
-
-Here's the command used to convert a `vmdk` image file to `qcow`
+We then convert the `vmdk` image file to `qcow` like so:
 ```bash
 $ qemu-img convert -p -f vmdk -O qcow2 Metasploitable.vmdk metasploitable2.qcow2
 ```
