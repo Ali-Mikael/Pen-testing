@@ -187,7 +187,7 @@ And there you have it!
 ## Option 1
 Using the default virtual network provided and managed by `libvirt`. 
 
-By issuing the command `$ ip a` we can notice the bridge device `virbr0` which acts as a virtual switch.
+By issuing command `$ ip a` on our host machine, we can notice the bridge device `virbr0` which acts as a virtual switch.
 
 <img width="1674" height="132" alt="2026-04-04-20:05:37" src="https://github.com/user-attachments/assets/e37d5b4a-d886-4568-ac66-41756ae57727" />
 
@@ -196,7 +196,7 @@ On our `kali VM` we can confirm it has an IP address from the correct range:
 
 <img width="1249" height="172" alt="2026-04-04-20:05:56" src="https://github.com/user-attachments/assets/75316cd6-e15e-42a3-9f9c-a2069f28ae2c" />
 
-Same thing with the `metasploitable VM`:
+Same thing with on `metasploitable VM`:
 
 <img width="1788" height="202" alt="2026-04-04-20:06:17" src="https://github.com/user-attachments/assets/ac16e460-34d4-4283-a93e-0ad8ce25e9c5" />
 
@@ -224,7 +224,7 @@ Now we do the following test to accomplish our objective
 
 
 ## Option 2
-Another option is to create complete isolation where traffic will flow neither in or outside the network, without the need to toggle the host networking.
+Another option is to create _complete isolation_, without the need to toggle host networking.
 
 We achieve this by creating an `xml` file storing our configuration, and applying it using `virsh`:
 ```bash
@@ -255,9 +255,8 @@ Start the network
 $ sudo virsh net-start isolated
 ```
 
-Before launching the VMs, we quickly change the network source.
 
-On the `metasploitable` we simply change it like so:
+On `metasploitable` we simply change the network source on the NIC like so:
 
 <img width="1848" height="445" alt="2026-04-05-16:43:57" src="https://github.com/user-attachments/assets/f96f54e6-133a-473b-b291-0604ae568bf7" />
 
@@ -267,7 +266,7 @@ Because we want to keep internet access for `kali`, here we don't _change_ the n
 <img width="1481" height="1293" alt="2026-04-05-16:51:10" src="https://github.com/user-attachments/assets/ff1aa66a-78eb-4b24-aa78-e0c2cd5e9702" />
 
 
-Now on the kali cli we ping an outside host, which fails. We then get the IP for metasploitable and ping it successfully, showing us that we are in an isolated network.
+Once inside the VM, we ping an outside host, which fails. We then get the IP for metasploitable and ping it successfully, showing us that we are in an isolated network.
 
 <img width="1065" height="729" alt="2026-04-05-16:55:52" src="https://github.com/user-attachments/assets/ec004fee-a197-4f5b-bf5b-3cef002f10db" />
 
@@ -275,10 +274,11 @@ Now on the kali cli we ping an outside host, which fails. We then get the IP for
 ### What if we want to access the internet?
 We simply switch interfaces!
 
-First we figure out which interface to toggle and then activate it:
+First we figure out which interface to toggle:
 
 <img width="1269" height="417" alt="2026-04-05-16:57:56" src="https://github.com/user-attachments/assets/8dc46812-a6ab-41b0-ab98-1e5986176915" />
 
+And then activate it:
 ```bash
 $ nmcli device up eth0
 ```
@@ -312,9 +312,7 @@ $ nmcli device up eth0
 - Find metasploitable
 
 ## Recon
-The mission begins by doing some good old fashioned reconnoissance.
-
-e do a `ping scan` on the target network:
+A quick `ping scan` on the target network should do the trick:
 ```bash
 $ sudo nmap -sn 192.168.120.1/24
 ```
@@ -355,21 +353,35 @@ We perform a very basic port scan in order to find out which ports are open:
 ```bash
 $ sudo nmap -p- -T4 192.168.120.215
 ```
-The `-p-` option signifies all ports, and the `-T4` tells nmap to go a bit faster than the default time template
+We use the`-p-` option for all ports and `-T4` for faster execution.
 
 
 <img width="839" height="872" alt="2026-04-05-17:28:29" src="https://github.com/user-attachments/assets/4a8e4f83-e596-4e73-8a90-d1842ddcd569" />
 
 
-Personally I would start with ports: `23/telnet`, `22/ssh`, `2049/nfs`, `3306/mysql` and`5432/postgresql`.
+Personally I would start with ports: `23/telnet`, `22/ssh`, `2049/nfs`, `3306/mysql` and `5432/postgresql`.
 
-I listed a few more because telnet & SSH and mysql & postgre go kind of hand in hand.
+I listed a few more than 3 because telnet & SSH go in the same category, as well as mysql & postgre.
 
 What we're targeting:
 - 23/22 --> Remote access to the server
 - 2049 --> Network File System
-- 3306/5432 --> The database
+- 3306/5432 --> Database
 
-This is the hackers dream: gaining remote access to the server, getting hands on with important files and messing with the database.
+If breached, this is the hackers dream: gaining remote access to the server, reading/manipulating important files and accessing the database.
+
+Now we can do even deeper probing as we know what to look for:
+```bash
+$ sudo nmap -A -T4 -p 22,23,2049,3306,5432 192.168.120.215
+```
+<img width="1483" height="787" alt="2026-04-05-18:20:59" src="https://github.com/user-attachments/assets/76cb151b-1e7c-4199-a8a5-2e68946eef52" />
+
+We get information on the OS and versions of the services we're planning to target. This knowledge is useful when searching for vulnerabilities specific to a certain version.
+
+
+
+
+
+
 
 
