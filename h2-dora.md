@@ -184,10 +184,10 @@ And there you have it!
   - The VMs can reach each other
 
 
-## Virtual network
-I'm using the default virtual network provided and managed by `libvirt`. 
+## Option 1
+Using the default virtual network provided and managed by `libvirt`. 
 
-By issuing the command `$ ip a` we can notice the bridge device `virbr0` which acts kind of like the switch for the virtual network logically speaking. 
+By issuing the command `$ ip a` we can notice the bridge device `virbr0` which acts as a virtual switch.
 
 <img width="1674" height="132" alt="2026-04-04-20:05:37" src="https://github.com/user-attachments/assets/e37d5b4a-d886-4568-ac66-41756ae57727" />
 
@@ -201,27 +201,143 @@ Same thing with the `metasploitable VM`:
 <img width="1788" height="202" alt="2026-04-04-20:06:17" src="https://github.com/user-attachments/assets/ac16e460-34d4-4283-a93e-0ad8ce25e9c5" />
 
 
-## Disconnected
-As the host is only connected as a wireless client via `wlan0` to my home network, all we really need to do is put that interface down (on the host):
+### Disconnected
+As the **host** is only connected as a wireless client via `wlan0` to my home network, the quickest way is to put that interface down (on the host):
 ```
 $ nmcli device down wlan0
 ```
 <img width="712" height="72" alt="2026-04-04-20:12:43" src="https://github.com/user-attachments/assets/fd1f63d8-af85-43f5-b1d1-d75d212e8cd7" />
 
 
-Now we do the following test to prove objective: Make each VM ping a host outside the virtual network, and then each other:
+Now we do the following test to accomplish our objective
+- Make each VM ping a host outside the virtual network, and then each other
 
-#### Kali
+### Kali
 
 <img width="1077" height="484" alt="2026-04-04-20:13:27" src="https://github.com/user-attachments/assets/04b0ab4a-3f39-4e8f-8f6a-e75eb8c74576" />
 
 
 
-#### Metasploitable
+### Metasploitable
 <img width="1801" height="709" alt="2026-04-04-20:14:26" src="https://github.com/user-attachments/assets/cec2d598-afb5-4fba-af2a-71fa309cbfee" />
 
 
-And there you have, we're ready to start blasting!
+
+## Option 2
+Another option is to create complete isolation where traffic will flow neither in or outside the network, without the need to toggle the host networking.
+
+We achieve this by creating an `xml` file storing our configuration, and applying it using `virsh`:
+```bash
+$ nvim isolated.xml
+```
+
+```xml
+<network>
+  <name>isolated</name>
+  <bridge name='virbr1' stp='on' delay='0'/>
+  <ip address="192.168.120.1" netmask="255.255.255.0">
+    <dhcp>
+      <range start="192.168.120.10" end="192.168.120.254"/>
+    </dhcp>
+  </ip>
+</network>
+```
+
+```bash
+$ sudo virsh net-define isolated.xml
+```
+Verify:
+- <img width="735" height="136" alt="2026-04-05-16:40:34" src="https://github.com/user-attachments/assets/b5d5ef3f-20c4-4c52-bfa9-63f302dca216" />
+
+
+Start the network
+```bash
+$ sudo virsh net-start isolated
+```
+
+Before launching the VMs, we quickly change the network source.
+
+On the `metasploitable` we simply change it like so:
+
+<img width="1848" height="445" alt="2026-04-05-16:43:57" src="https://github.com/user-attachments/assets/f96f54e6-133a-473b-b291-0604ae568bf7" />
+
+
+Because we want to keep internet access for `kali`, here we don't _change_ the network, but rather **add** a new source:
+
+<img width="1481" height="1293" alt="2026-04-05-16:51:10" src="https://github.com/user-attachments/assets/ff1aa66a-78eb-4b24-aa78-e0c2cd5e9702" />
+
+
+Now on the kali cli we ping an outside host, which fails. We then get the IP for metasploitable and ping it successfully, showing us that we are in an isolated network.
+
+<img width="1065" height="729" alt="2026-04-05-16:55:52" src="https://github.com/user-attachments/assets/ec004fee-a197-4f5b-bf5b-3cef002f10db" />
+
+
+### What if we want to access the internet?
+We simply switch interfaces!
+
+First we figure out which interface to toggle and then activate it:
+
+<img width="1269" height="417" alt="2026-04-05-16:57:56" src="https://github.com/user-attachments/assets/8dc46812-a6ab-41b0-ab98-1e5986176915" />
+
+```bash
+$ nmcli device up eth0
+```
+
+<img width="1332" height="755" alt="2026-04-05-17:00:10" src="https://github.com/user-attachments/assets/cfed878e-206c-4ed0-b3be-363989871035" />
+
+
+<img width="809" height="175" alt="2026-04-05-17:00:31" src="https://github.com/user-attachments/assets/e9b4bd53-c29f-4e91-8de0-a16d68befb7c" />
+
+
+
+**Help received**
+- The ol' reliable `man` pages
+- [libvirt](<https://wiki.libvirt.org/VirtualNetworking.html>) documentation
+
+
+
+
+
+
+
+-------
+
+
+
+
+
+
+# D) Find the target
+**Objective**
+- Find metasploitable
+
+## Recon
+The mission begins by doing some good old fashioned reconnoissance.
+
+e do a `ping scan` on the target network:
+```bash
+$ sudo nmap -sn 192.168.120.1/24
+```
+<img width="983" height="348" alt="2026-04-05-17:24:18" src="https://github.com/user-attachments/assets/0b1057b4-a07e-4b48-af89-8f6f8eee2b3a" />
+
+
+
+3 hosts are live on the network: The gateway `.1`, our own machine (kali) `.233` and the suspected target `.215`. 
+
+We confirm it truly is the target by issuing the `curl` command:
+
+<img width="1072" height="765" alt="2026-04-05-17:26:26" src="https://github.com/user-attachments/assets/9cf0d9e2-20da-43a1-893f-df1855e4a454" />
+
+
+
+And there you have it, target is confirmed to have an IP-address of `192.168.122.215`.
+
+
+
+
+
+
+--------
 
 
 
@@ -230,5 +346,30 @@ And there you have, we're ready to start blasting!
 # E) Scan
 **Objective**
 - Port scan metasploitable
-- Pick 2-3 ports of interest from a hackers perspective
+- Pick 2-3 ports of interest from an attackers perspective
 - Explain and analyze results
+
+
+## Discovery
+We perform a very basic port scan in order to find out which ports are open:
+```bash
+$ sudo nmap -p- -T4 192.168.120.215
+```
+The `-p-` option signifies all ports, and the `-T4` tells nmap to go a bit faster than the default time template
+
+
+<img width="839" height="872" alt="2026-04-05-17:28:29" src="https://github.com/user-attachments/assets/4a8e4f83-e596-4e73-8a90-d1842ddcd569" />
+
+
+Personally I would start with ports: `23/telnet`, `22/ssh`, `2049/nfs`, `3306/mysql` and`5432/postgresql`.
+
+I listed a few more because telnet & SSH and mysql & postgre go kind of hand in hand.
+
+What we're targeting:
+- 23/22 --> Remote access to the server
+- 2049 --> Network File System
+- 3306/5432 --> The database
+
+This is the hackers dream: gaining remote access to the server, getting hands on with important files and messing with the database.
+
+
