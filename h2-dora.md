@@ -103,12 +103,16 @@ As i'm using `KVM/QEMU` for virtualization we'll start off by converting the `vm
 **A:** It's a _virtual hard disk_ format used by QEMU!
 
 
-We then convert the `vmdk` image file to `qcow` like so:
+We perform the conversion like so:
 ```bash
 $ qemu-img convert -p -f vmdk -O qcow2 Metasploitable.vmdk metasploitable2.qcow2
 ```
 
-I noticed the disk was on the smaller side, so I doubled it before starting up the VM (we still have to make the new space available to the system once inside the VM)
+I noticed the disk was on the smaller side, so I doubled the size before starting up the VM 
+
+
+> [!NOTE]
+> We still have to make the new space available to the system once inside
 
 <img width="1381" height="567" alt="2026-04-03-00:08:03" src="https://github.com/user-attachments/assets/48d36854-97b2-4f8e-8e24-aab6fb5781d9" />
 
@@ -127,7 +131,7 @@ Inside `virt-manager`:
 - We create a new virtual machine and use option `Import existing disk image`
   - <img width="663" height="549" alt="2026-04-02-23:20:49" src="https://github.com/user-attachments/assets/6693fa72-3ea8-4dc3-b889-807d1b36b5d4" />
 - Choose the `metasploitable.qcow2` image as the volume
-- Assign 4MB of RAM along with 2 vCPU's
+- Assign **4MB of RAM** along with **2 vCPU's**
 - Use virtual NAT networking
 
 When the configs are done, we spin up the VM and login with `User` & `Password` == `msfadmin`. 
@@ -142,7 +146,8 @@ Now we can make the new space we created earlier available to the system -->
 ## Resize Workflow
 1. Identify what needs to be changed
 
-<img width="1521" height="780" alt="2026-04-03-00:41:03" src="https://github.com/user-attachments/assets/99787c08-cd9d-45be-8b6e-d3434a3eb394" />
+<img width="1521" height="780" alt="2026-04-03-00:41:03" src="https://github.com/user-attachments/assets/ca9c247f-2d53-46b2-b356-fc91c7567216" />
+
 
 
 2. Modify partitions using the `fdisk` utility
@@ -182,41 +187,9 @@ And there you have it!
 
 
 ## Option 1
-Using the default virtual network provided and managed by `libvirt`. 
+Use default NAT network created and managed by `libvirt`.
 
-By issuing command `$ ip a` on our host machine, we can notice the bridge device `virbr0` which acts as a virtual switch.
-
-<img width="1674" height="132" alt="2026-04-04-20:05:37" src="https://github.com/user-attachments/assets/e37d5b4a-d886-4568-ac66-41756ae57727" />
-
-
-On our `kali VM` we can confirm it has an IP address from the correct range:
-
-<img width="1249" height="172" alt="2026-04-04-20:05:56" src="https://github.com/user-attachments/assets/75316cd6-e15e-42a3-9f9c-a2069f28ae2c" />
-
-Same thing with on `metasploitable VM`:
-
-<img width="1788" height="202" alt="2026-04-04-20:06:17" src="https://github.com/user-attachments/assets/ac16e460-34d4-4283-a93e-0ad8ce25e9c5" />
-
-
-### Disconnected
-As the **host** is only connected as a wireless client via `wlan0` to my home network, the quickest way is to put that interface down (on the host):
-```
-$ nmcli device down wlan0
-```
-<img width="712" height="72" alt="2026-04-04-20:12:43" src="https://github.com/user-attachments/assets/fd1f63d8-af85-43f5-b1d1-d75d212e8cd7" />
-
-
-Now we do the following test to accomplish our objective
-- Make each VM ping a host outside the virtual network, and then each other
-
-### Kali
-
-<img width="1077" height="484" alt="2026-04-04-20:13:27" src="https://github.com/user-attachments/assets/04b0ab4a-3f39-4e8f-8f6a-e75eb8c74576" />
-
-
-
-### Metasploitable
-<img width="1801" height="709" alt="2026-04-04-20:14:26" src="https://github.com/user-attachments/assets/cec2d598-afb5-4fba-af2a-71fa309cbfee" />
+When you want to cut the VMs off from the internet, you mess with the networking on the host.
 
 
 
@@ -258,12 +231,22 @@ On `metasploitable` we simply change the network source on the NIC like so:
 <img width="1848" height="445" alt="2026-04-05-16:43:57" src="https://github.com/user-attachments/assets/f96f54e6-133a-473b-b291-0604ae568bf7" />
 
 
-Because we want to keep internet access for `kali`, here we don't _change_ the network, but rather **add** a new source:
+Because we want to be able to access the internet from `kali`, here we don't _change_ the network source, but rather **add** a NIC with the isolated network as the source:
 
 <img width="1481" height="1293" alt="2026-04-05-16:51:10" src="https://github.com/user-attachments/assets/ff1aa66a-78eb-4b24-aa78-e0c2cd5e9702" />
 
 
-Once inside the VM, we ping an outside host, which fails. We then get the IP for metasploitable and ping it successfully, showing us that we are in an isolated network.
+We then prove isolation by doing the following test:
+- Ping an outside host
+- Ping a machine on the same network
+
+```terminal
+$ ping -c 2 1.1.1.1                # <-- Pinging the cloudflare name server
+
+$ sudo nmap -sn 192.168.120.1/24   # <-- Ping scan on the network gives us a list of available hosts
+
+$ ping -c 2 192.168.120.215        # <-- Pinging a host on the same network
+```
 
 <img width="1065" height="729" alt="2026-04-05-16:55:52" src="https://github.com/user-attachments/assets/ec004fee-a197-4f5b-bf5b-3cef002f10db" />
 
@@ -282,6 +265,8 @@ $ nmcli device up eth0
 
 <img width="1332" height="755" alt="2026-04-05-17:00:10" src="https://github.com/user-attachments/assets/cfed878e-206c-4ed0-b3be-363989871035" />
 
+
+As we can see from the output of the status command, activating the other interface will disconnect the other:
 
 <img width="809" height="175" alt="2026-04-05-17:00:31" src="https://github.com/user-attachments/assets/e9b4bd53-c29f-4e91-8de0-a16d68befb7c" />
 
@@ -309,7 +294,7 @@ $ nmcli device up eth0
 - Find metasploitable
 
 ## Recon
-A quick `ping scan` on the target network should do the trick:
+A quick `ping scan` on the target network will do the trick:
 ```bash
 $ sudo nmap -sn 192.168.120.1/24
 ```
