@@ -226,26 +226,26 @@ $ sudo virsh net-start isolated
 ```
 
 
-On `metasploitable` we simply change the network source on the NIC like so:
+For the settings on `metasploitable` we simply change the network source on the NIC like so:
 
 <img width="1848" height="445" alt="2026-04-05-16:43:57" src="https://github.com/user-attachments/assets/f96f54e6-133a-473b-b291-0604ae568bf7" />
 
 
-Because we want to be able to access the internet from `kali`, here we don't _change_ the network source, but rather **add** a NIC with the isolated network as the source:
+Because we want to be able to access the internet from `kali`, here we don't _change_ the network source, but rather **add** a new NIC with the isolated network as the source:
 
 <img width="1481" height="1293" alt="2026-04-05-16:51:10" src="https://github.com/user-attachments/assets/ff1aa66a-78eb-4b24-aa78-e0c2cd5e9702" />
 
 
-We then prove isolation by doing the following test:
+#### Proving isolation
 - Ping an outside host
 - Ping a machine on the same network
 
-```terminal
-$ ping -c 2 1.1.1.1                # <-- Pinging the cloudflare name server
+```bash
+$ ping -c 2 1.1.1.1                 <-- Pinging the cloudflare name server
 
-$ sudo nmap -sn 192.168.120.1/24   # <-- Ping scan on the network gives us a list of available hosts
+$ sudo nmap -sn 192.168.120.1/24    <-- A network ping scan gives us a list of available hosts
 
-$ ping -c 2 192.168.120.215        # <-- Pinging a host on the same network
+$ ping -c 2 192.168.120.215         <-- Pinging a host on the same network
 ```
 
 <img width="1065" height="729" alt="2026-04-05-16:55:52" src="https://github.com/user-attachments/assets/ec004fee-a197-4f5b-bf5b-3cef002f10db" />
@@ -292,6 +292,8 @@ As we can see from the output of the status command, activating the other interf
 # D) Find the target
 **Objective**
 - Find metasploitable
+
+
 
 ## Recon
 A quick `ping scan` on the target network will do the trick:
@@ -376,7 +378,7 @@ We get information on the OS and versions of the services we're planning to targ
 We have the IP address of the target and know which ports are open, let's get cracking!
 
 
-I wanted to break in the DB, so I tried to login remotely but got the error `"TLS/SSL: wrong version number"`. So I decided to skip SSL completely by appending the `--skip-ssl` flag. 
+I wanted access to the DB, so I tried remote login but got the error `"TLS/SSL: wrong version number"`. I circumvented this with the `--skip-ssl` flag. 
 It didn't let me pass, so I switched the user from `admin` to `root` and managed to get inside:
 
 <img width="1534" height="519" alt="2026-04-06-14:18:29" src="https://github.com/user-attachments/assets/86334cdd-cce1-40ca-a56b-a4094f9d4667" />
@@ -396,7 +398,7 @@ And picked the first one => `dvwa`
 ```
 <img width="833" height="274" alt="2026-04-06-14:26:26" src="https://github.com/user-attachments/assets/4452f52b-0771-4fe2-9dad-e849f44d4a01" />
 
-Naturally the `users` table is a high value target, so we want to know all there is to know about this table:
+Naturally the `users` table is a high value target so we want to know all there is to know about this table:
 ```sql
 [dvwa]> SELECT * from users;
 ```
@@ -404,11 +406,11 @@ Naturally the `users` table is a high value target, so we want to know all there
 
 
 Once we've identified all the most important sections, we can then exfiltrate only the parts that matter:
+- <img width="749" height="334" alt="2026-04-06-14:54:16" src="https://github.com/user-attachments/assets/6ae2d96f-4b25-4f59-9a00-3ca1448a7d68" />
 
-<img width="749" height="334" alt="2026-04-06-14:54:16" src="https://github.com/user-attachments/assets/6ae2d96f-4b25-4f59-9a00-3ca1448a7d68" />
 
-
-<img width="910" height="333" alt="2026-04-06-15:00:33" src="https://github.com/user-attachments/assets/9150cca3-05f7-4b9c-b89b-8287d43134c9" />
+And copy it to our local machine:
+- <img width="910" height="333" alt="2026-04-06-15:00:33" src="https://github.com/user-attachments/assets/9150cca3-05f7-4b9c-b89b-8287d43134c9" />
 
 Now we can try to crack the hashes and so on.
 
