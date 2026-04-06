@@ -80,8 +80,11 @@
 # "It Works On My Machine"
 <img width="1771" height="718" alt="2026-04-06-17:48:33" src="https://github.com/user-attachments/assets/787827fd-6e02-4139-880e-2a315189e9ca" />
 
+--------
 
-<img width="1711" height="222" alt="2026-04-06-17:56:02" src="https://github.com/user-attachments/assets/b31405af-e93d-4965-827b-5a227fd79aa3" />
+
+<img width="1723" height="286" alt="2026-04-06-21:27:53" src="https://github.com/user-attachments/assets/0b35ac7c-a830-44ea-97ef-a5181ae4d5b3" />
+
 
 
 
