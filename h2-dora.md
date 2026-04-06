@@ -196,7 +196,7 @@ When you want to cut the VMs off from the internet, you mess with the networking
 ## Option 2
 Another option is to create _complete isolation_, without the need to toggle host networking.
 
-We achieve this by creating an `xml` file storing our configuration, and applying it using `virsh`:
+We achieve this by creating an `xml` file storing our configuration and applying it using `virsh`:
 ```bash
 $ nvim isolated.xml
 ```
@@ -363,6 +363,85 @@ We get information on the OS and versions of the services we're planning to targ
 
 
 
+
+
+-------
+
+
+
+
+
+
+# F) Bonus: Break In and Enter
+We have the IP address of the target and know which ports are open, let's get cracking!
+
+
+I wanted to break in the DB, so I tried to login remotely but got the error `"TLS/SSL: wrong version number"`. So I decided to skip SSL completely by appending the `--skip-ssl` flag. 
+It didn't let me pass, so I switched the user from `admin` to `root` and managed to get inside:
+
+<img width="1534" height="519" alt="2026-04-06-14:18:29" src="https://github.com/user-attachments/assets/86334cdd-cce1-40ca-a56b-a4094f9d4667" />
+
+
+
+I found the databases:
+
+<img width="754" height="391" alt="2026-04-06-14:24:00" src="https://github.com/user-attachments/assets/eab3bd97-8306-456d-87de-f8cb85675cab" />
+
+
+And picked the first one => `dvwa` 
+```sql
+[(none)]> USE dvwa;
+
+[dwva]> SHOW tables;
+```
+<img width="833" height="274" alt="2026-04-06-14:26:26" src="https://github.com/user-attachments/assets/4452f52b-0771-4fe2-9dad-e849f44d4a01" />
+
+Naturally the `users` table is a high value target, so we want to know all there is to know about this table:
+```sql
+[dvwa]> SELECT * from users;
+```
+<img width="1703" height="569" alt="2026-04-06-14:28:28" src="https://github.com/user-attachments/assets/0099c55c-7783-4034-9496-c4fb50a3dd2f" />
+
+
+Once we've identified all the most important sections, we can then exfiltrate only the parts that matter:
+
+<img width="749" height="334" alt="2026-04-06-14:54:16" src="https://github.com/user-attachments/assets/6ae2d96f-4b25-4f59-9a00-3ca1448a7d68" />
+
+
+<img width="910" height="333" alt="2026-04-06-15:00:33" src="https://github.com/user-attachments/assets/9150cca3-05f7-4b9c-b89b-8287d43134c9" />
+
+Now we can try to crack the hashes and so on.
+
+
+But anyway, as we have already have access to the database, might as well do some other mischief:
+```sql
+[dvwa]> UPDATE users SET password = MD5('superSecret1234!') WHERE user='pablo';
+```
+<img width="1261" height="90" alt="2026-04-06-15:05:43" src="https://github.com/user-attachments/assets/00bf0a55-ef31-4dae-9b4f-905489c5f136" />
+
+**Explanation:**
+- We update a users password with our own so that we can access the web service
+
+Only thing left to do is to type in the users name and updated password on the web page and we're in!
+
+<img width="1343" height="684" alt="2026-04-06-15:06:56" src="https://github.com/user-attachments/assets/ae7cc9d1-572f-47b2-a30b-43649a7f041d" />
+
+
+<img width="1463" height="460" alt="2026-04-06-15:07:35" src="https://github.com/user-attachments/assets/22f8e7c3-b98b-4b8d-8c2c-e0b64eb61630" />
+
+
+> [!NOTE]
+> If we want to avoid detection and have persistent access, this is definitively not the way to go about it.
+>
+> I just felt like trying something out here!
+>
+> I guess you would just try to crack the hashes and use the password that's already in place!
+
+
+### Why not the admin account?
+Because there was no challenge there:
+
+<img width="933" height="599" alt="2026-04-06-15:07:55" src="https://github.com/user-attachments/assets/67e39431-131c-411c-9a0d-1006bd0d166c" />
 
 
 
