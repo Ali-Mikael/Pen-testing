@@ -26,5 +26,19 @@
 
 
 [Path Traversal](<https://portswigger.net/web-security/file-path-traversal>)
-- This type of vulnerability arises when a web server retrieves files based on file path, but doesn't sanitize the URL or have other controls in place
-- Say a web server is serving content from `/var/www/html/*` and appends user-provided filenames to that path
+- This type of vulnerability arises when a web server retrieves _files_ based on a _filename_ **appended** to a **base file path**
+- Say a web server is serving content from `/home/webUser/content/*`, this is the base file path!
+- If no controls are in place, one could read files from the home directory by tampering with the URL and replacing allowed file `file1` with `../secretFile.txt`
+- Simply put: `/home/webUser/content/file1` now becomes `/home/webUser/secretFile`
+
+
+
+
+
+
+
+
+
+
+
+
