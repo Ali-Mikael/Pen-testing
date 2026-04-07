@@ -67,16 +67,22 @@ The author does an excellent job in explaining the steps from reconnaissaince to
 ## X.2) No Port Scan
 **Task**
 - Explain what `nmap -sn` does
-- Don't guess, back it up sources
+- Don't guess, back it up with sources
 
 ### Ping Scan
 > `-sn` formerly known as `-sP` a.k.a "ping scan"
 
 Nmap sends something called _host discovery probes_ to hosts on the network and only prints out available hosts that respond to the probes, while skipping the port scan after discovery.
 
+
 **Q:** What is a "host discovery probe" ?
 
-**A:** The default host discovery done with `-sn` consists of the following: An **ICMP echo request**, a **TCP SYN to port 443**, a **TCP ACK to port 80** and a **ICMP timestamp request**.
+**A:** The default host discovery done with `-sn` consists of the following: 
+- An **ICMP echo request**
+- A **TCP SYN to port 443**
+- A **TCP ACK to port 80**
+- An **ICMP timestamp request**
+
 
 **Good To Know:**
 - When executed as an unprivileged user: only SYN packets are sent to P:80 & P:443
@@ -85,7 +91,6 @@ Nmap sends something called _host discovery probes_ to hosts on the network and 
 
 **Credit**
 - Gordon "Fyodor" Lyon, author of Nmap
-
 
 **Source**
 - Nmap Reference Guide (manual pages)
