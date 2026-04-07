@@ -1,41 +1,37 @@
 # X) Read/Watch/Listen & Summarize
+**Instructions**
+- A few bullet points per section is enough for summarization
 
-**Objective**
-- A few bullet points per section is enough to summarize
-- Add your own observation, question or idea
-
-
-## X.1) [OWASP A01:2021](<https://owasp.org/Top10/2021/A01_2021-Broken_Access_Control/index.html>) - Broken Access Control
-**Common AC vulnerabilities:**
-- Principle of least privilege violation
-- Bypassing AC checks with URL tampering
-- Insecure direct object references
-- Abusing JWT
-- CORS misconfiguration
-
-## X.2) PortSwigger Academy
-[IDOR](<https://portswigger.net/web-security/access-control/idor>)
-- a.k.a Insecure Direct Object References
-- A vulnerability that arises from accessing objects directly with user-supplied input
-- Most commonly associated with horizontal privilege escalation
-- For example:
-  - A website retrieves information from the database using the following URL
-    - `https://bank/user123?statement=123`
-  - One could simply change the customer string and ID for bank statement to retreive arbitrary statements
- 
+## X.1) Jaswal 2020: Mastering Metasploit
+[Chapter 1: Approaching A Penetration Test Using Metasploit](<https://learning.oreilly.com/library/view/mastering-metasploit/9781838980078/B15076_01_Final_ASB_ePub.xhtml#_idParaDest-31>)
+> Starting from section "Conducting a penetration test with Metasploit" until the end of the chapter
 
 
-[Path Traversal](<https://portswigger.net/web-security/file-path-traversal>)
-- This type of vulnerability arises when a web server retrieves _files_ based on a _filename_ **appended** to a **base file path**
-- Say a web server is serving content from `/home/webUser/content/*`, this is the base file path!
-- If no controls are in place, one could read files from the home directory by tampering with the URL and replacing allowed file `file1` with `../secretFile.txt`
-- Simply put: `/home/webUser/content/file1` now becomes `/home/webUser/secretFile`
+**Metasploit Terminology**
+- Exploit - Block of code that exploits a vulnerability in a target
+- Payload - Code that runs on the target after successful exploitation
+- Auxiliary - Modules to provide additional functionalities (scanning, fuzzing etc..)
+- Encoders - Obfuscating modules to avoid detection
+- Meterpreter - A payload that uses in-memory DLL injection stagers. Provides various functions to be performed on target
 
 
+**Benefits of Pen Testing With Metasploit**
+- It's open source
+- Ease of use, especially when conducting large scale operations
+- Smart payload generation and easy to switch between payloads mid test
+- Cleaner exits: Ability to leave the system without crashing it and maintaining persistent access
 
 
-
-
+**Using Databases in Metasploit**
+- Stores the results of gathered intelligence automatically
+- Helps us build a knowledge base of hosts, services and vulnerabilities
+- Some DB commands:
+  - `analyze` - Analyzes db info about a target IP or range
+  - `db_connect` - Interact with databases (other than the default one)
+  - `db_export` / `db_import`- Does what the name suggests
+  - `db_save` / `db_remove` - Same here
+- It's good to keep separate tests separate!
+  - You achieve this by making use of the `workspace` feature
 
 
 
