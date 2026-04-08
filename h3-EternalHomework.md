@@ -8,11 +8,11 @@
 
 
 **Metasploit Terminology**
-- Exploit - Block of code that exploits a vulnerability in a target
-- Payload - Code that runs on the target after successful exploitation
-- Auxiliary - Modules to provide additional functionalities (scanning, fuzzing etc..)
-- Encoders - Obfuscating modules to avoid detection
-- Meterpreter - A payload that uses in-memory DLL injection stagers. Provides various functions to be performed on target
+- **Exploit** - Block of code that exploits a vulnerability in a target
+- **Payload** - Code that runs on the target after successful exploitation
+- **Auxiliary** - Modules to provide additional functionalities (scanning, fuzzing etc..)
+- **Encoders** - Obfuscating modules to avoid detection
+- **Meterpreter** - A payload that uses in-memory DLL injection stagers. Provides various functions to be performed on target
 
 
 **Benefits of Pen Testing With Metasploit**
@@ -72,7 +72,7 @@ The author does an excellent job in explaining the steps from reconnaissaince to
 ### Ping Scan
 > `-sn` formerly known as `-sP` a.k.a "ping scan"
 
-Nmap sends something called _host discovery probes_ to the network and prints out available hosts that respond to the probes, while skipping the port scan after discovery.
+Nmap sends something called _host discovery probes_ to the network and prints out available hosts that respond to the probes while skipping the post discovery port scan.
 
 
 **Q:** What is a "host discovery probe" ?
@@ -300,7 +300,7 @@ And just like that we have access the server:
 <img width="1134" height="275" alt="2026-04-08-17:17:02" src="https://github.com/user-attachments/assets/d6272453-4348-45f5-8f07-b0c92c5ea6c8" />
 
 
-There's a lot of functionality in the meterpeter shell, but we can drop into a system shell and exit it anytime we want:
+There's a lot of functionality in the meterpeter shell, but we can also drop into a system shell and exit it anytime we want:
 
 <img width="748" height="187" alt="2026-04-08-17:21:38" src="https://github.com/user-attachments/assets/e7012f83-84b6-4920-b965-61b395482870" />
 
@@ -315,4 +315,65 @@ There's a lot of functionality in the meterpeter shell, but we can drop into a s
 
 
 # G) Lateral Movement
+**Objective**
+- Gather information on Metasploitable necessary for lateral movement
+- Analyze and explain how you would utilize the results
+
+
+## Gathering Intel
+Simplest way imo to gather all the users on the system is to drop to a system shell and give the following command:
+```bash
+cat /etc/passwd | cut -d ":" -f1 > users.txt
+```
+What the command does
+- Prints out the `passwd` file
+- Uses `cut` with the options: delimiter = ":", field_to_print = 1
+  - So we only get the first field, which is the user
+- Then saves the output into a file called `users.txt`
+
+
+Snippet of the file:
+- <img width="878" height="535" alt="2026-04-08-23:06:25" src="https://github.com/user-attachments/assets/764584f8-21c9-4176-944d-6aa212694df0" />
+
+
+
+Let's also save the hashes along with respective users:
+```bash
+cat /etc/shadow | cut -d ":" -f1-2 | grep -vE '\*$' > hashes.txt
+```
+Explained:
+- Same as before, but this time we want the first and second field >> `-f1-2`
+- We invert the grep, meaning we exclude all lines ending with an asterisk >> `-vE '\*$'`
+  - Why?
+    - Because there's a lot of users (usually daemons) that don't have any password access, noted with the `*` in the password field
+    - <img width="638" height="311" alt="2026-04-08-23:16:10" src="https://github.com/user-attachments/assets/cca05535-88f6-4911-9987-cd7236df8984" />
+- Lastly we save the output >> `hashes.txt`
+- I wanted to keep the `!` and `!!` here becuase they will tell if a user account is accessible without a password or whether the password is locked
+
+
+<img width="1132" height="433" alt="2026-04-08-23:21:48" src="https://github.com/user-attachments/assets/78d6fa67-718e-4ba5-8ec0-7277651642ce" />
+
+
+
+Lastly we exfiltrate the findings and remove the files:
+
+<img width="1590" height="203" alt="2026-04-08-23:30:48" src="https://github.com/user-attachments/assets/cd21d5db-2fb0-4a39-aa42-b2c713794bd5" />
+
+
+I noticed the user `user` had some SSH keys we could steal:
+
+<img width="1262" height="143" alt="2026-04-08-23:29:57" src="https://github.com/user-attachments/assets/41265b35-e97e-40d2-833c-730d70a36496" />
+
+Also did the same for `msfadmin`!
+
+
+While going through my findings I noticed that the `download` command messed up the `hashes.txt` file. It ended up creating a directory of it and storing the users file inside it, so I had to go back and redo the same steps.
+
+
+Our findings so far:
+
+<img width="1199" height="396" alt="2026-04-08-23:42:13" src="https://github.com/user-attachments/assets/0b184500-c7fc-42d8-9c05-50a519c16504" />
+
+
+
 
