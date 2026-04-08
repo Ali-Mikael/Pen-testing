@@ -305,8 +305,6 @@ And just like that we have access the server:
 
 <img width="1581" height="804" alt="2026-04-08-17:10:27" src="https://github.com/user-attachments/assets/eecd6baa-dde0-44cc-88cd-9d58af0dc1c0" />
 
-<img width="1134" height="275" alt="2026-04-08-17:17:02" src="https://github.com/user-attachments/assets/d6272453-4348-45f5-8f07-b0c92c5ea6c8" />
-
 
 There's a lot of functionality in the meterpeter shell, but we can also drop into a system shell and exit it anytime we want:
 
@@ -329,15 +327,17 @@ There's a lot of functionality in the meterpeter shell, but we can also drop int
 
 
 ## Gathering Intel
-Simplest way imo to gather all the users on the system is to drop to a system shell and give the following command:
+Let's start off by enumerating all users on the system.
+
+We achieve this by dropping into a system shell and give the following command:
 ```bash
 cat /etc/passwd | cut -d ":" -f1 > users.txt
 ```
-What the command does
-- Prints out the `passwd` file
-- Uses `cut` with the options: delimiter = ":", field_to_print = 1
+Explained:
+- Print out the `passwd` file
+- Use `cut` and specify: delimiter = ":", field_to_print = 1
   - So we only get the first field, which is the user
-- Then saves the output into a file called `users.txt`
+- Save the output to a file >> `users.txt`
 
 
 Snippet of the file:
@@ -345,7 +345,7 @@ Snippet of the file:
 
 
 
-Let's also save the hashes along with respective users:
+Let's also gather the hashes combined with the user it belongs to:
 ```bash
 cat /etc/shadow | cut -d ":" -f1-2 | grep -vE '\*$' > hashes.txt
 ```
