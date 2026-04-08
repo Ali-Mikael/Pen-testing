@@ -114,8 +114,7 @@ Nmap sends something called _host discovery probes_ to the network and prints ou
 
 # B) Metasploit DB
 **Objective**
-- Save the results from port scanning to Metasploit databases
-- Scan it so that Metasploitable is included
+- Save the port scanning results to a Metasploit database
 - You should include at least version scanning (-sV)
 
 
@@ -125,16 +124,16 @@ To start scanning and saving into the db, one must first start the database:
 $ sudo msfdb init
 ```
 
-Now we can access the Metasploit Framework console
+Now let's access the Metasploit Framework console
 ```bash
 $ sudo msfconsole
 ```
 
-We then use the aggressive scan (`-A`), enumerating open ports, service versions and more:
+We then use the aggressive scan (`-A`) option, enumerating open ports, service versions and more:
 ```
 msf > db_nmap -A -T4 192.168.120.215
 ```
-By replacing the normal `nmap` command with `db_nmap`, the results are automatically saved to the database, in the next task we'll look through them!
+By replacing the normal `nmap` command with `db_nmap` the results are automatically saved to the database, in the next task we'll look through it!
 
 
 
@@ -154,17 +153,17 @@ By replacing the normal `nmap` command with `db_nmap`, the results are automatic
 
 
 ## Recall What We Scanned
-By issuing the `hosts` command we can see which hosts are live on the network. This because we used the `db_nmap` version while conducting a `ping scan` earlier.
+By issuing the `hosts` command we can see which hosts are live on the network. This because we used `db_nmap` while conducting a `ping scan` earlier.
 
 <img width="1508" height="292" alt="2026-04-08-15:18:46" src="https://github.com/user-attachments/assets/218eecdf-0ab0-4b20-8509-0420ce431328" />
 
 
-With the `services` command it shows all services that were identified during the host scan, if we further specify the `-u` flag it shows only services which are up:
+The `services` command shows all services that were identified during the host scan, if we further specify the `-u` flag it shows only services that are up:
 
 <img width="1513" height="783" alt="2026-04-08-15:25:12" src="https://github.com/user-attachments/assets/e82c6e4f-db71-44cf-bdab-605de87a3ccc" />
 
 
-By using the `-S` flag we can search for specific information, and with the `-p` flag we can filter by port numbers:
+By using the `-S` flag we can search for specific information, and with the `-p` flag we filter by port numbers:
 
 <img width="1397" height="442" alt="2026-04-08-15:29:56" src="https://github.com/user-attachments/assets/60dae7de-c577-4f27-a6cb-94e7f553c5af" />
 
@@ -180,15 +179,18 @@ By using the `-S` flag we can search for specific information, and with the `-p`
 
 # D) Internet Famous
 **Objective**
-- Find an exploit that comes with Metasploitable that has been public
+- Find an exploit that comes with Metasploitable that has been public/famous
 
+-------
 
-We can search for exploit modules in Metasploitable by using the following command:
+We can search for `exploit modules` in Metasploitable by using the following command:
 ```bash
 msf > search type:exploit
 ```
 
-Here we can use the `-S` flag again to filter for results, say we want all exploits relating to `ftp` for Linux
+Here we can use the `-S` flag again to filter for results. S
+
+ay we want all exploits relating to `ftp` for `Linux`
 ```bash
 msf > search type:exploit platform:linux -S ftp
 ```
@@ -213,28 +215,34 @@ In order to adhere to objective, here's a world famous exploit for you:
 
 # E) Compare
 **Objective**
-- Compare saving results via `nmap -oA xx.txt` VS `db_nmap`
-- What are the positives in each
+- Compare the saving of results via `nmap -oA results.txt` vs `db_nmap`
+- Outline the positives in each
+
+-------
 
 
 By saving the results through nmap's builting -oA function
 ```
 sudo nmap -sV 192.168.120.215 -oA target
 ```
-We get 3 files: The normal output you get in the terminal, a concise version and xml version.
+We get 3 files: 
+- The normal output you'd get in the terminal
+- A more concise version (regarding to format)
+- An xml version
 
 <img width="1030" height="159" alt="2026-04-08-16:41:03" src="https://github.com/user-attachments/assets/823dedc5-d46a-4ee2-86f8-66d86ddbd6e4" />
 
-This is easier to parse programatically and create more comples queries, also it's easier to feed the results to say another program etc.. especially for large scale operations.
+This is easier to parse programatically and create more comples queries, especially for large scale operations.
+Also it's convenient to feed the parsed results to say another program etc.
 
 
-Then again with `db_nmap` it integrates so much better with the metasploit framework and we're able to have a more clean, uninterrupted workflow. For example, we can set the `RHOSTS` variable through `services`
+Then again `db_nmap` integrates so much better with the Metasploit framework and we're able to have a more clean, uninterrupted workflow. For example, we can set the `RHOSTS` variable through `services`.
 
 
 <img width="1576" height="571" alt="2026-04-08-16:47:20" src="https://github.com/user-attachments/assets/cb082cfd-917c-437b-90b1-4501cfb91856" />
 
 
-Now say we want to test vulnerability for all hosts running the same service, it's easy! -->
+Now say we want to test a vulnerability for all hosts running a certain service for example, it's easy! We filter all hosts relating to our query and set the RHOSTS variable accordingly -->
 
 <img width="1570" height="290" alt="2026-04-08-16:48:21" src="https://github.com/user-attachments/assets/c719dc2f-bbf3-4b72-b25e-7d29edf3d69c" />
 
