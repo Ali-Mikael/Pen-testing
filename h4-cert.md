@@ -27,9 +27,17 @@
 - If no controls are in place, one could read files from the home directory by tampering with the URL and replacing allowed file, say `file1`, with `../secretFile.txt`
   - Simply put: `/home/webUser/content/file1` now becomes `/home/webUser/secretFile`
 
+
 [Cross-site scripting (XSS)](<https://portswigger.net/web-security/cross-site-scripting>)
-- This vulnerability allows an attacker to inject malicious scripts into a trusted site, causing the victim’s browser to execute them as if they were legitimate
-  - Which leads to the attacker being able to perform the same actions as the victim user would
+- This vulnerability allows an attacker to inject malicious scripts into a trusted site, causing the victim’s browser to execute them as if they were legit. Leading to the attacker gaining the same access rights as the victim user.
+3 main types:
+1. Reflected XSS
+   - The malicious script comes from the current HTTP request
+3. Stored XSS
+   - The malicious script comes from a website's database
+   - The data is then included in later HTTP responses
+5. DOM-based XSS
+   - The vulnerability exists in client-side code, rather than server-side
 
 
 
@@ -45,10 +53,11 @@
 
 # A) Totally Legit Certificate
 **Objective**
-- Install OWASP ZAP, generate a CA-certificate and install it on your browser
+- Install OWASP ZAP
+- Generate a CA-certificate and install it on your browser
 - Set ZAP as a proxy in your browser
 - Set ZAP to capture also pictures
-- Show that the requests appear in the ZAP inteface
+- Show that the requests appear in the ZAP interface
 
 
 ## Zed Attack Proxy
@@ -62,23 +71,18 @@ $ sudo apt install zaproxy
 $ zaproxy
 ```
 
-We could just launch a browser from ZAP and use the root certificate it generated
+ZAP [generates](<https://www.zaproxy.org/docs/desktop/addons/network/options/servercertificates/#generate>) a Root CA certificate for us, and we use it automatically by launching the browser through ZAP like so (2 birds 1 stone):
 
 <img width="1635" height="1086" alt="2026-04-16-23:30:43" src="https://github.com/user-attachments/assets/13f686e1-11c5-4191-9d6d-67da36ef3af8" />
 
 <img width="1909" height="493" alt="2026-04-16-23:31:24" src="https://github.com/user-attachments/assets/1de06f54-5c75-4952-bcac-65c9a44c3a96" />
 
-Back on the ZAP inteface we can see all the requests:
+Back on the ZAP interface we can see all the requests:
 
 <img width="1623" height="1087" alt="2026-04-16-23:33:42" src="https://github.com/user-attachments/assets/ffb63332-bf7d-4359-af4a-e8a266832b88" />
 
 
-
-Or if we were to adhere to objective word for word, we generate the certificate and add it to our browser like so:
-```bash
-# Generate private key
-$ openssl
-```
+In order to capture pictures, one must --> `Ctrl+Alt+O` --> type "display" in the search bar and select the option --> check the selection on "Process images in HTTP requests/responses".
 
 
 
