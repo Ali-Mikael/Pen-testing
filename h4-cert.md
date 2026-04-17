@@ -75,19 +75,70 @@ ZAP [generates](<https://www.zaproxy.org/docs/desktop/addons/network/options/ser
 
 <img width="1635" height="1086" alt="2026-04-16-23:30:43" src="https://github.com/user-attachments/assets/13f686e1-11c5-4191-9d6d-67da36ef3af8" />
 
-<img width="1909" height="493" alt="2026-04-16-23:31:24" src="https://github.com/user-attachments/assets/1de06f54-5c75-4952-bcac-65c9a44c3a96" />
 
-Back on the ZAP interface we can see all the requests:
-
-<img width="1623" height="1087" alt="2026-04-16-23:33:42" src="https://github.com/user-attachments/assets/ffb63332-bf7d-4359-af4a-e8a266832b88" />
+In order to capture pictures, one must: --> `Ctrl+Alt+O` --> type "display" in the search bar --> select the option --> check the selection on "Process images in HTTP requests/responses".
 
 
-In order to capture pictures, one must --> `Ctrl+Alt+O` --> type "display" in the search bar and select the option --> check the selection on "Process images in HTTP requests/responses".
+Back on the ZAP interface we can see all the requests and replies:
 
+<img width="1911" height="1129" alt="2026-04-17-17:19:36" src="https://github.com/user-attachments/assets/2b1233fe-4107-49f5-a330-79ed6626d978" />
 
 
 
 
 
+-------
+
+
+
+
+
+
+# B) FoxyProxy
+**Objective**
+- Install FoxyProxy standard
+- Add ZAP as a proxy to it
+
+## Proxy
+Open up extension/add-ons manager, search for "foxyproxy standard" and lastly `Add to Firefox`.
+
+What is FoxyProxy?
+
+Their words:
+
+<img width="876" height="726" alt="2026-04-17-17:27:31" src="https://github.com/user-attachments/assets/bf2de97e-9412-4bde-bb9a-acd182c4273c" />
+
+
+Because we want foxyproxy to manage the connections it complicates things a bit, so we're going to have to add the ZAP certificate to our browser
+- `Ctrl+Alt+O` --> `Network` --> `Server Certificates` --> then click save and specify location
+- Open up firefox settings --> Privacy & Security --> View Certificates --> Authorities --> Import --> "Trust this CA to identify websites"
+  - <img width="1213" height="702" alt="2026-04-17-18:42:11" src="https://github.com/user-attachments/assets/bc1a2e20-f990-40c7-b6f5-6875738f3b2e" />
+
+
+Once we have that sorted, we'll go to foxyproxy settings and add ZAP
+- Title: ZAP
+- Hostname: 127.0.0.1 (localhost)
+- Port: 8080
+- Pattern:
+  - Include: All: Wildcard: `*portswigger.net*`
+
+
+
+Now when we pin the extension to our tab bar, we can quickly change between settings
+- If we enable ZAP, everything flows through it
+- If we user "Proxy by Patterns", only portswigger goes through for now
+- <img width="481" height="592" alt="2026-04-17-19:09:33" src="https://github.com/user-attachments/assets/6b420978-3820-4800-b6c7-3d30acbd0af3" />
+
+
+
+--------
+
+
+
+
+
+# C) [Reflected XSS](<https://portswigger.net/web-security/cross-site-scripting/reflected/lab-html-context-nothing-encoded>)
+Objective
+- Do nothing and wait
 
 
