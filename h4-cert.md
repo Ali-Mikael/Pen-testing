@@ -110,40 +110,38 @@ What is FoxyProxy?
 - From my understanding it's a proxy manager, especially useful when you have multiple proxies
 
 
-Because we want foxyproxy to manage the connection, we're going to do the second version of setting up ZAP. We add the CA certificate to our browser like so:
+Because we want foxyproxy to manage the connection, we're going to do the second version of setting up ZAP. 
+
+We add the CA certificate to our browser like so:
 - In ZAP: `Ctrl+Alt+O` --> `Network` --> `Server Certificates` --> then click save and specify where to save it
 - In Firefox: Open settings --> `Privacy & Security` --> `View Certificates` --> `Authorities` --> `Import` --> "Trust this CA to identify websites"
   - <img width="1213" height="702" alt="2026-04-17-18:42:11" src="https://github.com/user-attachments/assets/bc1a2e20-f990-40c7-b6f5-6875738f3b2e" />
 
 
-Once we have that sorted, we'll add ZAP to foxyproxy
-- Title: ZAP
-- Host: 127.0.0.1:8080
-- Wildcard pattern: `*portswigger.net*`
-
+Once we have that sorted, we'll add the ZAP config to foxyproxy
 <img width="1753" height="612" alt="2026-04-17-18:47:46" src="https://github.com/user-attachments/assets/c806a8ba-fa2a-463b-adad-30644d276991" />
 
 
 
 
-Now when we pin the extension to our tab bar, we can quickly change between settings
+Now we can pin the extension to our tab bar and change settings on the go
+
+<img width="481" height="592" alt="2026-04-17-19:09:33" src="https://github.com/user-attachments/assets/6b420978-3820-4800-b6c7-3d30acbd0af3" />
 - If we enable ZAP, everything flows through it
 - If we user "Proxy by Patterns", only portswigger goes through for now
-- <img width="481" height="592" alt="2026-04-17-19:09:33" src="https://github.com/user-attachments/assets/6b420978-3820-4800-b6c7-3d30acbd0af3" />
 
 Let's showcase quickly that it works.
 
 
-**Exhibit A - ZAP is on**
-
+### Exhibit A - ZAP is on
 I browsed to `terokarvinen.com` and `archive.org` and we can see it in the output (not launching any spiders or attacks, just normal browsing)
 
 <img width="1621" height="297" alt="2026-04-18-13:42:54" src="https://github.com/user-attachments/assets/72a5012a-3a8f-4f94-8c05-3e127e77dfcf" />
 
 
-**Exhibit B - Proxy by pattern is on**
-- We browse to a random site, then the target that matches the pattern
-- Let the timestamps server as adequate proof that it works!
+### Exhibit B - Proxy by pattern is on
+First we browse to a random site and then the target that matches the pattern
+Let the timestamps server as adequate proof that it works!
 
 <img width="591" height="370" alt="2026-04-18-13:48:16" src="https://github.com/user-attachments/assets/055b1749-741d-44ef-8490-6d0846287481" />
 
@@ -176,7 +174,31 @@ I browsed to `terokarvinen.com` and `archive.org` and we can see it in the outpu
 - Perform a cross-site scripting attack that calls the `alert` function
 
 
+This one was pretty simple, we can exploit the vulnerability without even opening the developer tools.
 
+We type into the input field
+```html
+<script>alert('gotcha')</script>
+```
+Press enter and we get the alert
+
+<img width="769" height="279" alt="2026-04-18-14:49:00" src="https://github.com/user-attachments/assets/22695c9f-d16c-402a-9bbf-593b86f191d2" />
+
+
+
+
+
+
+
+
+--------
+
+
+
+
+
+
+# D) [Stored XSS](<https://portswigger.net/web-security/cross-site-scripting/stored/lab-html-context-nothing-encoded>)
 
 
 
