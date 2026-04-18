@@ -62,7 +62,8 @@
 
 ## Zed Attack Proxy
 What is ZAP?
-- Free, open-source penetration testing tool. Specifically for testing web applications
+- Free, open-source penetration testing tool
+- Specifically for testing web applications
 - [Source](<https://www.zaproxy.org/getting-started/>)
 
 Install and start it on Kali:
@@ -70,8 +71,9 @@ Install and start it on Kali:
 $ sudo apt install zaproxy
 $ zaproxy
 ```
+From this point on, there's two ways we can go about this. The first option i'm going to show now, and it's perferct if we just quickly want to test a website. 
 
-ZAP [generates](<https://www.zaproxy.org/docs/desktop/addons/network/options/servercertificates/#generate>) a Root CA certificate for us, and we use it automatically by launching the browser through ZAP like so (2 birds 1 stone):
+ZAP actually [generates](<https://www.zaproxy.org/docs/desktop/addons/network/options/servercertificates/#generate>) a Root CA certificate for us. We automatically use it by launching the browser through ZAP like so:
 
 <img width="1635" height="1086" alt="2026-04-16-23:30:43" src="https://github.com/user-attachments/assets/13f686e1-11c5-4191-9d6d-67da36ef3af8" />
 
@@ -83,6 +85,8 @@ Back on the ZAP interface we can see all the requests and replies:
 
 <img width="1911" height="1129" alt="2026-04-17-17:19:36" src="https://github.com/user-attachments/assets/2b1233fe-4107-49f5-a330-79ed6626d978" />
 
+
+The second method you're going to see next!
 
 
 
@@ -99,28 +103,26 @@ Back on the ZAP interface we can see all the requests and replies:
 - Install FoxyProxy standard
 - Add ZAP as a proxy to it
 
-## Proxy
+## Setting up
 Open up extension/add-ons manager, search for "foxyproxy standard" and lastly `Add to Firefox`.
 
 What is FoxyProxy?
-
-Their words:
-
-<img width="876" height="726" alt="2026-04-17-17:27:31" src="https://github.com/user-attachments/assets/bf2de97e-9412-4bde-bb9a-acd182c4273c" />
+- From my understanding it's a proxy manager, especially useful when you have multiple proxies
 
 
-Because we want foxyproxy to manage the connections it complicates things a bit, so we're going to have to add the ZAP certificate to our browser
-- `Ctrl+Alt+O` --> `Network` --> `Server Certificates` --> then click save and specify location
-- Open up firefox settings --> Privacy & Security --> View Certificates --> Authorities --> Import --> "Trust this CA to identify websites"
+Because we want foxyproxy to manage the connection, we're going to do the second version of setting up ZAP. We add the CA certificate to our browser like so:
+- In ZAP: `Ctrl+Alt+O` --> `Network` --> `Server Certificates` --> then click save and specify where to save it
+- In Firefox: Open settings --> `Privacy & Security` --> `View Certificates` --> `Authorities` --> `Import` --> "Trust this CA to identify websites"
   - <img width="1213" height="702" alt="2026-04-17-18:42:11" src="https://github.com/user-attachments/assets/bc1a2e20-f990-40c7-b6f5-6875738f3b2e" />
 
 
-Once we have that sorted, we'll go to foxyproxy settings and add ZAP
+Once we have that sorted, we'll add ZAP to foxyproxy
 - Title: ZAP
-- Hostname: 127.0.0.1 (localhost)
-- Port: 8080
-- Pattern:
-  - Include: All: Wildcard: `*portswigger.net*`
+- Host: 127.0.0.1:8080
+- Wildcard pattern: `*portswigger.net*`
+
+<img width="1753" height="612" alt="2026-04-17-18:47:46" src="https://github.com/user-attachments/assets/c806a8ba-fa2a-463b-adad-30644d276991" />
+
 
 
 
@@ -128,6 +130,32 @@ Now when we pin the extension to our tab bar, we can quickly change between sett
 - If we enable ZAP, everything flows through it
 - If we user "Proxy by Patterns", only portswigger goes through for now
 - <img width="481" height="592" alt="2026-04-17-19:09:33" src="https://github.com/user-attachments/assets/6b420978-3820-4800-b6c7-3d30acbd0af3" />
+
+Let's showcase quickly that it works.
+
+
+**Exhibit A - ZAP is on**
+
+I browsed to `terokarvinen.com` and `archive.org` and we can see it in the output (not launching any spiders or attacks, just normal browsing)
+
+<img width="1621" height="297" alt="2026-04-18-13:42:54" src="https://github.com/user-attachments/assets/72a5012a-3a8f-4f94-8c05-3e127e77dfcf" />
+
+
+**Exhibit B - Proxy by pattern is on**
+- We browse to a random site, then the target that matches the pattern
+- Let the timestamps server as adequate proof that it works!
+
+<img width="591" height="370" alt="2026-04-18-13:48:16" src="https://github.com/user-attachments/assets/055b1749-741d-44ef-8490-6d0846287481" />
+
+<img width="568" height="379" alt="2026-04-18-13:48:37" src="https://github.com/user-attachments/assets/41ae50dc-fc69-4957-8573-772f3cea7b8f" />
+
+<img width="799" height="172" alt="2026-04-18-13:49:26" src="https://github.com/user-attachments/assets/5a58f78f-fd84-4f80-99ab-e35873036619" />
+
+
+
+
+
+
 
 
 
@@ -137,8 +165,18 @@ Now when we pin the extension to our tab bar, we can quickly change between sett
 
 
 
+
+
+
 # C) [Reflected XSS](<https://portswigger.net/web-security/cross-site-scripting/reflected/lab-html-context-nothing-encoded>)
-Objective
-- Do nothing and wait
+**Description**
+- Lab contains a simple reflected cross-site scripting vulnerability in the search functionality
+
+**Objective**
+- Perform a cross-site scripting attack that calls the `alert` function
+
+
+
+
 
 
