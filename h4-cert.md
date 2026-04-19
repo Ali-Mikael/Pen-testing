@@ -114,22 +114,22 @@ The second method you're going to see next!
 - Add ZAP as a proxy to it
 
 ## Setting up
-Open up the extensions-manager, search for "foxyproxy standard" and lastly --> `Add to Firefox`.
+Open up the extensions-manager in your browser, search for "foxyproxy standard" and lastly add it to firefox.
 
-What is FoxyProxy?
-- A proxy manager, especially useful when you have multiple proxies
+**Q:** What is FoxyProxy?
+
+**A:** A proxy manager, especially useful when you have multiple proxies
 
 
-Because we want foxyproxy to manage the connection, we're going to do the second version of setting up ZAP. 
-
-First we add the CA certificate to our browser like so:
+Because we want foxyproxy to manage what gets proxied and where, we're now going use the second method of setting up ZAP:
 
 In ZAP:
  - `Ctrl+Alt+O` --> `Network` --> `Server Certificates` --> then click `save` and specify where to save it
+ - This will export the Root CA certificate locally
 
 In Firefox:
- - Open settings --> `Privacy & Security` --> `View Certificates` --> `Authorities` --> `Import` --> "Trust this CA to identify websites"
-  - <img width="1213" height="702" alt="2026-04-17-18:42:11" src="https://github.com/user-attachments/assets/bc1a2e20-f990-40c7-b6f5-6875738f3b2e" />
+ - Open `Settings` --> `Privacy & Security` --> `View Certificates` --> `Authorities` --> `Import` --> "Trust this CA to identify websites"
+ - This will import the cert to your browser
 
 
 Once we have that sorted we'll add the ZAP config to foxyproxy
@@ -140,8 +140,9 @@ We then pin the extension to our tab bar so that we can change settings on the g
 
 <img width="481" height="592" alt="2026-04-17-19:09:33" src="https://github.com/user-attachments/assets/6b420978-3820-4800-b6c7-3d30acbd0af3" />
 
-- If we enable ZAP, everything flows through it
-- If we user "Proxy by Patterns", only portswigger goes through for now
+1. If we enable `ZAP`, everything gets proxied through => zaproxy
+2. If we enable `Proxy by Patterns`, only portswigger.net and related domains goes through (for now)
+3. If we disable it nothing will be proxied
 
 Let's showcase quickly that it works.
 
@@ -181,7 +182,7 @@ Let the timestamps serve as adequate proof that it works!
 
 
 
-# C) [Reflected XSS](<https://portswigger.net/web-security/cross-site-scripting/reflected/lab-html-context-nothing-encoded>)
+# C) PortSwigger Labs: [Reflected XSS](<https://portswigger.net/web-security/cross-site-scripting/reflected/lab-html-context-nothing-encoded>)
 **Description**
 - Lab contains a simple reflected cross-site scripting vulnerability in the search functionality
 
@@ -189,20 +190,37 @@ Let the timestamps serve as adequate proof that it works!
 - Perform a cross-site scripting attack that calls the `alert` function
 
 
-This one is pretty simple as it's just demonstrating the basic logic behind the vulnerability. We exploit it by typing the following into the search field:
+This one is pretty simple as it's just demonstrating the basic logic behind the vulnerability. 
+
+We first test that the webpage is vulnerable by using a very basic HTML tag and insert the following:
+```html
+<b>test</b>
+```
+Which returns a bolded "test":
+
+<img width="760" height="223" alt="2026-04-19-15:40:56" src="https://github.com/user-attachments/assets/5800f8fa-f743-4bbc-9a62-b5c4b7fd3a62" />
+
+
+We now suspect that the page is vulnerable to further exploits as the input is not handled correctly.
+
+We exploit this by typing the following into the search field:
 ```html
 <script>alert('gotcha')</script>
 ```
-Press enter => script runs and we get the alert
+Press enter => script runs and we get the alert.
 
-<img width="769" height="279" alt="2026-04-18-14:49:00" src="https://github.com/user-attachments/assets/22695c9f-d16c-402a-9bbf-593b86f191d2" />
+<img width="604" height="231" alt="2026-04-19-15:43:41" src="https://github.com/user-attachments/assets/ce64f076-7419-4329-a15c-1b61705e367d" />
 
+The URL looks like:
+```url
+https://0aa0002804585a3d810525d8002a00fe.web-security-academy.net/?search=%3Cscript%3Ealert(%27gothca%27)%3C%2Fscript%3E
+```
 
-
-
-
-
-
+Notice the last part:
+```url
+/?search=%3Cscript%3Ealert(%27gothca%27)%3C%2Fscript%3E
+```
+The browser thinks that it's totally legit, as it's coming from a trusted source, so it executes the code. If we were to get a victim to use this URL, the "payload" would execute in their browser.
 
 --------
 
@@ -211,7 +229,7 @@ Press enter => script runs and we get the alert
 
 
 
-# D) [Stored XSS](<https://portswigger.net/web-security/cross-site-scripting/stored/lab-html-context-nothing-encoded>)
+# D) PortSwigger Labs: [Stored XSS](<https://portswigger.net/web-security/cross-site-scripting/stored/lab-html-context-nothing-encoded>)
 **Description**
 - Lab contains a stored cross-site scripting vulnerability in the comment functionality
 
@@ -275,7 +293,12 @@ Source can be found [here](<https://eitca.org/cybersecurity/eitc-is-wapt-web-app
 
 
 
-# F) [Simple Path Traversal](<https://portswigger.net/web-security/file-path-traversal/lab-simple>)
+# F) PortSwigger Labs - [Simple Path Traversal](<https://portswigger.net/web-security/file-path-traversal/lab-simple>)
+**Description**
+- Lab contains a path traversal vulnerability in the display of product images
+
+**Objective**
+- Retrieve contents of the `/etc/passwd` file
 
 
 
