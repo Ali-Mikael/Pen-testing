@@ -219,7 +219,9 @@ Notice the last part:
 ```url
 /?search=%3Cscript%3Ealert(%27gothca%27)%3C%2Fscript%3E
 ```
-The browser is unsuspecting as it's coming from a trusted source so it executes the code. If we were to get a victim to use this URL, the "payload" would execute in their browser.
+The browser is unsuspecting, as we're dealing with a trusted source, so it executes the code. 
+
+Were a victim now to use this URL, the "payload" would execute in their browser.
 
 
 
@@ -295,7 +297,7 @@ Source can be found [here](<https://eitca.org/cybersecurity/eitc-is-wapt-web-app
 
 
 
-# F) PortSwigger Labs - [Simple Path Traversal](<https://portswigger.net/web-security/file-path-traversal/lab-simple>)
+# F) PortSwigger Labs: [Simple Path Traversal](<https://portswigger.net/web-security/file-path-traversal/lab-simple>)
 **Description**
 - Lab contains a path traversal vulnerability in the display of product images
 
@@ -304,28 +306,46 @@ Source can be found [here](<https://eitca.org/cybersecurity/eitc-is-wapt-web-app
 
 
 ## Travelling
-I added a new entry into `Proxy by Patterns` to include lab traffic: `*web-security-academy.net*`
+> [!NOTE]
+> I added a new entry into `Proxy by Patterns` to include lab traffic:
+> - `*web-security-academy.net*`
 
-We now open the lab and let ZAP listen in.
+When we get to the website in the lab we're faced with a basic shopping site, so we start by poking around and open up a new entry.
 
-When we open the lab we're faced with a basic shopping site, so we open up an entry.
+We then navigate back to the ZAP interface and inspect the GET request.
 
-I then went to ZAP and inspected the GET request, I found the following:
+We find the following:
 ```html
 GET https://0a7800560313d02980ee44ae00d30027.web-security-academy.net/image?filename=7.jpg HTTP/1.1
 ```
 The website is loading a picture (`7.jpg` to be exact) to go along with the product. The content is served from a directory (presumably holding images), which we can now try to escape.
 
-We copy the original GET request and paste it in ZAP into the request field via `Requester`. 
+We copy the original GET request and paste it to `Requester`, which allows us to modify the request at will.
 
-I then started modifying the `filename` value, basically brute forcing it until we got a match, the final filename became `../../../etc/passwd`.
+<img width="1345" height="312" alt="2026-04-20-00:10:31" src="https://github.com/user-attachments/assets/1255fdf5-67d7-4589-8a52-5fdfd768743a" />
 
-<img width="1624" height="718" alt="2026-04-19-22:07:55" src="https://github.com/user-attachments/assets/e4ef747a-b63a-4f0e-9233-894af24639e8" />
 
-The server basically read the filepath as is, and did exactly as told.
+
+
+We craft a new GET request, this time with `filename=/etc/passwd` and press send.
+
+The server returns with `400 Bad Request` "No such file". So we do `filename=../../../../../../../etc/passwd`, send again and get a response. In order to view the loot we change the setting `Body: Image` to `Body: Text`. 
+
+<img width="1633" height="675" alt="2026-04-20-00:27:44" src="https://github.com/user-attachments/assets/fc6a4dfc-3950-4984-bcd5-01b13aaa04e4" />
+
+And there we have the `passwd` file. 
+
+**Q:** Why did we move up so many directories?
+
+**A:** Because we don't know the directory structure, this was basically the quickest way to get to the root of the filesystem. Once it reaches the root, any redundant `../`  are ignored.
+In the rare case the original file would've been more deeply nested than that, we would've just added a few more `../` and got to the root.
+
+
+**Q:** Why did the attack work?
+
+**A:** The website didn't sanitize/validate the filename, so the server basically read the filepath as is and did exactly as told.
 
 <img width="348" height="114" alt="2026-04-19-22:12:28" src="https://github.com/user-attachments/assets/dc987a73-e63a-40b3-ae5f-bd35a473db10" />
-
 
 
 
@@ -340,7 +360,82 @@ The server basically read the filepath as is, and did exactly as told.
 
 
 
-# G) [Path Traversal 2](<https://portswigger.net/web-security/file-path-traversal/lab-absolute-path-bypass>)
+# G) PortSwigger Labs: [Path Traversal 2](<https://portswigger.net/web-security/file-path-traversal/lab-absolute-path-bypass>)
+**Description**
+- Lab contains a path traversal vulnerability in the display of the product images
+- The application blocks traversal sequences but treats the supplied filename as being relative to a default working directory
+
+**Objective**
+- Retrieve contents of the `/etc/passwd` file
+
+
+
+## Here we go again
+We open up a new entry on the new website and go back to the ZAP interface to investigate.
+
+Here's the response:
+
+<img width="1248" height="816" alt="2026-04-20-00:47:36" src="https://github.com/user-attachments/assets/ddade0b3-1c9a-42c0-9690-3436e72f963c" />
+
+
+So we tamper with the image filename again and send a new request. I tried the same tactic as last time, but got "No such file" in response. I just wanted to travel a little bit but my passport got flagged in customs... 😔 
+
+
+Wandering through the filesystem is controlled, but we're able to loot the server by providing an absolute filepath instead:
+
+
+<img width="1626" height="678" alt="2026-04-20-00:52:13" src="https://github.com/user-attachments/assets/278c2faa-0f2c-4472-b946-92be83f473fb" />
+
+<img width="225" height="74" alt="2026-04-20-01:03:08" src="https://github.com/user-attachments/assets/28b33bf7-88a2-45b0-a1e9-ae72a0735279" />
+
+
+To my understanding: This works because the application assumes the requested file is relative to the working directory (while blocking traversal attempts). We **bypass** the whole relativity part by passing it an absolute filepath instead. 
+
+The core problem: The application logic is not enforcing the final filepath staying within the intended `wd`.
+
+
+
+
+
+------
+
+
+
+
+
+
+
+
+# H) PortSwigger Labs: [Non-recursive Path Traversal](<https://portswigger.net/web-security/file-path-traversal/lab-sequences-stripped-non-recursively>)
+**Description**
+- Lab contains a path traversal vulnerability in the display of the product images
+- The application strips path traversal sequences from the user-supplied filename before using it
+
+**Objective**
+- Retrieve contents of the `/etc/passwd` file
+
+## Travel ban?
+<img width="1627" height="561" alt="2026-04-20-01:28:13" src="https://github.com/user-attachments/assets/50df64bb-0137-4215-bf83-5e7533ce795b" />
+
+Let's turn that smile into something more useful!
+
+
+The applications strips the sequences, sure, but how smart is it? What if we escape it's incomplete logic like so:
+
+<img width="1627" height="715" alt="2026-04-20-01:35:03" src="https://github.com/user-attachments/assets/4db8a11a-c02c-4edc-87e3-e3dfde02c4d4" />
+
+
+
+I suspect that the application is defending itself against path traversal attacks by simply removing occurences of the `../` sequence. We end up doing some simple math to circumvent this. Consider the following equation:
+
+`....//` - `../` = `../` 
+
+
+**Q:** Nice one! Now that you got that funny little analogy out of the way, what's actually going on?
+
+**A:** Only accounting for `../` the application checks the string ones, removes only the inner sequence (the part that matches the simple pattern), unintentionally leaving behind a valid traversal sequence. This leads to us escaping the control mechanism in a relatively simple but elegant fashion.
+
+
 
 
 
@@ -356,27 +451,43 @@ The server basically read the filepath as is, and did exactly as told.
 
 
 
+# I) PortSwigger Labs: [IDOR](<https://portswigger.net/web-security/access-control/lab-insecure-direct-object-references>)
+**Description**
+- Lab stores user chat logs directly on the server's file system, and retrieves them using static URLs
 
 
-# H) [Non-recursive Path Traversal](<https://portswigger.net/web-security/file-path-traversal/lab-sequences-stripped-non-recursively>)
+**Objective**
+- Find the password for the user `carlos` and log into their account
 
 
+## Never share your password with anyone
+I skimmed through the offerings of the website and landed on a live chat page, as a feature you can download the view the transcript.
+
+I pressed `View transcript` and it downloaded `2.txt` on my machine, containing the transcript of our long & deep conversation.
+
+<img width="1798" height="694" alt="2026-04-20-02:21:05" src="https://github.com/user-attachments/assets/7e76b1a5-5183-4feb-9755-3cb35f100fbd" />
+
+Back on the ZAP interface I hunted down the response:
+
+<img width="481" height="252" alt="2026-04-20-02:20:18" src="https://github.com/user-attachments/assets/199e491a-4eed-4958-b11e-f274aaf7c99a" />
+
+Which then led me to copy the URL of the request:
+
+<img width="1281" height="159" alt="2026-04-20-02:20:45" src="https://github.com/user-attachments/assets/4d9fd554-7007-4e13-b2e1-e5ba01bc3c5f" />
+
+From `2.txt` we can assume that there is a `1.txt` somewhere, so I appended it to the URL and recovered a previous conversation using curl:
+
+<img width="1908" height="408" alt="2026-04-20-02:19:08" src="https://github.com/user-attachments/assets/b1d1348e-c345-4784-9215-6a7d568b5258" />
 
 
+The hunch was correct and we were succesfully able to compromise Carlos account:
+
+<img width="1176" height="673" alt="2026-04-20-02:21:43" src="https://github.com/user-attachments/assets/97b915be-9c42-49a3-9fa5-bccfd4b7e439" />
 
 
+**Q:** What happened here really?
 
-
-------
-
-
-
-
-
-
-# I) [IDOR](<https://portswigger.net/web-security/access-control/lab-insecure-direct-object-references>)
-
-
+**A:** Recall from earlier that _Insecure Direct Object Reference (IDOR)_ is an _access control vulnerability_ that arises from accessing objects directly with user-supplied input. The application failed to properly authorize us, which we exploited by manipulating the URL to access resources belonging to other users, in this case poor Carlos
 
 
 
