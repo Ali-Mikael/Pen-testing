@@ -540,7 +540,8 @@ Let's encode our first payload:
 
 <img width="1045" height="258" alt="2026-04-20-03:04:52" src="https://github.com/user-attachments/assets/a4ebdf0d-9fae-4904-b765-9670fb2f587b" />
 
-Invoke the program without params to get the help screen.
+> [!TIP]
+> Invoke the program without any params to get a recap of all the options!
 
 
 
@@ -569,14 +570,14 @@ Invoke the program without params to get the help screen.
 
 
 ## Man in the middle
-Mitmproxy comes pre-installed on Kali. If you don't have it, navigate to the mitmproxy website and follow the instructions.
+Mitmproxy comes pre-installed on Kali. If you don't have it, navigate to the Mitmproxy website and follow the instructions.
 
 <img width="1140" height="183" alt="2026-04-20-04:04:02" src="https://github.com/user-attachments/assets/bfdce313-15a3-4399-bcaa-d409fe3879ac" />
 
-If you haven't changed the config directory and run mitmproxy for the first time, it will create keys for the CA in `~/.mitmproxy/`, import the cert to your browser and you're good to go!
+If you haven't changed the config directory and run mitmproxy for the first time, it will create keys for the CA in `~/.mitmproxy/`. Import the cert to your browser and you're good to go!
 
 
-We already configured ZAP to use port 8080, it so happens that mitmproxy uses the same one, ZAP is not running, so from foxyproxy we can just enable ZAP and it will forward the traffic to mitmproxy.
+We already configured ZAP to use port `8080` and it so happens that mitmproxy uses the same one. ZAP is not running so from foxyproxy we can just enable ZAP and it will forward the traffic to mitmproxy.
 
 
 Let's browse to `mitmproxy.org` and see the results
@@ -591,15 +592,17 @@ We move around by using vim keys (j,k,h,l), delete entries with `d` and press en
 
 **Q:** We can see the clear-text content in the mitmproxy TUI, why do we need to enable TLS-decryption?
 
-**A:** Say we want to capture some packets flowing through the proxy (with wireshark for example), well it's encrypted, so we don't know what we're looking at:
+**A:** Say we want to capture some packets flowing through the proxy (using wireshark for example), well the traffic is encrypted so we don't know what we're looking at:
 
 <img width="1621" height="379" alt="2026-04-20-16:19:40" src="https://github.com/user-attachments/assets/11c124bd-6f70-4daa-96eb-b8c7115cc33c" />
 
 
 
 
-Solution: We enable TLS decryption. It's relatively simple: 
-```terminal
+**Solution:** We enable TLS decryption. 
+
+It's relatively simple: 
+```bash
 # Create the file to use
 $ touch ~/.mitmproxy/sslkeylogfile.txt
 
@@ -611,7 +614,7 @@ $ SSLKEYLOGFILE="$HOME/.mitmproxy/sslkeylogfile.txt" mitmproxy
 ```
 
 On Wireshark:
-- `Ctrl+Shift+P` -> `Protocols` -> Type in "tls" -> Then set `(Pre)-Master-Secret log filename`
+- `Ctrl+Shift+P` --> `Protocols` --> Type in "`tls`" --> Then set `(Pre)-Master-Secret log filename`
 
 <img width="1282" height="216" alt="2026-04-20-16:35:39" src="https://github.com/user-attachments/assets/1c8439df-c88b-4922-8d28-bd152dd7a1ae" />
 
@@ -640,7 +643,7 @@ To clear all entries press `z` and confirm
 Want to see Mitmproxy in action? Check [this](#The-Smuggler) out!
 
 
-Help received
+**Help received**
 - Mitmproxy [documentation](<https://docs.mitmproxy.org/stable/>)
 
 
@@ -684,7 +687,7 @@ Help received
 _Source: It's in the title_
 
 
-# Lab: [HTTP request smuggling, basic CL.TE vulnerability](<https://portswigger.net/web-security/request-smuggling/lab-basic-cl-te>)
+## Lab: [HTTP request smuggling, basic CL.TE vulnerability](<https://portswigger.net/web-security/request-smuggling/lab-basic-cl-te>)
 **Description**
 - Lab involves a front-end and back-end server. The front-end server doesn't support chunked encoding
 - The front-end server rejects requests that aren't using the GET or POST method.
@@ -695,55 +698,36 @@ _Source: It's in the title_
 
 
 ## The Smuggler
-We're using Mitmproxy to intercept traffic, so we navigate to the website in the browser, pick a blog post, post a comment and go back to the proxy TUI.
+We're using Mitmproxy to intercept traffic, so we navigate to the vulnerable website in the browser go back to the proxy TUI.
 
-We open up the POST request and inspect it
-<img width="1098" height="99" alt="2026-04-20-19:06:06" src="https://github.com/user-attachments/assets/324d7043-856f-435b-aa12-9f7b25de70be" />
+We edit a request and use both `content-length` and `transfer-encoding` headers to see what happens.
 
-<img width="1903" height="955" alt="2026-04-20-19:07:31" src="https://github.com/user-attachments/assets/2c60a3c1-c02f-43ed-8da6-105bcc7c2877" />
-
-<img width="1911" height="205" alt="2026-04-20-19:09:26" src="https://github.com/user-attachments/assets/5c12570f-d909-466b-87cf-2cea0735b55f" />
-
-
-
-
-
-We type `e` in order to edit
-
-<img width="375" height="544" alt="2026-04-20-18:18:21" src="https://github.com/user-attachments/assets/055bbb72-eeb6-4d41-a01c-6f2c418424c9" />
-
-Type `8` to edit `request-headers`, press `a` to add a new line and add the following entries:
-```html
-POST / HTTP/1.1
-Host: xxxxx
-Content-Length     6
-Transfer-Encoding  chunked
-0
-GPOST
-```
-
-
-
-We then hit `esc` to save and go back to details and `r` to resend the request. We get the following error, mitmproxy blocking exactly what we trying to do:
+We then hit `esc` to save and `r` to resend the request. We get the following error (Mitmproxy blocking exactly what we trying to do):
 
 <img width="1597" height="108" alt="2026-04-20-19:14:28" src="https://github.com/user-attachments/assets/4afc3d6a-c0e9-4b36-90b2-ee79646258e9" />
 
 
-I tried to restart Mitmproxy with the option disabled like so:
+I exited and tried to launch Mitmproxy with the option disabled like so:
 ```bash
 $ mitmproxy --set validate_indbound_headers=false
 ```
-Reload the page and locate the request in the TUI.
+Then:
+- reload the web page
+- locate a request
+- edit
+- resend
 
-Once we found it, we edit again and resend. Only to get greeted by the same error message from mitmproxy....
+Only to get greeted by the same error from mitmproxy....
 
-So we dump the [configuration options](<https://docs.mitmproxy.org/stable/concepts/options/>) and modify manually:
+So we dump the [options configuration](<https://docs.mitmproxy.org/stable/concepts/options/>) and modify manually:
 ```bash
-# By issuing the options flag mitmproxy will dump all configs to the terminal
+# --options will dump all configs to stdout
 $ mitmproxy --options > ~/.mitmproxy/config.yaml
+
+# Edit the config file
 $ vim ~/.mitmproxy/config.yaml
 
-# Search through the file:
+# Locate the section
 /validate_indbound
 
 # Then set it to false:
@@ -751,12 +735,11 @@ validate_indbound_headers: false
 ```
 <img width="1140" height="159" alt="2026-04-20-19:34:29" src="https://github.com/user-attachments/assets/81f52be2-5bae-461e-ac29-d525d497cfae" />
 
+After getting it to work using the previous method, I realized you can just enter `O` in the TUI and modify the options on the go.... 😂
 
-Restart Mitmproxy and go through all the same steps once again.
+Looks like this:
 
-I also realized you can just type `O` in the console and modify it on the go 😂
-
-<img width="1908" height="456" alt="2026-04-20-19:46:30" src="https://github.com/user-attachments/assets/b1add676-cc8b-4c14-9998-21ec9ebf8ac7" />
+<img width="1915" height="934" alt="2026-04-20-22:58:29" src="https://github.com/user-attachments/assets/f5639953-223d-48e9-9975-1669e53f6be2" />
 
 
 Oh well, atleast we have a few ways to go about this now!
@@ -765,34 +748,56 @@ Oh well, atleast we have a few ways to go about this now!
 > If you modify the request too much and want to revert to the original one, you can just type `V` and go back
 
 
-
-
-
+## Try again
 
 We access the webpage and pick up a request from the Mitmproxy TUI:
 
-<img width="1911" height="631" alt="2026-04-20-20:32:54" src="https://github.com/user-attachments/assets/e16ab8dc-7ba5-46b8-a3c7-50afa565bcde" />
+<img width="1915" height="594" alt="2026-04-20-23:08:45" src="https://github.com/user-attachments/assets/59a9a27b-e759-49cc-a8bf-96688dd437f9" />
 
+> [!NOTE]
+> I highlighted the parts I want you to pay attention to
 
-The request method is wrong, so that's the first one we'll modify
-- Edit -> `5) method` -> POST
+**First:** The request **method** is wrong, so that's the first thing we'll modify.
+
+`e`dit --> `5) method` --> Insert `POST` --> Hit enter to save
 - <img width="562" height="117" alt="2026-04-20-20:34:13" src="https://github.com/user-attachments/assets/0aa2526a-477c-4b34-970d-ffa11d5d0e4b" />
-- <img width="1288" height="84" alt="2026-04-20-20:34:22" src="https://github.com/user-attachments/assets/dc32bfad-50bb-4d3a-a56e-3d9fc084314c" />
+
+Updated:
+- <img width="1087" height="73" alt="2026-04-20-23:11:20" src="https://github.com/user-attachments/assets/815f608e-902d-4325-a2a9-fba01a71ee57" />
 
 
-Then we hit `e` to edit and pick `8) request-headers`
-
-<img width="384" height="558" alt="2026-04-20-20:49:40" src="https://github.com/user-attachments/assets/af72c3b7-3fb2-4dd6-bda7-fc5972f31c91" />
-
+Then we hit `e` to edit again and pick `8) request-headers`. We remove the unnecessary and optional stuff and add the following:
+<img width="1710" height="283" alt="2026-04-20-23:31:57" src="https://github.com/user-attachments/assets/c585e581-f66b-42aa-990b-acb58e5bf672" />
 
 
-We remove the unnecesarry/optional stuff and add the following:
+Explained:
+- We specify HTTP/1.1 because that's the version that's vulnerable
+- Host is the website we're on
+- By using both `content-length` and `transfer-encoding` we perform a simple HTTP request smuggling attack
+- I took the example from the study material we went through before starting the lab
 
-<img width="1410" height="330" alt="2026-04-20-20:50:05" src="https://github.com/user-attachments/assets/64f7cec2-b187-412f-8638-c3d07082bcc5" />
+We hit `r` to send and get an error HTTP/2 error, which is a problem as we want to use HTTP/1, so we enter options config and change 2 values to `false`:
+
+<img width="660" height="103" alt="2026-04-20-23:22:54" src="https://github.com/user-attachments/assets/f26cffd5-e229-44a2-80ed-4ed03deca5b5" />
+
+We send again and this time atleast we get a response:
+
+<img width="1902" height="528" alt="2026-04-20-23:25:36" src="https://github.com/user-attachments/assets/3de399d9-e887-4e39-ba07-6cd9189d1e7c" />
 
 
-We hit `r` to send and get a `200 OK` in return
-<img width="1267" height="78" alt="2026-04-20-20:51:09" src="https://github.com/user-attachments/assets/4ff78faa-883a-471d-b0c2-02ac9194bac4" />
+I got a timeout while I was crafting a new request header:
 
-Everything still works fine, now we can further modify the request.
+<img width="1725" height="165" alt="2026-04-20-23:40:19" src="https://github.com/user-attachments/assets/9c7696c0-e803-42e5-bc40-fb79d958f56c" />
+
+
+So we had to restart the whole lab...
+
+
+## Third time's the charm
+
+0a2d00bc034c94c780a68013006b0039.web-security-academy.net
+
+printf 'POST / HTTP/1.1\r\nHost: 0a2d00bc034c94c780a68013006b0039.web-security-academy.net\r\nContent-Length: 5\r\n\r\nhello' | nc https://0a2d00bc034c94c780a68013006b0039.web-security-academy.net/ 443
+
+
 
