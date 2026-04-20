@@ -794,10 +794,57 @@ So we had to restart the whole lab...
 
 
 ## Third time's the charm
+At this point I realized i'm probably forming this request all wrong, especially because i'm not familiar with Mitmproxy.
 
-0a2d00bc034c94c780a68013006b0039.web-security-academy.net
+I tried one last thing:
+- Removed `POST / HTTP/1.1` from the header
+- Edited the URL and appended `HTTP/1.1`
+- Moved the payload into the request body
 
-printf 'POST / HTTP/1.1\r\nHost: 0a2d00bc034c94c780a68013006b0039.web-security-academy.net\r\nContent-Length: 5\r\n\r\nhello' | nc https://0a2d00bc034c94c780a68013006b0039.web-security-academy.net/ 443
+<img width="1918" height="453" alt="2026-04-21-00:13:14" src="https://github.com/user-attachments/assets/6784be02-11eb-468d-b671-bab8f7614d3a" />
+
+Got "protocol error" so I removed the `HTTP/1.1` from the URL, hit send and got a different response. 
+
+Even though in the previous requests it looked like the HTTP version was appended to the URL, I don't know if you can actually modify it in this way.
+
+I had tried atleast 10 different ways of doing this and nothing simply worked. I thought it might be some kind of issue with my tooling so before quitting I switched to ZAP.
+
+
+I took the original request, changed the method, removed all else except `host` and `connection` headers and pasted it to `Requester`.
+
+At this point I had done the lab for around 5 hours so I thought let me at least see what it looks like to complete, I modeled the **example solution** and the final request then came to look like this:
+<img width="1182" height="426" alt="2026-04-21-00:25:23" src="https://github.com/user-attachments/assets/367e5004-ff50-4bbb-bda6-76d8637bd433" />
+
+When we hit `send` we get:
+
+<img width="573" height="220" alt="2026-04-21-00:25:49" src="https://github.com/user-attachments/assets/0e691b62-8574-4db6-b7f3-06ca08bb21b4" />
+
+
+I chose the option `Combine display for Header and Body`:
+
+<img width="919" height="51" alt="2026-04-21-00:49:22" src="https://github.com/user-attachments/assets/5331f539-cbd8-449f-8b25-bfb15191731c" />
+
+
+Sent it again and at least now it goes through. **The problem** was that I was trying to **insert the body into the header**, which I originally thought was the idea.
+
+And now that we can send it -->
+
+<img width="1725" height="454" alt="2026-04-21-00:58:25" src="https://github.com/user-attachments/assets/bc091e9a-0e71-4199-96b2-823bd0ff0f98" />
+
+It keeps timing out... I give up... 
+
+<img width="225" height="74" alt="2026-04-20-01:03:08" src="https://github.com/user-attachments/assets/f448ab1b-9176-411b-9c63-851ce6764a2b" />
+
+
+This was a complete bust. I did the lab for 5 hours and didn't even complete it... 😂😂😂 
+
+But not to be too negative, at least I learned something more about HTTP requests / methods that I didn't know before and got more familiar with Mitmproxy!
+
+
+Till next time, adios! 🫡
+
+
+
 
 
 
