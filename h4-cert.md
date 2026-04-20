@@ -514,6 +514,8 @@ The hunch was correct and we were succesfully able to compromise Carlos account:
 
 
 # J) Pencode
+> Bonus task
+
 **Objective**
 - Install [pencode](<https://github.com/ffuf/pencode>)
 - Encode a string with it
@@ -556,6 +558,8 @@ Invoke the program without params to get the help screen.
 
 
 # K) Mitmproxy
+> Bonus task
+
 **Objective**
 - Install Mitmproxy
 - Showcase it in the terminal
