@@ -184,7 +184,7 @@ Let the timestamps serve as adequate proof that it works!
 
 # C) PortSwigger Labs: [Reflected XSS](<https://portswigger.net/web-security/cross-site-scripting/reflected/lab-html-context-nothing-encoded>)
 **Description**
-- There's a simple reflected cross-site scripting vulnerability present in the **search functionality**
+- There's a simple reflected _cross-site scripting vulnerability_ present in the **search functionality**
 
 **Objective**
 - Perform a cross-site scripting attack that calls the `alert` function
@@ -235,7 +235,7 @@ Were a victim now to use this URL, the "payload" would execute in their browser.
 
 # D) PortSwigger Labs: [Stored XSS](<https://portswigger.net/web-security/cross-site-scripting/stored/lab-html-context-nothing-encoded>)
 **Description**
-- Lab contains a stored cross-site scripting vulnerability in the comment functionality
+- Lab contains a stored _cross-site scripting vulnerability_ in the **comment functionality**
 
 **Objective**
 - Submit a comment that calls out the `alert` function when the blog post is viewed
@@ -279,7 +279,7 @@ Let's build on the previous task and say a website is vulnerable to cross-site s
 ```
 This is a `Stored XSS attack`, as the malicious script is now stored in the websites database. When users visit the webpage where the **contaminated database record** is loaded -> the script is run, effectively stealing their cookie. This is active exfiltration, as the script grabs the cookie and physically sends it to an attackers server.
 
-Depending on the extracted cookie, and attacker might be able to 
+Depending on the extracted cookie an attacker might be able to 
 - Hijack the session (import the cookie into their own browser and send requests with it, impersonating the victim user)
 - Access sensitive data
 
@@ -299,7 +299,7 @@ Source can be found [here](<https://eitca.org/cybersecurity/eitc-is-wapt-web-app
 
 # F) PortSwigger Labs: [Simple Path Traversal](<https://portswigger.net/web-security/file-path-traversal/lab-simple>)
 **Description**
-- Lab contains a path traversal vulnerability in the display of product images
+- Lab contains a _path traversal vulnerability_ in the **display of product images**
 
 **Objective**
 - Retrieve contents of the `/etc/passwd` file
@@ -318,7 +318,7 @@ We find the following:
 ```html
 GET https://0a7800560313d02980ee44ae00d30027.web-security-academy.net/image?filename=7.jpg HTTP/1.1
 ```
-The website is loading a picture (`7.jpg` to be exact) to go along with the product. The content is served from a directory (presumably holding images), which we can now try to escape.
+The website is loading a picture (`7.jpg` to be exact) to go along with the product. The content is served from a directory (presumably holding images), which we can now try to _escape_.
 
 We copy the original GET request and paste it to `Requester`, which allows us to modify the request at will.
 
@@ -345,8 +345,9 @@ In the rare case the original file would've been more deeply nested than that, w
 
 **A:** The website didn't sanitize/validate the filename, so the server basically read the filepath as is and did exactly as told.
 
-<img width="348" height="114" alt="2026-04-19-22:12:28" src="https://github.com/user-attachments/assets/dc987a73-e63a-40b3-ae5f-bd35a473db10" />
 
+
+<img width="225" height="74" alt="2026-04-20-01:03:08" src="https://github.com/user-attachments/assets/4ac787dd-a082-4bfd-ac59-e1d7f877426d" />
 
 
 
@@ -363,7 +364,7 @@ In the rare case the original file would've been more deeply nested than that, w
 # G) PortSwigger Labs: [Path Traversal 2](<https://portswigger.net/web-security/file-path-traversal/lab-absolute-path-bypass>)
 **Description**
 - Lab contains a path traversal vulnerability in the display of the product images
-- The application blocks traversal sequences but treats the supplied filename as being relative to a default working directory
+- The application _blocks traversal sequences_ but **treats the supplied filename as being relative** to a default working directory
 
 **Objective**
 - Retrieve contents of the `/etc/passwd` file
@@ -389,7 +390,7 @@ Wandering through the filesystem is controlled, but we're able to loot the serve
 
 To my understanding: This works because the application assumes the requested file is relative to the working directory (while blocking traversal attempts). We **bypass** the whole relativity part by passing it an absolute filepath instead. 
 
-The core problem: The application logic is not enforcing the final filepath staying within the intended `wd`.
+The core problem: The application logic is not enforcing the _final filepath_ **staying within** _the intended working directory_.
 
 
 <img width="225" height="74" alt="2026-04-20-01:03:08" src="https://github.com/user-attachments/assets/4ac787dd-a082-4bfd-ac59-e1d7f877426d" />
@@ -413,7 +414,7 @@ The core problem: The application logic is not enforcing the final filepath stay
 # H) PortSwigger Labs: [Non-recursive Path Traversal](<https://portswigger.net/web-security/file-path-traversal/lab-sequences-stripped-non-recursively>)
 **Description**
 - Lab contains a path traversal vulnerability in the display of the product images
-- The application strips path traversal sequences from the user-supplied filename before using it
+- The application _strips path traversal sequences_ from the user-supplied filename **before using it**
 
 **Objective**
 - Retrieve contents of the `/etc/passwd` file
@@ -437,7 +438,7 @@ I suspect that the application is defending itself against path traversal attack
 
 **Q:** Nice one! Now that you got that funny little analogy out of the way, what's actually going on?
 
-**A:** Only accounting for `../` the application checks the string ones, removes only the inner sequence (the part that matches the simple pattern), unintentionally leaving behind a valid traversal sequence. This leads to us escaping the control mechanism in a relatively simple but elegant fashion.
+**A:** Only accounting for `../` the application checks the string once, removes only the inner sequence (the part that matches the simple pattern), unintentionally leaving behind a valid traversal sequence. This leads to us escaping the control mechanism in a relatively simple but elegant fashion.
 
 
 
@@ -490,9 +491,9 @@ The hunch was correct and we were succesfully able to compromise Carlos account:
 <img width="1176" height="673" alt="2026-04-20-02:21:43" src="https://github.com/user-attachments/assets/97b915be-9c42-49a3-9fa5-bccfd4b7e439" />
 
 
-**Q:** What happened here really?
+**Q:** Wait, that was too quick, what happened here?
 
-**A:** Recall from earlier that _Insecure Direct Object Reference (IDOR)_ is an _access control vulnerability_ that arises from accessing objects directly with user-supplied input. The application failed to properly authorize us, which we exploited by manipulating the URL to access resources belonging to other users, in this case poor Carlos.
+**A:** Recall from earlier that _Insecure Direct Object Reference (IDOR)_ is an _access control vulnerability_ that arises from _accessing objects_ **directly** _with user-supplied input_. The application **failed** to properly **authorize us**, which we exploited by manipulating the URL to access resources belonging to other users, in this case poor Carlos.
 
 
 <img width="225" height="74" alt="2026-04-20-01:03:08" src="https://github.com/user-attachments/assets/aa20cb97-dab7-414b-b13d-58675bcbc46d" />
@@ -577,16 +578,221 @@ If you haven't changed the config directory and run mitmproxy for the first time
 
 We already configured ZAP to use port 8080, it so happens that mitmproxy uses the same one, ZAP is not running, so from foxyproxy we can just enable ZAP and it will forward the traffic to mitmproxy.
 
-We enable TLS decryption
 
 Let's browse to `mitmproxy.org` and see the results
 
 <img width="1911" height="1093" alt="2026-04-20-03:57:18" src="https://github.com/user-attachments/assets/816a0b1e-737e-440e-80fb-06a60e4e073c" />
 
-We move around by using vim keys, delete entries with `d` and press enter to open up a record. Press `?` for help.
+We move around by using vim keys (j,k,h,l), delete entries with `d` and press enter to open up a record. Press `?` for help.
+
+
+
+### Decrypting TLS
+
+**Q:** We can see the clear-text content in the mitmproxy TUI, why do we need to enable TLS-decryption?
+
+**A:** Say we want to capture some packets flowing through the proxy (with wireshark for example), well it's encrypted, so we don't know what we're looking at:
+
+<img width="1621" height="379" alt="2026-04-20-16:19:40" src="https://github.com/user-attachments/assets/11c124bd-6f70-4daa-96eb-b8c7115cc33c" />
+
+
+
+
+Solution: We enable TLS decryption. It's relatively simple: 
+```terminal
+# Create the file to use
+$ touch ~/.mitmproxy/sslkeylogfile.txt
+
+# The file needs to be writable
+$ chmod g+w ~/.mitmproxy/sslkeylogfile.txt
+
+# Set the variable and start mitmproxy
+$ SSLKEYLOGFILE="$HOME/.mitmproxy/sslkeylogfile.txt" mitmproxy
+```
+
+On Wireshark:
+- `Ctrl+Shift+P` -> `Protocols` -> Type in "tls" -> Then set `(Pre)-Master-Secret log filename`
+
+<img width="1282" height="216" alt="2026-04-20-16:35:39" src="https://github.com/user-attachments/assets/1c8439df-c88b-4922-8d28-bd152dd7a1ae" />
+
+
+We start browsing and notice the `sslkeylogfile.txt` get's populated:
+
+<img width="1905" height="358" alt="2026-04-20-16:59:47" src="https://github.com/user-attachments/assets/b1e2240d-3f07-4f6a-ad6c-24ea7e8dfcda" />
+
+
+Back on Wireshark we can now decrypt the TLS
+
+#### Before
+<img width="1617" height="523" alt="2026-04-20-17:00:59" src="https://github.com/user-attachments/assets/44dbbd8a-a8d3-4cc1-89f2-de267208b2cf" />
+
+
+#### After
+<img width="1629" height="441" alt="2026-04-20-17:02:47" src="https://github.com/user-attachments/assets/9f6be863-def0-4d76-a39c-d126984584f0" />
+
+## Start off fresh
+To clear all entries press `z` and confirm
+
+<img width="1903" height="205" alt="2026-04-20-17:11:13" src="https://github.com/user-attachments/assets/d335cc21-96c8-4255-b6df-4f5b403df03c" />
+
+
+## Modify a request and send it away
+Want to see Mitmproxy in action? Check [this](#The-Smuggler) out!
+
+
+Help received
+- Mitmproxy [documentation](<https://docs.mitmproxy.org/stable/>)
 
 
 
 
 
+
+
+--------
+
+
+
+
+
+
+
+# L) Arbitrary PortSwigger Lab
+> Bonus Task
+
+## [HTTP Request Smuggling](<https://portswigger.net/web-security/request-smuggling#what-is-http-request-smuggling>)
+**Introduction**
+- A technique for interfering with the way a web site processes sequences of HTTP requests
+- This type of vulnerability is critical in nature, as it allows an attacker to bypass security controls, gain unauhtorized access to sensitive data, and directly compromise other users.
+- NOTE: Primarly associated with HTTP/1 (/v2 may be vulnerabe depending on back-end architecture)
+
+**Background**
+- Contemporary applications often times use _load balancers_ / _reverse proxies_ that sit between the client and back-end servers. This is increasingly common especially in cloud-native applications
+- When front-end server forwards HTTP requests to a back-end server, it typically sends several requests over the same back-end network connection due to performance and efficiency reasons.
+- Because the requests are sent one after another, the server receiving them has to **determine** where **a request ends and the next one begins**
+- This makes it crucial for front-end & back-end systems to agree about the boundaries between requests
+
+**Vulnerability**
+- Most HTTP request smuggling vulnerabilities arise because the HTTP/1 specification provides 2 different ways to specify where a request ends
+  - The `Content-Length` header
+    - Specifies the length of the body in bytes
+  - The `Transfer-Encoding` header
+    - Can be used to specify that the message body uses chunked encoding
+    - Meaning the body contains 1 or more chunks of data
+    - The message is **terminated** with a chunk of size zero
+   
+_Source: It's in the title_
+
+
+# Lab: [HTTP request smuggling, basic CL.TE vulnerability](<https://portswigger.net/web-security/request-smuggling/lab-basic-cl-te>)
+**Description**
+- Lab involves a front-end and back-end server. The front-end server doesn't support chunked encoding
+- The front-end server rejects requests that aren't using the GET or POST method.
+
+**Objective**
+- Smuggle a request to the back-end server, so that the next request processed by the back-end server appears to use the method `GPOST`
+
+
+
+## The Smuggler
+We're using Mitmproxy to intercept traffic, so we navigate to the website in the browser, pick a blog post, post a comment and go back to the proxy TUI.
+
+We open up the POST request and inspect it
+<img width="1098" height="99" alt="2026-04-20-19:06:06" src="https://github.com/user-attachments/assets/324d7043-856f-435b-aa12-9f7b25de70be" />
+
+<img width="1903" height="955" alt="2026-04-20-19:07:31" src="https://github.com/user-attachments/assets/2c60a3c1-c02f-43ed-8da6-105bcc7c2877" />
+
+<img width="1911" height="205" alt="2026-04-20-19:09:26" src="https://github.com/user-attachments/assets/5c12570f-d909-466b-87cf-2cea0735b55f" />
+
+
+
+
+
+We type `e` in order to edit
+
+<img width="375" height="544" alt="2026-04-20-18:18:21" src="https://github.com/user-attachments/assets/055bbb72-eeb6-4d41-a01c-6f2c418424c9" />
+
+Type `8` to edit `request-headers`, press `a` to add a new line and add the following entries:
+```html
+POST / HTTP/1.1
+Host: xxxxx
+Content-Length     6
+Transfer-Encoding  chunked
+0
+GPOST
+```
+
+
+
+We then hit `esc` to save and go back to details and `r` to resend the request. We get the following error, mitmproxy blocking exactly what we trying to do:
+
+<img width="1597" height="108" alt="2026-04-20-19:14:28" src="https://github.com/user-attachments/assets/4afc3d6a-c0e9-4b36-90b2-ee79646258e9" />
+
+
+I tried to restart Mitmproxy with the option disabled like so:
+```bash
+$ mitmproxy --set validate_indbound_headers=false
+```
+Reload the page and locate the request in the TUI.
+
+Once we found it, we edit again and resend. Only to get greeted by the same error message from mitmproxy....
+
+So we dump the [configuration options](<https://docs.mitmproxy.org/stable/concepts/options/>) and modify manually:
+```bash
+# By issuing the options flag mitmproxy will dump all configs to the terminal
+$ mitmproxy --options > ~/.mitmproxy/config.yaml
+$ vim ~/.mitmproxy/config.yaml
+
+# Search through the file:
+/validate_indbound
+
+# Then set it to false:
+validate_indbound_headers: false
+```
+<img width="1140" height="159" alt="2026-04-20-19:34:29" src="https://github.com/user-attachments/assets/81f52be2-5bae-461e-ac29-d525d497cfae" />
+
+
+Restart Mitmproxy and go through all the same steps once again.
+
+I also realized you can just type `O` in the console and modify it on the go 😂
+
+<img width="1908" height="456" alt="2026-04-20-19:46:30" src="https://github.com/user-attachments/assets/b1add676-cc8b-4c14-9998-21ec9ebf8ac7" />
+
+
+Oh well, atleast we have a few ways to go about this now!
+
+> [!TIP]
+> If you modify the request too much and want to revert to the original one, you can just type `V` and go back
+
+
+
+
+
+
+We access the webpage and pick up a request from the Mitmproxy TUI:
+
+<img width="1911" height="631" alt="2026-04-20-20:32:54" src="https://github.com/user-attachments/assets/e16ab8dc-7ba5-46b8-a3c7-50afa565bcde" />
+
+
+The request method is wrong, so that's the first one we'll modify
+- Edit -> `5) method` -> POST
+- <img width="562" height="117" alt="2026-04-20-20:34:13" src="https://github.com/user-attachments/assets/0aa2526a-477c-4b34-970d-ffa11d5d0e4b" />
+- <img width="1288" height="84" alt="2026-04-20-20:34:22" src="https://github.com/user-attachments/assets/dc32bfad-50bb-4d3a-a56e-3d9fc084314c" />
+
+
+Then we hit `e` to edit and pick `8) request-headers`
+
+<img width="384" height="558" alt="2026-04-20-20:49:40" src="https://github.com/user-attachments/assets/af72c3b7-3fb2-4dd6-bda7-fc5972f31c91" />
+
+
+
+We remove the unnecesarry/optional stuff and add the following:
+
+<img width="1410" height="330" alt="2026-04-20-20:50:05" src="https://github.com/user-attachments/assets/64f7cec2-b187-412f-8638-c3d07082bcc5" />
+
+
+We hit `r` to send and get a `200 OK` in return
+<img width="1267" height="78" alt="2026-04-20-20:51:09" src="https://github.com/user-attachments/assets/4ff78faa-883a-471d-b0c2-02ac9194bac4" />
+
+Everything still works fine, now we can further modify the request.
 
