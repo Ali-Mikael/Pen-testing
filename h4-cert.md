@@ -466,7 +466,7 @@ I suspect that the application is defending itself against path traversal attack
 
 
 ## Never share your password with anyone
-I skimmed through the offerings of the website and landed on a live chat page, as a feature you can download the view the transcript.
+I skimmed through the offerings of the website and landed on a live chat page, as a feature you can download and view the transcript.
 
 I pressed `View transcript` and it downloaded `2.txt` on my machine, containing the transcript of our long & deep conversation.
 
@@ -523,13 +523,13 @@ The hunch was correct and we were succesfully able to compromise Carlos account:
 
 
 ## Encoding
-Pencode can be installed using `go`. If you don't have `go` installed the workflow looks like this (change the package manager to suit your needs):
+Pencode can be installed using `go`. If you don't have `go` installed the workflow might look something like this:
 ```sh
 $ sudo apt update && sudo install golang-go
 $ go install github.com/ffuf/pencode/cmd/pencode@latest
 ```
 
-Then you can either add `~/go/bin` to your path or manually invoce it from `~/go/bin/pencode`.
+Then you can either add `~/go/bin` to your `$PATH` or manually invoke pencode: `~/go/bin/pencode`.
 
 **Q:** What is `pencode`?
 
@@ -579,7 +579,7 @@ We already configured ZAP to use port 8080, it so happens that mitmproxy uses th
 
 We enable TLS decryption
 
-Let's browser to `mitmproxy.org` and see the results
+Let's browse to `mitmproxy.org` and see the results
 
 <img width="1911" height="1093" alt="2026-04-20-03:57:18" src="https://github.com/user-attachments/assets/816a0b1e-737e-440e-80fb-06a60e4e073c" />
 
