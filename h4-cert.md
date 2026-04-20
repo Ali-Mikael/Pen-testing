@@ -386,12 +386,16 @@ Wandering through the filesystem is controlled, but we're able to loot the serve
 
 <img width="1626" height="678" alt="2026-04-20-00:52:13" src="https://github.com/user-attachments/assets/278c2faa-0f2c-4472-b946-92be83f473fb" />
 
-<img width="225" height="74" alt="2026-04-20-01:03:08" src="https://github.com/user-attachments/assets/28b33bf7-88a2-45b0-a1e9-ae72a0735279" />
-
 
 To my understanding: This works because the application assumes the requested file is relative to the working directory (while blocking traversal attempts). We **bypass** the whole relativity part by passing it an absolute filepath instead. 
 
 The core problem: The application logic is not enforcing the final filepath staying within the intended `wd`.
+
+
+<img width="225" height="74" alt="2026-04-20-01:03:08" src="https://github.com/user-attachments/assets/4ac787dd-a082-4bfd-ac59-e1d7f877426d" />
+
+
+
 
 
 
@@ -437,6 +441,7 @@ I suspect that the application is defending itself against path traversal attack
 
 
 
+<img width="225" height="74" alt="2026-04-20-01:03:08" src="https://github.com/user-attachments/assets/34fc284a-153a-44f3-a259-05cddf0321a3" />
 
 
 
@@ -487,7 +492,11 @@ The hunch was correct and we were succesfully able to compromise Carlos account:
 
 **Q:** What happened here really?
 
-**A:** Recall from earlier that _Insecure Direct Object Reference (IDOR)_ is an _access control vulnerability_ that arises from accessing objects directly with user-supplied input. The application failed to properly authorize us, which we exploited by manipulating the URL to access resources belonging to other users, in this case poor Carlos
+**A:** Recall from earlier that _Insecure Direct Object Reference (IDOR)_ is an _access control vulnerability_ that arises from accessing objects directly with user-supplied input. The application failed to properly authorize us, which we exploited by manipulating the URL to access resources belonging to other users, in this case poor Carlos.
+
+
+<img width="225" height="74" alt="2026-04-20-01:03:08" src="https://github.com/user-attachments/assets/aa20cb97-dab7-414b-b13d-58675bcbc46d" />
+
 
 
 
@@ -511,6 +520,24 @@ The hunch was correct and we were succesfully able to compromise Carlos account:
 
 
 
+## Encoding
+Pencode can be installed using `go`. If you don't have `go` installed the workflow looks like this (change the package manager to suit your needs):
+```sh
+$ sudo apt update && sudo install golang-go
+$ go install github.com/ffuf/pencode/cmd/pencode@latest
+```
+
+Then you can either add `~/go/bin` to your path or manually invoce it from `~/go/bin/pencode`.
+
+**Q:** What is `pencode`?
+
+**A:** A tool for creating payload encoding chains. Designed for automation. Source: Repo README
+
+Let's encode our first payload:
+
+<img width="1045" height="258" alt="2026-04-20-03:04:52" src="https://github.com/user-attachments/assets/a4ebdf0d-9fae-4904-b765-9670fb2f587b" />
+
+Invoke the program without params to get the help screen.
 
 
 
@@ -534,3 +561,28 @@ The hunch was correct and we were succesfully able to compromise Carlos account:
 - Showcase it in the terminal
 - Enable TLS-decryption
 - Pick a GET-request from the history, modify it, and resend it
+
+
+## Man in the middle
+Mitmproxy comes pre-installed on Kali. If you don't have it, navigate to the mitmproxy website and follow the instructions.
+
+<img width="1140" height="183" alt="2026-04-20-04:04:02" src="https://github.com/user-attachments/assets/bfdce313-15a3-4399-bcaa-d409fe3879ac" />
+
+If you haven't changed the config directory and run mitmproxy for the first time, it will create keys for the CA in `~/.mitmproxy/`, import the cert to your browser and you're good to go!
+
+
+We already configured ZAP to use port 8080, it so happens that mitmproxy uses the same one, ZAP is not running, so from foxyproxy we can just enable ZAP and it will forward the traffic to mitmproxy.
+
+We enable TLS decryption
+
+Let's browser to `mitmproxy.org` and see the results
+
+<img width="1911" height="1093" alt="2026-04-20-03:57:18" src="https://github.com/user-attachments/assets/816a0b1e-737e-440e-80fb-06a60e4e073c" />
+
+We move around by using vim keys, delete entries with `d` and press enter to open up a record. Press `?` for help.
+
+
+
+
+
+
