@@ -742,7 +742,7 @@ Looks like this:
 <img width="1915" height="934" alt="2026-04-20-22:58:29" src="https://github.com/user-attachments/assets/f5639953-223d-48e9-9975-1669e53f6be2" />
 
 
-Oh well, atleast we have a few ways to go about this now!
+Oh well, atleast we have a few ways to go about this now. Also good to remember that the second method is persistent while the third one is not!
 
 
 ## Try again
@@ -760,14 +760,12 @@ Edit --> `5) method` --> Type in `POST` and hit enter to save
 
 <img width="562" height="117" alt="2026-04-20-20:34:13" src="https://github.com/user-attachments/assets/0aa2526a-477c-4b34-970d-ffa11d5d0e4b" />
 
-<img width="1087" height="73" alt="2026-04-20-23:11:20" src="https://github.com/user-attachments/assets/815f608e-902d-4325-a2a9-fba01a71ee57" />
-
 
 We hit `e` again and pick `8) request-headers`. We remove the unnecessary and optional stuff and add the following:
 <img width="1710" height="283" alt="2026-04-20-23:31:57" src="https://github.com/user-attachments/assets/c585e581-f66b-42aa-990b-acb58e5bf672" />
 
 
-Explained:
+**Explained:**
 - We specify HTTP/1.1 because that's the version that's vulnerable
 - Host is the website we're on
 - By using both `content-length` and `transfer-encoding` we perform a simple HTTP request smuggling attack
@@ -778,43 +776,42 @@ Explained:
 > If you modify a flow too much and want to revert to the original one, you can just enter `V` to undo all your modifications!
 
 
-We hit `r` to send and get an error HTTP/2 error, which is a problem as we want to use HTTP/1, so we enter options config and change 2 values to `false`:
+We hit `r` to send and get an HTTP/2 error, which is a problem, as we want to use HTTP/1, so we enter options config and change 2 values to `false`:
 
 <img width="660" height="103" alt="2026-04-20-23:22:54" src="https://github.com/user-attachments/assets/f26cffd5-e229-44a2-80ed-4ed03deca5b5" />
 
-We send again and this time atleast we get a response:
+We send again and this time we at least get a response:
 
 <img width="1902" height="528" alt="2026-04-20-23:25:36" src="https://github.com/user-attachments/assets/3de399d9-e887-4e39-ba07-6cd9189d1e7c" />
 
 
-I got a timeout while I was crafting a new request header:
+I then got a timeout while I was crafting a new request header:
 
 <img width="1725" height="165" alt="2026-04-20-23:40:19" src="https://github.com/user-attachments/assets/9c7696c0-e803-42e5-bc40-fb79d958f56c" />
 
 
-So we had to restart the whole lab...
+So we had to restart the whole lab..
 
 
 ## Third time's the charm
 At this point I realized i'm probably forming this request all wrong, especially because i'm not familiar with Mitmproxy.
 
 I tried one last thing:
-- Removed `POST / HTTP/1.1` from the header
-- Edited the URL and appended `HTTP/1.1`
+- Removed `POST / HTTP/1.1` from the header and appended `HTTP/1.1` to the URL instead
 - Moved the payload into the request body
 
 <img width="1918" height="453" alt="2026-04-21-00:13:14" src="https://github.com/user-attachments/assets/6784be02-11eb-468d-b671-bab8f7614d3a" />
 
-Got "protocol error" so I removed the `HTTP/1.1` from the URL, hit send and got a different response. 
+When I sent it away I got a "protocol error" in return, so I removed the `HTTP/1.1` from the URL, hit send again and got a different response. 
 
 Even though in the previous requests it looked like the HTTP version was appended to the URL, I don't know if you can actually modify it in this way.
 
-I had tried atleast 10 different ways of doing this and nothing simply worked. I thought it might be some kind of issue with my tooling so before quitting I switched to ZAP.
+I had tried atleast 10 different ways of doing this attack and nothing seemed to work. I figured it might be some kind of issue with my tooling, so before quitting I switched to ZAP as a hail mary.
 
 
 I took the original request, changed the method, removed all else except `host` and `connection` headers and pasted it to `Requester`.
 
-At this point I had done the lab for around 5 hours so I thought let me at least see what it looks like to complete, I modeled the **example solution** and the final request then came to look like this:
+At this point I had done the lab for around 5 hours so I thought might as well see what a successful attack looks like, so I modeled the **example solution** and the final request then came to look like this:
 <img width="1182" height="426" alt="2026-04-21-00:25:23" src="https://github.com/user-attachments/assets/367e5004-ff50-4bbb-bda6-76d8637bd433" />
 
 When we hit `send` we get:
@@ -827,7 +824,8 @@ I chose the option `Combine display for Header and Body`:
 <img width="919" height="51" alt="2026-04-21-00:49:22" src="https://github.com/user-attachments/assets/5331f539-cbd8-449f-8b25-bfb15191731c" />
 
 
-Sent it again and at least now it goes through. **The problem** was that I was trying to **insert the body into the header**, which I originally thought was the idea.
+Sent it again and at least now it goes through. **The problem** was that I was trying to **insert the body (payload) into the header**, which I originally thought was the idea. 
+I'm still not sure where the payload should go, but ZAP wouldn't let me send the request if I didn't move it 🤷‍♂️.
 
 And now that we can send it -->
 
@@ -838,10 +836,11 @@ It keeps timing out... I give up...
 <img width="225" height="74" alt="2026-04-20-01:03:08" src="https://github.com/user-attachments/assets/f448ab1b-9176-411b-9c63-851ce6764a2b" />
 
 
-This was a complete bust. I did the lab for 5 hours and didn't even complete it... 😂😂😂 
+MISSION FAILED!
 
-But not to be too negative, at least I learned something more about HTTP requests / methods that I didn't know before and got more familiar with Mitmproxy!
+At least I learned something more about HTTP requests / methods that I didn't know before and got more familiar with Mitmproxy.
 
+Might revisit this in the future, who knows..
 
 Till next time, adios! 🫡
 
