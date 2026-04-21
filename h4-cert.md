@@ -744,9 +744,6 @@ Looks like this:
 
 Oh well, atleast we have a few ways to go about this now!
 
-> [!TIP]
-> If you modify the request too much and want to revert to the original one, you can just type `V` and go back
-
 
 ## Try again
 
@@ -775,6 +772,11 @@ Explained:
 - Host is the website we're on
 - By using both `content-length` and `transfer-encoding` we perform a simple HTTP request smuggling attack
 - I took the example from the study material we went through before starting the lab
+
+
+> [!TIP]
+> If you modify a flow too much and want to revert to the original one, you can just enter `V` to undo all your modifications!
+
 
 We hit `r` to send and get an error HTTP/2 error, which is a problem as we want to use HTTP/1, so we enter options config and change 2 values to `false`:
 
