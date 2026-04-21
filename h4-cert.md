@@ -756,7 +756,7 @@ We access the webpage and pick up a request from the Mitmproxy TUI:
 
 **First:** The request **method** is wrong, so that's the first thing we'll modify.
 
-`e`dit --> `5) method` --> Insert `POST` --> Hit enter to save
+Edit --> `5) method` --> Type in `POST` and hit enter to save
 - <img width="562" height="117" alt="2026-04-20-20:34:13" src="https://github.com/user-attachments/assets/0aa2526a-477c-4b34-970d-ffa11d5d0e4b" />
 
 Updated:
