@@ -757,10 +757,12 @@ We access the webpage and pick up a request from the Mitmproxy TUI:
 **First:** The request **method** is wrong, so that's the first thing we'll modify.
 
 Edit --> `5) method` --> Type in `POST` and hit enter to save
-- <img width="562" height="117" alt="2026-04-20-20:34:13" src="https://github.com/user-attachments/assets/0aa2526a-477c-4b34-970d-ffa11d5d0e4b" />
+
+<img width="562" height="117" alt="2026-04-20-20:34:13" src="https://github.com/user-attachments/assets/0aa2526a-477c-4b34-970d-ffa11d5d0e4b" />
 
 Updated:
-- <img width="1087" height="73" alt="2026-04-20-23:11:20" src="https://github.com/user-attachments/assets/815f608e-902d-4325-a2a9-fba01a71ee57" />
+
+<img width="1087" height="73" alt="2026-04-20-23:11:20" src="https://github.com/user-attachments/assets/815f608e-902d-4325-a2a9-fba01a71ee57" />
 
 
 Then we hit `e` to edit again and pick `8) request-headers`. We remove the unnecessary and optional stuff and add the following:
