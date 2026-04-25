@@ -1,3 +1,10 @@
+# NOTE
+For the love of god the one who keeps complaining about **sources/references** in the comments --> all of the sources I have used are embedded in the report. It doesn't make sense to do a huge listing at the end when you have no idea which one belongs where....
+
+ALL OF THE SOURCES ARE PRESENT AND IF YOU WANT TO INSPECT IT JUST CLICK THE LINK!
+
+Thank you! Now that we got that out of the way, let's continue normally.
+
 # X) Read/Watch/Listen & Summarize
 **Objective**
 - A few bullet points per section is enough to summarize
@@ -59,9 +66,9 @@ Summary can be found --> [here](<https://github.com/Ali-Mikael/Application-hacki
 
 
 ## Install
-If for some reason you don't want to install, the live target can be found [here](<http://ffuf.me/>). 
+If for some reason you don't want to install locally, the live target can be found [here](<http://ffuf.me/>). 
 
-Launching the vulnerable app locally requires `docker`, make sure you have it, further installation instructions in the README for the [ffufme](<https://github.com/BuildHackSecure/ffufme>) repo.
+Launching the vulnerable app requires `docker`, make sure you have it! Further installation instructions in the README for the [ffufme](<https://github.com/BuildHackSecure/ffufme>) repo.
 
 It goes like this:
 ```bash
@@ -71,7 +78,7 @@ $ cd ffufme
 # Docker searches the current directory for a dockerfile, builds the image and assigns it a tag=ffufme
 $ sudo docker build -t ffufme .
 
-# Run container from the image to listen on port 80:
+# Run a container from the image, bind local port 80 to containers port 80:
 $ sudo docker run -d -p 80:80 ffufme
 
 # Confirm the container is running:
@@ -99,12 +106,12 @@ The URL we're working with is `http://localhost/`. We `curl` the URL to get the 
 <img width="1224" height="457" alt="2026-04-25-10:57:32" src="https://github.com/user-attachments/assets/fbb641a5-7578-4d04-a18f-560a794e18e9" />
 
 We're doing the first task, so the target URL becomes:
-```terminal
+```bash
 http://localhost/cd/basic
 ```
 
 Let's FUZZ it and see if we can find anything **useful** (from a hackers perspective):
-```terminal
+```bash
 $ ffuf -w /user/share/wordlists/dirb/common.txt -u http://localhost/cd/basic/FUZZ -mc all -c -v -fc 404
 ```
 If you've been paying attention you should know the parameters used. As a newcomer, we use the `-fc` flag to filter out `404 not found` responses, this give us a very clean, uncluttered output:
@@ -118,8 +125,8 @@ Only thing left to do is to collect the hidden data:
 
 
 # d) Content Discovery With Recursion
-What's the next URL we can try?
-=> We recall that all the URLs contain `cd`, so can `grep` the `curl` output:
+**What's the next URL we can try?**
+=> We recall that all the URLs contain `cd`, so we `grep` the `curl` output:
 
 <img width="1397" height="409" alt="2026-04-25-11:13:49" src="https://github.com/user-attachments/assets/e0952e90-1c3a-440d-bb23-f43901b6ae58" />
 
@@ -127,17 +134,17 @@ What's the next URL we can try?
 Okay, next target: `http://localhost/cd/recursion`.
 
 > [!TIP]
-> Keep another terminal window or tab open where you can quickly check all the options with `man ffuf` or `ffuf --help`.
+> Keep another terminal **window** or **tab** open where you can quickly recall all the options with `man ffuf` or `ffuf --help`.
 >
-> Then you can keep crafting the attack command at the same time you're reading and gaining insight!
+> Then you can keep crafting your command at the same time you're reading!
 
 Our attack looks like this:
-```terminal
+```bash
 $ ffuf -w /user/share/wordlists/dirb/common.txt -recursion -u http://localhost/cd/recursion/FUZZ -mc all -c -v -fc 404
 ```
-We add the `-recursion` flag to the command, pretty self explanatory!
+We just added the `-recursion` flag to the command, pretty self explanatory!
 
-Here are all the results, you can see how the recursion progresses:
+Here we see all the results, notice how the recursion progresses:
 
 <img width="1745" height="1013" alt="2026-04-25-12:03:55" src="https://github.com/user-attachments/assets/a4c5fbc2-8a3a-462f-84c8-d3977ece4b47" />
 
@@ -147,8 +154,8 @@ Here are all the results, you can see how the recursion progresses:
 
 
 # e) Content Discovery With File Extensions
-Target:
-```
+**Target:**
+```bash
 http://localhost/cd/ext
 ```
 
@@ -160,24 +167,206 @@ But we cannot access the contents:
 
 <img width="972" height="184" alt="2026-04-25-12:32:48" src="https://github.com/user-attachments/assets/931b1295-98d1-4331-b72f-b6579096bca4" />
 
-We check out the `man` pages and find out that in order to look for file extensions we need to use the `-e` flag.
+We check out the `man` pages and find out that in order to look for `file extensions` we need to use the `-e` flag.
 
 <img width="1089" height="68" alt="2026-04-25-13:16:13" src="https://github.com/user-attachments/assets/0839fa68-d859-425f-97d5-9b415bd6830e" />
 
-I found a `web-extensions.txt` to use in `**/seclists/Discovery/Web-Content/`, I also noticed a `common.txt` in the same directory, so I changed the original wordlist for that one:
-```
+I found a `web-extensions.txt` wordlist (that contains different extensions) to use in `**/seclists/Discovery/Web-Content/`, I also noticed a `common.txt` in the same directory, so I changed the original wordlist for that one:
+```bash
 $ ffuf -w /usr/share/seclists/Discovery/Web-Content/common.txt -e /usr/share/seclists/Discovery/Web-Content/web-extensions.txt -u http://localhost/cd/ext/logs/FUZZ -mc all -c -v -fc 404
 ```
 and got nothing in return:
 
-<img width="1912" height="898" alt="2026-04-25-13:05:25" src="https://github.com/user-attachments/assets/36d56406-312a-4410-b830-f972dbfbf2ab" />
+<img width="1912" height="898" alt="2026-04-25-13:05:25" src="https://github.com/user-attachments/assets/07429018-f530-43a7-b185-89af060d6bb4" />
 
 
+At this point i'm thinking something's wrong with either the command or wordlists used.
 
-Somethings wrong with either the command or wordlists used.
+I checked the man-pages again and this time paid attention to "Comma separated list of extensions".
+
+Our wordlist is **not** comma separated:
+<img width="828" height="478" alt="2026-04-25-14:47:22" src="https://github.com/user-attachments/assets/cb2520ef-79ae-4fc2-b82b-040a57d8b06c" />
+
+Maybe that's the problem? So I copied the wordlist to my home directory for modification and used vim to add the commas. By using **vim macros** it becomes very simple.
+
+You start in `normal mode` at the beginning of the file:
+```bash
+qa = Starts the macro 
+A = Moves to the end of the line and enter insert mode
+, = Append the comma
+esc = Enter normal mode
+j = Move one line down
+q = Ends the macro
+
+# If you did: '$ wc -l web-extensions.txt' previously you know it has 43 lines!
+
+42@a = Executes the macro 42 times
+```
+The file now:
+
+<img width="673" height="380" alt="2026-04-25-14:55:42" src="https://github.com/user-attachments/assets/d8640528-56f4-4cb8-926c-8acef43e144f" />
+
+
+We go again with the modified file:
+<img width="1568" height="452" alt="2026-04-25-14:57:26" src="https://github.com/user-attachments/assets/05b1ad9a-60a9-4072-8fbd-494c18773f78" />
+
+But get nothing in return....
+
+So I went back and put all of the extensions on the **same line** and tried again. Result => Nothing!
+
+Lastly I just copied and pasted the file contents to the option:
+```bash
+$ ffuf -w /usr/share/seclists/Discovery/Web-Content/common.txt -e .asp,.aspx,.bat,.c,.cfm,.cgi,.css,.com,.dll,.exe,.hta,.htm,.html,.inc,.jhtml,.js,.jsa,.json,.jsp,.log,.mdb,.nsf,.pcap,.php,.php2,.php3,.php4,.php5,.php6,.php7,.phps,.pht,.phtml,.pl,.phar,.rb,.reg,.sh,.shtml,.sql,.swf,.txt,.xml -u http://localhost/cd/ext/logs/FUZZ -mc all -c -v -fc 404
+```
+And it worked 😂😂😂 !
+
+<img width="1909" height="1062" alt="2026-04-25-15:03:34" src="https://github.com/user-attachments/assets/38f53c39-04e1-488e-aa03-2043b27eb38a" />
+
+## Loot
+<img width="896" height="133" alt="2026-04-25-15:04:02" src="https://github.com/user-attachments/assets/b81f2025-be1a-48fe-8be2-ab0401054cd3" />
+
+## Pay attention much?
+I felt really stupid after I realized in hindsight that we could've just used `.log` as we were fuzzing a **log directory**... 😂
+
+<img width="1901" height="966" alt="2026-04-25-15:07:14" src="https://github.com/user-attachments/assets/3a228e93-357e-4921-bd0e-20160715e609" />
+
+I got too focused on the file extension part that I lost sight of what we were actually targeting..
+
+
+## Pointless?
+Even though we did all of that extra for "nothing" at least we learned how to search for multiple file extensions at the same time.
+
+By no means was this pointless!
+
 
 # f) No 404 Status
+**Target:**
+```bash
+http://localhost/cd/no404
+```
+
+I'm suspecting that we want to filter out all `404` responses, which we have been doing all along, so we just continue like before:
+```
+$ ffuf -w /usr/share/seclists/Discovery/Web-Content/common.txt -u http://localhost/cd/no404/FUZZ -mc all -c -v -fc 404
+```
+But something strange happened, all of the sudden we're drowning in results:
+<img width="700" height="1065" alt="2026-04-25-15:53:27" src="https://github.com/user-attachments/assets/45ffa429-f12b-4ac8-a404-0c2f0da7f2cb" />
+
+I have 5000 scrollback lines in my terminal and couldn't even get to the top....
+
+Many times we want to filter using the **size of the response**, and here we can see why! All of the fake positives have a size of `669`, so we append `-fs 669` to the command (we filter by size=669) and go again:
+
+<img width="1909" height="1014" alt="2026-04-25-15:57:12" src="https://github.com/user-attachments/assets/1ed1abb4-099e-4cd0-94ad-1b791c54a333" />
+
+
+## Loot
+<img width="866" height="128" alt="2026-04-25-15:58:13" src="https://github.com/user-attachments/assets/177e531b-151b-41b0-90f5-a45d29c5e272" />
+
+In comparison we can see what happens when we curl a fake positive:
+- `curl http://localhost/cd/no404/registration` =>
+- <img width="1326" height="166" alt="2026-04-25-16:00:47" src="https://github.com/user-attachments/assets/a6eddbbf-52f3-4aa7-a52a-6f127ea8785b" />
+
+
+
 # g) Param Mining
+**Target:**
+```http
+http://localhost/cd/param
+```
+
+I started with basic reconnaissance:
+```bash
+$ ffuf -w /usr/share/seclists/Discovery/Web-Content/common.txt -u http://localhost/cd/param/FUZZ -mc all -c -v -fc 404
+```
+<img width="1492" height="364" alt="2026-04-25-16:10:54" src="https://github.com/user-attachments/assets/42ed3042-b839-45d2-a7f6-a7f6112d9583" />
+
+So we need to craft a `GET` request and fuzz the params?
+
+Okay, time to search for a new wordlist I think:
+```bash
+$ find . -type f -name '*param*'
+# Type = file
+# Name = regex to match all files containing 'param'
+```
+<img width="1161" height="161" alt="2026-04-25-16:16:35" src="https://github.com/user-attachments/assets/ea667030-3e71-434a-8d1c-b26c650e80bd" />
+
+I found the a file to use and then tried to look for clues how to use it in the [ffuf wiki](<https://github.com/ffuf/ffuf/wiki>). Didn't really find anything so I went back to the [README](<https://github.com/ffuf/ffuf>) and found this: 
+
+<img width="931" height="296" alt="2026-04-25-16:46:10" src="https://github.com/user-attachments/assets/26deaaf4-46ef-4f0d-8445-307730b3e764" />
+
+I also did a quick recap on parameters [here](<https://apidog.com/articles/http-request-parameters-guide/>).
+
+The command we try then looks like this:
+```bash
+$ ffuf -w url-params_from-top-55-most-popular-apps.txt -u http://localhost/cd/param/data?FUZZ
+```
+**Got nothing in return..**
+
+So I modified the command, specifically the last part:
+```bash
+localhost/cd/param?data=FUZZ
+```
+This time we get a bunch of fake positives:
+<img width="1858" height="1048" alt="2026-04-25-17:12:26" src="https://github.com/user-attachments/assets/bc18790d-b0bb-4529-b3ba-a330510a7a8f" />
+
+
+I tried a bunch of different variations without result. Lastly I just reverted the wordlist back to `common.txt` and used the first command like so:
+```
+$ ffuf -w common.txt -u http://localhost/cd/param/data?FUZZ -c
+```
+We got a hit:
+
+<img width="1612" height="816" alt="2026-04-25-17:08:58" src="https://github.com/user-attachments/assets/6b64249f-4373-4105-ad74-4cb4b84e25ec" />
+
+## Loot
+<img width="1181" height="132" alt="2026-04-25-17:09:34" src="https://github.com/user-attachments/assets/58672a74-4d56-4600-9e70-5393cf707b0e" />
+
+## That easy?
+Even though it looks like I just tried a few commands and got the result, it's not always that easy.
+I tried a bunch of different stuff, here you can see a snippet from my history 😂 :
+
+<img width="1908" height="846" alt="2026-04-25-17:20:15" src="https://github.com/user-attachments/assets/aeb50890-044b-4299-8b6f-0f24136219d1" />
+
+
 # h) Rate Limited
+**Target:**
+```html
+http://localhost/cd/rate/
+```
+
+You already know the drill! We start off with the basics
+```bash
+$ ffuf -w common.txt -u http://localhost/cd/rate/FUZZ -mc all -c -v -fc 404
+```
+and get flooded with `429 Too Many Request` responses:
+
+<img width="1004" height="492" alt="2026-04-25-17:26:16" src="https://github.com/user-attachments/assets/be516b12-a966-4e25-a896-88f1aa4edda5" />
+
+Had to google what the code means and found [this](<https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/429>). Now that we know the server is `rate limiting` our responses, we go back to the man pages and return with:
+
+<img width="744" height="73" alt="2026-04-25-17:40:02" src="https://github.com/user-attachments/assets/cdde7f42-9a67-4539-8c91-91e30e49209c" />
+
+I started with `-rate 100` and it worked for a few seconds but then we started getting the `429` responses again. So I toned it waaaay down and ended up going with:
+```bash
+$ ffuf -w common.txt -u http://localhost/cd/rate/FUZZ -mc all -c -v -fc 404 -rate 10
+```
+Beats the purpose of "Fuzz Faster" but sometimes it be like that 😂
+
+So it ended up taking almost 8 minutes but in the end we got a result:
+
+<img width="1829" height="936" alt="2026-04-25-17:53:03" src="https://github.com/user-attachments/assets/76d33df5-6c75-4fb4-adfe-7763bbeb7ba7" />
+
+
+## Loot
+<img width="1244" height="138" alt="2026-04-25-17:55:21" src="https://github.com/user-attachments/assets/676692b4-52a8-492e-98ab-fba2d2e4379f" />
+
+
+
+
+
 # i) Subdomains - Virtual Host Enumeration
+I didn't find this one with the `grep cd` anymore, so we curl the landing page and find
+
+<img width="982" height="98" alt="2026-04-25-17:57:37" src="https://github.com/user-attachments/assets/7e545574-7b23-4e07-acda-57bd04ee5dbe" />
+
 
