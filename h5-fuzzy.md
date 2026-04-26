@@ -1,10 +1,3 @@
-# NOTE
-For the one who keeps complaining about **sources/references** --> all of the sources I have used are embedded in the report. It doesn't make sense to do a huge listing at the end when you have no idea which one belongs where....
-
-All of the sources used are present, and if you need/want to inspect them, JUST CLICK THE LINK!
-
-Thank you! Now that we got that out of the way, let's continue normally.
-
 # X) Read/Watch/Listen & Summarize
 **Objective**
 - A few bullet points per section is enough to summarize
@@ -464,8 +457,19 @@ Well shiiiddd, so we just use `ffuf.me` for the host part... 😂 Should've know
 <img width="950" height="125" alt="2026-04-26-14:09:25" src="https://github.com/user-attachments/assets/5bfab3e9-fc64-46db-8825-5838a68db28a" />
 
 ## Question
-In case we used the => [live target](<http://ffuf.me/>) we would've obviously known the domain name from jump. But how were we supposed to know it now though? 
+In case we used the live target => <http://ffuf.me/> we would've obviously known the domain name from jump. But how were we supposed to know it now though? 
 
 Like sure I could/should've guessed it's `ffuf.me`, but without any guessing game involved how do we get to this conclusion?
+
+
+# Sources
+In order of appearance
+- <https://github.com/Ali-Mikael/Application-hacking/blob/main/h2-BreakAndFix.md#x2-fuzzing>
+- <https://github.com/Ali-Mikael/Application-hacking/blob/main/h2-BreakAndFix.md#c-dirfuzt-1>
+- <https://github.com/BuildHackSecure/ffufme>
+- <https://github.com/ffuf/ffuf>
+- <https://apidog.com/articles/http-request-parameters-guide/>
+- <https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/429>
+- <https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Host>
 
 
