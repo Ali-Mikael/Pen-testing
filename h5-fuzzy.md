@@ -468,7 +468,9 @@ Like sure I could/should've guessed it's `ffuf.me`, but without any guessing gam
 
 # Src & Ref
 In order of appearance
+- <https://terokarvinen.com/2023/fuzz-urls-find-hidden-directories/>
 - <https://github.com/Ali-Mikael/Application-hacking/blob/main/h2-BreakAndFix.md#x2-fuzzing>
+- <https://github.com/ffuf/ffuf/blob/master/README.md>
 - <https://github.com/Ali-Mikael/Application-hacking/blob/main/h2-BreakAndFix.md#c-dirfuzt-1>
 - <https://github.com/BuildHackSecure/ffufme>
 - <https://github.com/ffuf/ffuf>
