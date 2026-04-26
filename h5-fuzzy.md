@@ -1,7 +1,7 @@
 # NOTE
-For the love of god the one who keeps complaining about **sources/references** in the comments --> all of the sources I have used are embedded in the report. It doesn't make sense to do a huge listing at the end when you have no idea which one belongs where....
+For the one who keeps complaining about **sources/references** --> all of the sources I have used are embedded in the report. It doesn't make sense to do a huge listing at the end when you have no idea which one belongs where....
 
-ALL OF THE SOURCES ARE PRESENT AND IF YOU WANT TO INSPECT IT JUST CLICK THE LINK!
+All of the sources used are present, and if you need/want to inspect them, JUST CLICK THE LINK!
 
 Thank you! Now that we got that out of the way, let's continue normally.
 
