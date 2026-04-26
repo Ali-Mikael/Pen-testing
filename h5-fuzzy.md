@@ -462,7 +462,11 @@ In case we used the live target => <http://ffuf.me/> we would've obviously known
 Like sure I could/should've guessed it's `ffuf.me`, but without any guessing game involved how do we get to this conclusion?
 
 
-# Sources
+# It works on my machine
+
+<img width="1901" height="1046" alt="2026-04-26-21:12:27" src="https://github.com/user-attachments/assets/c9553024-14e7-4d22-9ab3-d882e5780c6e" />
+
+# Src & Ref
 In order of appearance
 - <https://github.com/Ali-Mikael/Application-hacking/blob/main/h2-BreakAndFix.md#x2-fuzzing>
 - <https://github.com/Ali-Mikael/Application-hacking/blob/main/h2-BreakAndFix.md#c-dirfuzt-1>
