@@ -275,8 +275,10 @@ Many times we want to filter using the **size of the response**, and here we can
 <img width="1909" height="1014" alt="2026-04-25-15:57:12" src="https://github.com/user-attachments/assets/1ed1abb4-099e-4cd0-94ad-1b791c54a333" />
 
 
-## Loot
+## Loot?
 <img width="866" height="128" alt="2026-04-25-15:58:13" src="https://github.com/user-attachments/assets/177e531b-151b-41b0-90f5-a45d29c5e272" />
+
+It says `Controller does not exist` so I'm not sure if this is the intended target, but we didn't find anything else and at least it doesn't return "page not found".
 
 In contrast we can see what happens when we curl a fake positive:
 - `curl http://localhost/cd/no404/registration` =>
@@ -302,7 +304,7 @@ $ ffuf -w /usr/share/seclists/Discovery/Web-Content/common.txt \
 
 So we need to craft a `GET` request and fuzz the params?
 
-Okay, time to search for a new wordlist I think:
+Time to search for a new wordlist:
 ```bash
 $ find . -type f -name '*param*'
 
@@ -391,7 +393,7 @@ I started with `-rate 100` and it worked for a few seconds but then we started g
 # I) Subdomains - Virtual Host Enumeration
 **Target:**
 ```http
-http://localhost/sub/vhost
+http://localhost
 ```
 
 Let's find a wordlist for subdomains:
@@ -425,7 +427,7 @@ I was reading [this](<https://developer.mozilla.org/en-US/docs/Web/HTTP/Referenc
 I can't use localhost in the header, as it's not a valid domain name.
 
 
-Okay, so I need a domain name. Well I can't really get it as the server doesn't really have a valid domain name, this is just a locally spun up container... I though I could maybe try to use a hostname, but I didn't have that either. My instict said get the containers IP address and then probe it for a valid hostname somehow.
+Okay, so I need a domain name. Well I can't really get it as the server doesn't have a valid domain name, this is just a locally spun up container... I thought I could maybe try to use a hostname, but I didn't have that either. My instict said get the containers IP address and then probe it for a valid hostname somehow.
 
 I got the container address:
 ```bash
@@ -451,7 +453,7 @@ On my first task I had done
 ```bash
 $ curl http://localhost/cd/basic
 ```
-to see what it returns. I noticed that on the page it had the **example solution**, so I refrained from doing it again in the name of learning something and developing problem solving. But now I was getting desparate so I did it again, this time on purpose:
+to see what it returns. I noticed that on the page it had the **example solution**, so I refrained from doing it again in the name of developing problem solving. But now I was getting desparate.
 
 <img width="1900" height="950" alt="2026-04-26-12:24:59" src="https://github.com/user-attachments/assets/159d863b-0930-4d81-a4e3-ecc5ed6b98bd" />
 
