@@ -83,13 +83,13 @@ Now that everything is set, let's get FUZZING -->
 > [!TIP]
 > Kali:`/usr/share/wordlists` contains a bunch of different wordlists you can use!
 >
-> If you want the `seclists` specifically just `$ sudo apt install seclists`
+> If you want the `seclists` specifically, just: `$ sudo apt install seclists`
 > 
 > When you invoke it you get a top level listing and taken to the directory:
 >
 > <img width="1292" height="529" alt="2026-04-25-13:11:30" src="https://github.com/user-attachments/assets/086167f8-59f1-49f6-8f01-53afb3e1e76c" />
 >
-> (It's symlinked in /usr/share/wordlists)
+> It's also symlinked under `/usr/share/wordlists/`
 
 
 
@@ -108,7 +108,7 @@ Let's FUZZ it and see if we can find anything **useful**:
 ```bash
 $ ffuf -w /user/share/wordlists/dirb/common.txt -u http://localhost/cd/basic/FUZZ -mc all -c -v -fc 404
 ```
-If you've been paying attention you should know the parameters used. As a newcomer option we use the `-fc` flag to filter out `404 not found` responses, this give us a very clean, uncluttered output:
+If you've been paying attention you already know the parameters used. As a new addition we use `-fc` flag to filter out `404 not found` responses. This give us a very clean, uncluttered output:
 
 <img width="1784" height="837" alt="2026-04-25-11:05:41" src="https://github.com/user-attachments/assets/ca43edcb-b924-441d-8ca4-0989110839cd" />
 
@@ -127,7 +127,7 @@ Only thing left to do is to collect the hidden data:
 <img width="1397" height="409" alt="2026-04-25-11:13:49" src="https://github.com/user-attachments/assets/e0952e90-1c3a-440d-bb23-f43901b6ae58" />
 
 
-Okay, next target: 
+The next target is clear: 
 ```http
 http://localhost/cd/recursion
 ```
