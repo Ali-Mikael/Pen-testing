@@ -42,7 +42,7 @@ I'm using `rsync` here to send it over via SSH, let's play we execute a succesfu
 
 
 In `msfconsole` we use the `multi/handler` module to act as a listener:
-```terminal
+```console
 msf > search multi/handler
 msf > use 5
 msf exploit(multi/handler) > options
