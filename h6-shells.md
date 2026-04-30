@@ -5,19 +5,19 @@
 
 
 ## What's msfvenom?
-=> A payload generator and encoder
+A payload generator and encoder
 - Source: msfvenom man pages
 
-## Victim
-I'm using `metasploitable3` for the victim:
+## Target
+`metasploitable3` is todays victim:
 ```console
 $ vagrant up ub1404
 ```
-More on ms3 [here](<https://github.com/rapid7/metasploitable3>). How I set it up --> [personally](<https://github.com/Ali-Mikael/Pen-testing/blob/main/h3-EternalExploit.md#p-metasploitable3>).
+More on ms3 [here](<https://github.com/rapid7/metasploitable3>). And here is how I [set it up](<https://github.com/Ali-Mikael/Pen-testing/blob/main/h3-EternalExploit.md#setting-up>).
 
 
 ## ReverC 🐚
-Start up the Kali VM and go straight to man pages to look for help:
+Start up the Kali VM and straight to man pages:
 ```bash
 $ man msfvenom
 ```
@@ -111,7 +111,7 @@ This makes it obvious that somebody is connected to the machine and executing sh
 
 ## What sliver?
 "A powerful command and control framework designed to provide advanced capabilities for covertly managing and controlling remote systems"
-- [source](<https://sliver.sh/>)
+- [Source](<https://sliver.sh/>)
 
 
 ## Install on kali:
