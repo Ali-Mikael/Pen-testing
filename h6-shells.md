@@ -255,6 +255,12 @@ There's a bunch of `GET` requests and the server keeps responding with `204 No C
 
 **A:** The fact that the 204 response is meant for `PUT` and `DELETE` requests, **NOT** `GET`. At least that's the understanding I got from the [Mozilla developer docs](<https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/204>)
 
+I found one exchange that showed some data being sent:
+
+<img width="1376" height="505" alt="2026-04-30-20:02:20" src="https://github.com/user-attachments/assets/b070c02d-9feb-4e71-81c5-d8bb2bc9131b" />
+
+This is suspicious to me as a plain text http request would usually have some amount of human-redable strings in the data..
+
 
 
 
