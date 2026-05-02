@@ -590,9 +590,10 @@ sliver > profiles stage linuxServer
 <img width="700" height="33" alt="2026-05-02-11:55:24" src="https://github.com/user-attachments/assets/db50f99c-d6de-42c3-b20b-c012c8988d29" />
 
 
-<img width="1402" height="450" alt="2026-05-01-20:22:09" src="https://github.com/user-attachments/assets/6065a90c-2acd-4d01-808a-368d96b5d573" />
-
 <img width="1301" height="381" alt="2026-05-02-13:15:27" src="https://github.com/user-attachments/assets/b3bcc21d-07cb-4b13-9338-58f89101de78" />
+
+## Reinstalled Sliver using method 2 and got a version number out of it:
+<img width="346" height="86" alt="2026-05-02-23:11:39" src="https://github.com/user-attachments/assets/cd69a734-f3e9-475b-839e-0b957f712827" />
 
 
 
