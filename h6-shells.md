@@ -369,7 +369,7 @@ sliver > jobs
 ==== ====== ========== ====== =========
  1    http   tcp        80             
 ```
-**It is! Time to execute the payload on the victim.**
+**It is! Time to execute the payload on the victim.** Once executed, we can see the actived session:
 
 <img width="1516" height="517" alt="2026-05-01-19:15:50" src="https://github.com/user-attachments/assets/36985793-bd21-4d7c-ba66-c31fa157b1d2" />
 
