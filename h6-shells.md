@@ -12,7 +12,7 @@ A payload generator and encoder
 ```bash
 $ vagrant up ub1404
 ```
-More on Ms3 [reference link][1] and how I [set it up][2] using libvirt as the provider.
+More on Ms3 [here](<https://github.com/rapid7/metasploitable3>) and how I [set it up](<https://github.com/Ali-Mikael/Pen-testing/blob/main/h3-EternalExploit.md#setting-up>) using libvirt as the provider. [1][2]
 
 ## Reverse 🐚
 Fire up Kali and straight to man pages we go:
@@ -154,7 +154,7 @@ Type `sliver-server` to launch the interactive console:
 ## Modes
 Sliver `implants` operate in `beacon` or `session` mode. **Beacon mode** essentially means that the implant on the victim/host will periodically retreive tasks from the server, execute them, and return with the results, this is an asynchronous mode of communication.
 
-In **session mode** the implant creates a real-time session either by a **persistent connection** or **long polling**. Long polling basically means the **client** will check in with the **server** and return only after there's something to return with, compared to short polling where the client periodically probes the target.
+In **session mode** the implant creates a real-time session either by a **persistent connection** or **long polling**. Long polling basically means the **client** will check in with the **server** and return only after there's something to return with, compared to short polling where the client periodically probes the target. [5]
 
 **Q:** You talked about implants, what are they?
 
@@ -258,7 +258,7 @@ Example of a command we can use: list information about host interfaces:
 And there you have it, a simple `HTTP` connection. Next we'll dissect it.
 
 **Help received**
--  [Sliver documentation](<https://sliver.sh/docs>)
+-  [Sliver documentation](<https://sliver.sh/docs>) [5]
 
 
 
@@ -479,7 +479,7 @@ One way to reduce our footprint payload vise as well as detection vise is to use
 
 **Q:** _What's a stager?_
 
-**A:** _Simply put: A small executable that establishes a connection with a C2 server and downloads the actual payload. Benefits include: It's small in size, easy to obfuscate, and more likely to evade detection. It can load multiple different payloads, so it's very dynamic in nature. Want to switch payloads on the go? The stager got your back! It can also be used to decrypt incoming (encrypted) payloads and run them completely in memory, meaning it doesn't save the payload to disk before executing. Read more about it [here](<https://encyclopedia.kaspersky.com/glossary/stager/>) and [here](<https://blog.retracelabs.io/posts/stager101/stagers-101/>)._
+**A:** _Simply put: A small executable that establishes a connection with a C2 server and downloads the actual payload. Benefits include: It's small in size, easy to obfuscate, and more likely to evade detection. It can load multiple different payloads, so it's very dynamic in nature. Want to switch payloads on the go? The stager got your back! It can also be used to decrypt incoming (encrypted) payloads and run them completely in memory, meaning it doesn't save the payload to disk before executing._ [8][9][18]
 
 
 **Without further ado, let's get to it!** 
@@ -541,9 +541,9 @@ $ curl https://sliver.sh/install | sudo bash
 ```
 But to no avail...
 
-So I did some digging and stumbled upon some old [source code](<https://github.com/BishopFox/sliver/blob/93e772f5bf81c59ca25033e1d6d40138f615b4b8/client/command/generate/generate-stager.go#L18>) for that specific feature at: `sliver/client/command/generate/generate-stager.go` which had the latest `commit` 4 years ago..
+So I did some digging and stumbled upon some old [source code](<https://github.com/BishopFox/sliver/blob/93e772f5bf81c59ca25033e1d6d40138f615b4b8/client/command/generate/generate-stager.go#L18>) for that specific feature at: `sliver/client/command/generate/generate-stager.go` which had the latest `commit` 4 years ago..[10]
 
-And from the [new source code](<https://github.com/BishopFox/sliver/tree/master/client/command/generate>) at `sliver/client/command/generate/` the same file is **gone**.. 
+And from the [new source code](<https://github.com/BishopFox/sliver/tree/master/client/command/generate>) at `sliver/client/command/generate/` the same file is **gone**..[11]
 
 BUT, I did however manage to find 2 new files in the source
 - `profiles-stage.go`
@@ -554,7 +554,7 @@ So we'll try it out with these I guess.
 
 
 ## Problem #2
-Did some more digging & found out that `Sliver` doesn't really support staging for Linux (no wonder all the material is just windows windows windows), but I did some digging and found a thread on this issue [here](<https://github.com/BishopFox/sliver/issues/1734>) (issue number #1734, still open today 02.05.26). Some guy in the thread had solved this, so I copied his [TCP stager](<https://github.com/BishopFox/sliver/issues/1734#issuecomment-2614045372>) and changed `HOST` to `192.168.130.233` and `PORT` to `8080` and compiled the stager:
+Did some more digging & found out that `Sliver` doesn't really support staging for Linux (no wonder all the material is just windows windows windows), but I did some digging and found a thread on this [issue](<https://github.com/BishopFox/sliver/issues/1734>) (issue number #1734, still open today 02.05.26). Some guy in the thread had solved this, so I copied his [TCP stager](<https://github.com/BishopFox/sliver/issues/1734#issuecomment-2614045372>) and changed `HOST` to `192.168.130.233` and `PORT` to `8080` and compiled the stager[12][13]:
 ```bash
 $ gcc -static linuxStager.c -o linuxStager
 
@@ -830,7 +830,7 @@ vagrant@metasploitable3-ub1404:~$ ./linuxStager
 
 I'm guessing the problem is that our target system is too old (ubuntu 14.04) to be executing a payload compiled on a rolling distro like Kali.. 😂
 
-So I set out on a hunt and found all available `GCC` [versions for Ubuntu](<https://documentation.ubuntu.com/ubuntu-for-developers/reference/availability/gcc/>). `Ubuntu 14.04` (Trusty Tahr) uses versions: `4.4`, `4.6`, `4.7`, `4.8`, last one being the default.
+So I set out on a hunt and found all available `GCC` versions for Ubuntu. `Ubuntu 14.04` (Trusty Tahr) uses versions: `4.4`, `4.6`, `4.7`, `4.8`, last one being the default.[14]
 
 
 I figured the least painful way to go about this this is to mimick the target environment and compile there. To achieve said task with the parameters laid out, I think containers are the solution here.
@@ -890,13 +890,13 @@ int md = syscall(319, ELF_NAME, 0);
 
 root@5803c1e4b917:~# musl-gcc -static linuxStager.c -o linuxStager
 ```
-**Q:** Why did we use `musl` for compiling ?
+**Q:** Why did we use `musl` for compiling?
 
-**A:** During my soul-searching online I stumbled upon [this](<https://lindevs.com/install-musl-gcc-on-ubuntu>) blog post talking about musl for building statically linked, lightweight and portable binaries. That sounded good enough for me so I thought why not give it a go 🤷‍♂️
+**A:** During my soul-searching online I stumbled upon a blog post talking about musl for building statically linked, lightweight and portable binaries. That sounded good enough for me so I thought why not give it a go![15]
 
 A professional description:
 
-_"musl-gcc is a GCC wrapper that compiles programs against musl libc instead of glibc. Musl is a lightweight C standard library designed for static linking and embedded systems. Creates smaller, portable binaries suitable for containers and minimal environments." - [Source](<https://linuxcommandlibrary.com/man/musl-gcc>)_
+_"musl-gcc is a GCC wrapper that compiles programs against musl libc instead of glibc. Musl is a lightweight C standard library designed for static linking and embedded systems. Creates smaller, portable binaries suitable for containers and minimal environments."_[16]
 
 Back on Kali we copy over the `reborn stager` from the container, drop the sneaky bomb on the victim and start the listener.
 ```bash
@@ -930,7 +930,7 @@ And wouldn't you know our `mtls-listener` caught the beacon:
 
 So the problem is with the old ass ubuntu system not being able to run our stager. I'll come back to this another day because my time right now is running out.
 
-I shut down the ol box and spun up another VM. I thought it'd be funny to use the _Cisco NetAcad cyber security lab VM_ so that's what I did. I also fired up the web server on the attacker:
+I shut down the ol box and spun up another VM. I thought it'd be funny to use the _Cisco NetAcad cyber security lab VM_ I have installed so that's what I did. I also fired up the web server on the attacker:
 ```bash
 # Compile
 ┌──(steve㉿flyingcarpet)-[~/box/sliver/payloads]
@@ -1086,8 +1086,7 @@ The winner in size is `dynamically linked` `glibc`, which is obvious as you don'
 
 But when you compare the statically linked binaries, `musl` is the **clear** winner here `40K` < `719K`. It's also more self-contained!
 
-Oh btw, the final `TCP stager` (Linux edition) source code for anyone interested.
-Credit to [this guy](<https://github.com/BishopFox/sliver/issues/1734#issuecomment-2614045372>) for getting us up & running!
+And lastly the final `TCP stager` (Linux edition) source code that was used for anyone interested:
 ```C
 #define _GNU_SOURCE
 
@@ -1242,39 +1241,22 @@ ERROR:
 # Src & Ref
 **In Order of Appearance**
 
-[1]: <https://github.com/rapid7/metasploitable3>
-
-[2]: <https://github.com/Ali-Mikael/Pen-testing/blob/main/h3-EternalExploit.md#setting-up>
-
-[3]: <https://sliver.sh/>
-
-[4]: <https://www.geeksforgeeks.org/html/how-to-link-pages-in-html/>
-
-[5]: <https://sliver.sh/docs>
-
-[6]: <https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/204>
-
-[7]: <https://www.cloudflare.com/learning/access-management/what-is-mutual-tls/>
-
-[8]: <https://encyclopedia.kaspersky.com/glossary/stager/>
-
-[9]: <https://blog.retracelabs.io/posts/stager101/stagers-101/>
-
-[10]: <https://github.com/BishopFox/sliver/blob/93e772f5bf81c59ca25033e1d6d40138f615b4b8/client/command/generate/generate-stager.go#L18>
-
-[11]: <https://github.com/BishopFox/sliver/tree/master/client/command/generate>
-
-[12]: <https://github.com/BishopFox/sliver/issues/1734>
-
-[13]: <https://github.com/BishopFox/sliver/issues/1734#issuecomment-2614045372>
-
-[14]: <https://documentation.ubuntu.com/ubuntu-for-developers/reference/availability/gcc/>
-
-[15]: <https://lindevs.com/install-musl-gcc-on-ubuntu>
-
-[16]: <https://linuxcommandlibrary.com/man/musl-gcc>
-
-[17]: <https://github.com/BishopFox/sliver/issues/1734#issuecomment-2614045372>
-
-[18]: <https://www.youtube.com/watch?v=BYnk0jB671k>
+- [1] <https://github.com/rapid7/metasploitable3>
+- [2] <https://github.com/Ali-Mikael/Pen-testing/blob/main/h3-EternalExploit.md#setting-up>
+- [3] <https://sliver.sh/>
+- [4] <https://www.geeksforgeeks.org/html/how-to-link-pages-in-html/>
+- [5] <https://sliver.sh/docs>
+- [6] <https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/204>
+- [7] <https://www.cloudflare.com/learning/access-management/what-is-mutual-tls/>
+- [8] <https://encyclopedia.kaspersky.com/glossary/stager/>
+- [9] <https://blog.retracelabs.io/posts/stager101/stagers-101/>
+- [10] <https://github.com/BishopFox/sliver/blob/93e772f5bf81c59ca25033e1d6d40138f615b4b8/client/command/generate/generate-stager.go#L18>
+- [11] <https://github.com/BishopFox/sliver/tree/master/client/command/generate>
+- [12] <https://github.com/BishopFox/sliver/issues/1734>
+- [13] <https://github.com/BishopFox/sliver/issues/1734#issuecomment-2614045372>
+- [14] <https://documentation.ubuntu.com/ubuntu-for-developers/reference/availability/gcc/>
+- [15] <https://lindevs.com/install-musl-gcc-on-ubuntu>
+- [16] <https://linuxcommandlibrary.com/man/musl-gcc>
+- [17] <https://github.com/BishopFox/sliver/issues/1734#issuecomment-2614045372>
+- [18] <https://www.youtube.com/watch?v=BYnk0jB671k>
 
