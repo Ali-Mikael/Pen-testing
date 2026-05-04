@@ -12,7 +12,7 @@ A payload generator and encoder
 ```bash
 $ vagrant up ub1404
 ```
-More on ms3 [here](<https://github.com/rapid7/metasploitable3>) and how I [set it up](<https://github.com/Ali-Mikael/Pen-testing/blob/main/h3-EternalExploit.md#setting-up>) using libvirt as the provider.
+More on ms3 [here](<https://github.com/rapid7/metasploitable3>) and how I [set it up](<https://github.com/Ali-Mikael/Pen-testing/blob/main/h3-EternalExploit.md#setting-up>) using libvirt as the provider.[1][2]
 
 ## Reverse 🐚
 Fire up Kali and straight to man pages we go:
@@ -131,7 +131,7 @@ This makes it obvious that somebody is connected to the machine and executing sh
 
 <img width="948" height="224" alt="2026-05-01-19:29:33" src="https://github.com/user-attachments/assets/7f013b43-060f-43b5-b046-a6a82179ed2b" />
 
-> "A powerful [command and control framework](<https://sliver.sh/>) designed to provide advanced capabilities for covertly managing and controlling remote systems"
+> "A powerful command and control framework designed to provide advanced capabilities for covertly managing and controlling remote systems" [3]
 
 ## Install on kali:
 ```bash
@@ -228,7 +228,7 @@ The `index.html` file:
 	</body>
 </html
 ```
-I took an example from [here](<https://www.geeksforgeeks.org/html/how-to-link-pages-in-html/>) on how to create the wep page!
+I took an example from [here](<https://www.geeksforgeeks.org/html/how-to-link-pages-in-html/>) on how to create the wep page! [4]
 
 We can then serve the web page using python for example (quick and easy):
 ```shell
@@ -293,7 +293,7 @@ We notice a bunch of `GET` requests and the server responding with `204 No Conte
 
 **Q:** What makes it suspect?
 
-**A:** The fact that the `204` response is meant for `PUT` and `DELETE` requests, NOT `GET`. At least that's the understanding I got from the [Mozilla developer docs](<https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/204>).
+**A:** The fact that the `204` response is meant for `PUT` and `DELETE` requests, NOT `GET`. At least that's the understanding I got from the Mozilla developer docs.[6]
 
 I found one exchange with actual data:
 
@@ -386,7 +386,7 @@ Another one:
 
 
 ### Hide
-Let's go one step further and obfuscate the connection even more by using [mTLS](<https://www.cloudflare.com/learning/access-management/what-is-mutual-tls/>) A.K.A Mutual TLS.
+Let's go one step further and obfuscate the connection even more by using `mTLS` A.K.A Mutual TLS. [7]
 
 
 ```console
@@ -439,7 +439,7 @@ Well the traffic is encrypted, so it's much harder to say:
 
 
 **Help received**
-- [Sliver Docs](<https://sliver.sh/docs/>)
+- Sliver Docs [5]
 
 
 
@@ -1241,21 +1241,21 @@ ERROR:
 
 # Src & Ref
 In Order of Appearance
-- <https://github.com/rapid7/metasploitable3>
-- <https://github.com/Ali-Mikael/Pen-testing/blob/main/h3-EternalExploit.md#setting-up>
-- <https://sliver.sh/>
-- <https://www.geeksforgeeks.org/html/how-to-link-pages-in-html/>
-- <https://sliver.sh/docs>
-- <https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/204>
-- <https://www.cloudflare.com/learning/access-management/what-is-mutual-tls/>
-- <https://encyclopedia.kaspersky.com/glossary/stager/>
-- <https://blog.retracelabs.io/posts/stager101/stagers-101/>
-- <https://github.com/BishopFox/sliver/blob/93e772f5bf81c59ca25033e1d6d40138f615b4b8/client/command/generate/generate-stager.go#L18>
-- <https://github.com/BishopFox/sliver/tree/master/client/command/generate>
-- <https://github.com/BishopFox/sliver/issues/1734>
-- <https://github.com/BishopFox/sliver/issues/1734#issuecomment-2614045372>
-- <https://documentation.ubuntu.com/ubuntu-for-developers/reference/availability/gcc/>
-- <https://lindevs.com/install-musl-gcc-on-ubuntu>
-- <https://linuxcommandlibrary.com/man/musl-gcc>
-- <https://github.com/BishopFox/sliver/issues/1734#issuecomment-2614045372>
-- <https://www.youtube.com/watch?v=BYnk0jB671k>
+- [1] <https://github.com/rapid7/metasploitable3>
+- [2] <https://github.com/Ali-Mikael/Pen-testing/blob/main/h3-EternalExploit.md#setting-up>
+- [3] <https://sliver.sh/>
+- [4] <https://www.geeksforgeeks.org/html/how-to-link-pages-in-html/>
+- [5] <https://sliver.sh/docs>
+- [6] <https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/204>
+- [7] <https://www.cloudflare.com/learning/access-management/what-is-mutual-tls/>
+- [8] <https://encyclopedia.kaspersky.com/glossary/stager/>
+- [9] <https://blog.retracelabs.io/posts/stager101/stagers-101/>
+- [10] <https://github.com/BishopFox/sliver/blob/93e772f5bf81c59ca25033e1d6d40138f615b4b8/client/command/generate/generate-stager.go#L18>
+- [11] <https://github.com/BishopFox/sliver/tree/master/client/command/generate>
+- [12] <https://github.com/BishopFox/sliver/issues/1734>
+- [13] <https://github.com/BishopFox/sliver/issues/1734#issuecomment-2614045372>
+- [14] <https://documentation.ubuntu.com/ubuntu-for-developers/reference/availability/gcc/>
+- [15] <https://lindevs.com/install-musl-gcc-on-ubuntu>
+- [16] <https://linuxcommandlibrary.com/man/musl-gcc>
+- [17] <https://github.com/BishopFox/sliver/issues/1734#issuecomment-2614045372>
+- [18] <https://www.youtube.com/watch?v=BYnk0jB671k>
