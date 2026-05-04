@@ -12,7 +12,7 @@ A payload generator and encoder
 ```bash
 $ vagrant up ub1404
 ```
-More on Ms3 [here](<https://github.com/rapid7/metasploitable3>) and how I [set it up](<https://github.com/Ali-Mikael/Pen-testing/blob/main/h3-EternalExploit.md#setting-up>) using libvirt as the provider. [1][2]
+Here's how I [set it up](<https://github.com/Ali-Mikael/Pen-testing/blob/main/h3-EternalExploit.md#setting-up>) using libvirt as the provider.[1][2]
 
 ## Reverse 🐚
 Fire up Kali and straight to man pages we go:
@@ -131,9 +131,9 @@ This makes it obvious that somebody is connected to the machine and executing sh
 
 <img width="948" height="224" alt="2026-05-01-19:29:33" src="https://github.com/user-attachments/assets/7f013b43-060f-43b5-b046-a6a82179ed2b" />
 
-> "A powerful command and control framework designed to provide advanced capabilities for covertly managing and controlling remote systems" [3]
+Sliver is a "powerful command and control framework designed to provide advanced capabilities for covertly managing and controlling remote systems".[3]
 
-## Install on kali:
+## Install it on Kali:
 ```bash
 $ sudo apt update && sudo apt install sliver -y
 # OR
@@ -154,7 +154,7 @@ Type `sliver-server` to launch the interactive console:
 ## Modes
 Sliver `implants` operate in `beacon` or `session` mode. **Beacon mode** essentially means that the implant on the victim/host will periodically retreive tasks from the server, execute them, and return with the results, this is an asynchronous mode of communication.
 
-In **session mode** the implant creates a real-time session either by a **persistent connection** or **long polling**. Long polling basically means the **client** will check in with the **server** and return only after there's something to return with, compared to short polling where the client periodically probes the target. [5]
+In **session mode** the implant creates a real-time session either by a **persistent connection** or **long polling**. Long polling basically means the **client** will check in with the **server** and return only after there's something to return with, compared to short polling where the client periodically probes the target.[5]
 
 **Q:** You talked about implants, what are they?
 
@@ -228,7 +228,7 @@ The `index.html` file:
 	</body>
 </html
 ```
-I took an example from [here](<https://www.geeksforgeeks.org/html/how-to-link-pages-in-html/>) on how to create the wep page! [4]
+[4]
 
 We can then serve the web page using python for example (quick and easy):
 ```shell
@@ -258,7 +258,7 @@ Example of a command we can use: list information about host interfaces:
 And there you have it, a simple `HTTP` connection. Next we'll dissect it.
 
 **Help received**
--  [Sliver documentation](<https://sliver.sh/docs>) [5]
+-  [Sliver documentation](<https://sliver.sh/docs>)[5]
 
 
 
@@ -380,13 +380,13 @@ It looks a bit more legit now. Take a look at the `GET URL`:
 **Akismet:**
 - <img width="953" height="528" alt="2026-05-01-19:21:17" src="https://github.com/user-attachments/assets/0a14a603-af3f-4624-a598-20b76d006b17" />
 
-Another one:
+**Totally legit:**
 
 <img width="1377" height="209" alt="2026-05-01-19:22:14" src="https://github.com/user-attachments/assets/4192aa22-9743-455c-8aea-35e183f1d02d" />
 
 
 ### Hide
-Let's go one step further and obfuscate the connection even more by using `mTLS` A.K.A Mutual TLS. [7]
+Let's go one step further and obfuscate the connection even more by using `mTLS` A.K.A Mutual TLS.[7]
 
 
 ```console
@@ -438,10 +438,6 @@ Well the traffic is encrypted, so it's much harder to say:
 <img width="1389" height="840" alt="2026-05-01-19:52:20" src="https://github.com/user-attachments/assets/bcd74389-d7d0-4699-80b5-5bd7a66773e9" />
 
 
-**Help received**
-- Sliver Docs [5]
-
-
 
 
 
@@ -479,7 +475,7 @@ One way to reduce our footprint payload vise as well as detection vise is to use
 
 **Q:** _What's a stager?_
 
-**A:** _Simply put: A small executable that establishes a connection with a C2 server and downloads the actual payload. Benefits include: It's small in size, easy to obfuscate, and more likely to evade detection. It can load multiple different payloads, so it's very dynamic in nature. Want to switch payloads on the go? The stager got your back! It can also be used to decrypt incoming (encrypted) payloads and run them completely in memory, meaning it doesn't save the payload to disk before executing._ [8][9][18]
+**A:** _Simply put: A small executable that establishes a connection with a C2 server and downloads the actual payload. Benefits include: It's small in size, easy to obfuscate, and more likely to evade detection. It can load multiple different payloads, so it's very dynamic in nature. Want to switch payloads on the go? The stager got your back! It can also be used to decrypt incoming (encrypted) payloads and run them completely in memory, meaning it doesn't save the payload to disk before executing._[8][9][18]
 
 
 **Without further ado, let's get to it!** 
@@ -541,9 +537,9 @@ $ curl https://sliver.sh/install | sudo bash
 ```
 But to no avail...
 
-So I did some digging and stumbled upon some old [source code](<https://github.com/BishopFox/sliver/blob/93e772f5bf81c59ca25033e1d6d40138f615b4b8/client/command/generate/generate-stager.go#L18>) for that specific feature at: `sliver/client/command/generate/generate-stager.go` which had the latest `commit` 4 years ago..[10]
+So I did some digging and stumbled upon some old [source code](<https://github.com/BishopFox/sliver/blob/93e772f5bf81c59ca25033e1d6d40138f615b4b8/client/command/generate/generate-stager.go#L18>) for that specific feature at: `sliver/client/command/generate/generate-stager.go` which had the latest `commit` 4 years ago.[10]
 
-And from the [new source code](<https://github.com/BishopFox/sliver/tree/master/client/command/generate>) at `sliver/client/command/generate/` the same file is **gone**..[11]
+And from the [new source code](<https://github.com/BishopFox/sliver/tree/master/client/command/generate>) at `sliver/client/command/generate/` the same file is **gone**.[11]
 
 BUT, I did however manage to find 2 new files in the source
 - `profiles-stage.go`
@@ -1082,9 +1078,9 @@ I compiled the TCP stager 3 different ways:
 - `Gstager` => Compiled using `gcc`
 - `Mstager` => compiled using `musl-gcc`
 
-The winner in size is `dynamically linked` `glibc`, which is obvious as you don't have to pack all dependencies. 
+The winner in pure size is `dynamically linked` `glibc`, which is obvious as you don't have to pack all the dependencies. 
 
-But when you compare the statically linked binaries, `musl` is the **clear** winner here `40K` < `719K`. It's also more self-contained!
+But when you compare the statically linked binaries, `musl` is the **clear** winner here: `40K` < `719K`. It's also more self-contained!
 
 And lastly the final `TCP stager` (Linux edition) source code that was used for anyone interested:
 ```C
@@ -1197,7 +1193,6 @@ ERROR:
 
 **Help received**
 - Sliver C2 | Stagers, Payload Types (Staged vs Stageless), Creating & Running Staged Payloads ([video](<https://www.youtube.com/watch?v=BYnk0jB671k>))
-- Sliver C2 [Docs](<https://sliver.sh/docs/>)
 - Learning Sliver C2 (06) - [Stagers: Basic](<https://dominicbreuker.com/post/learning_sliver_c2_06_stagers/>)
 - Sliver C2 [Deployment for Red Team Engagements](<https://wsummerhill.github.io/redteam/2023/07/25/Sliver-C2-Usage-for-Red-Teams.html>)
 - Stagers - [101](<https://blog.retracelabs.io/posts/stager101/stagers-101/>)
@@ -1226,7 +1221,7 @@ ERROR:
 
 <img width="1301" height="381" alt="2026-05-02-13:15:27" src="https://github.com/user-attachments/assets/b3bcc21d-07cb-4b13-9338-58f89101de78" />
 
-## Reinstalled Sliver using [method 2](#install-on-kali) and got a version number out of it:
+### Reinstalled Sliver using [method 2](#install-on-kali) and got a version number out of it:
 <img width="346" height="86" alt="2026-05-02-23:11:39" src="https://github.com/user-attachments/assets/cd69a734-f3e9-475b-839e-0b957f712827" />
 
 
