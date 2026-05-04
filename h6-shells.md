@@ -12,7 +12,7 @@ A payload generator and encoder
 ```bash
 $ vagrant up ub1404
 ```
-More on Ms3 [here][1] and how I [set it up][2] using libvirt as the provider.
+More on Ms3 [reference link][1] and how I [set it up][2] using libvirt as the provider.
 
 ## Reverse 🐚
 Fire up Kali and straight to man pages we go:
@@ -1240,22 +1240,41 @@ ERROR:
 
 
 # Src & Ref
-In Order of Appearance
+**In Order of Appearance**
+
 [1]: <https://github.com/rapid7/metasploitable3>
+
 [2]: <https://github.com/Ali-Mikael/Pen-testing/blob/main/h3-EternalExploit.md#setting-up>
+
 [3]: <https://sliver.sh/>
+
 [4]: <https://www.geeksforgeeks.org/html/how-to-link-pages-in-html/>
+
 [5]: <https://sliver.sh/docs>
+
 [6]: <https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/204>
+
 [7]: <https://www.cloudflare.com/learning/access-management/what-is-mutual-tls/>
+
 [8]: <https://encyclopedia.kaspersky.com/glossary/stager/>
+
 [9]: <https://blog.retracelabs.io/posts/stager101/stagers-101/>
+
 [10]: <https://github.com/BishopFox/sliver/blob/93e772f5bf81c59ca25033e1d6d40138f615b4b8/client/command/generate/generate-stager.go#L18>
+
 [11]: <https://github.com/BishopFox/sliver/tree/master/client/command/generate>
+
 [12]: <https://github.com/BishopFox/sliver/issues/1734>
+
 [13]: <https://github.com/BishopFox/sliver/issues/1734#issuecomment-2614045372>
+
 [14]: <https://documentation.ubuntu.com/ubuntu-for-developers/reference/availability/gcc/>
+
 [15]: <https://lindevs.com/install-musl-gcc-on-ubuntu>
+
 [16]: <https://linuxcommandlibrary.com/man/musl-gcc>
+
 [17]: <https://github.com/BishopFox/sliver/issues/1734#issuecomment-2614045372>
+
 [18]: <https://www.youtube.com/watch?v=BYnk0jB671k>
+
