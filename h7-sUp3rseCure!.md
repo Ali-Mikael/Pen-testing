@@ -58,17 +58,17 @@ The command in the middle of the pipeline creates a hash of the word we echoed u
 > ```
 
 We recall the options for Hashcat by skimming its manual pages and end up with the following command:
-```bash
+```console
 ┌──(㉿)
 └─$ hashcat -m 100 secret.txt /usr/share/wordlists/rockyou.txt -o cracked -O --quiet
 ```
 - `-m`: Hash type (100 = SHA1)
-- `secret.txt`: Input file (containing the hash)
-- `-o`: Output file (cracked)
+- `secret.txt`: Input file
+- `-o cracked`: Output file
 - `-O`: Enable optimized kernel (don't know what it actually does under the hood but hashcat suggested it so why not)
 
 The last flag `--quiet` suppresses the verbose output, we're only here for the password:
-```bash
+```console
 ┌──(㉿)
 └─$ cat cracked 
 5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8:password
