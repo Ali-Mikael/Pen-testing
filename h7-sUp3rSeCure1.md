@@ -85,7 +85,7 @@ The last flag `--quiet` suppresses the verbose output, we're only here for the p
 
 # B) John
 **Objective**
-- Intall John the Ripper
+- Install John the Ripper
 - Crack the password for an example file
 
 ## Hidden content
@@ -93,9 +93,9 @@ John the Ripper is part of Kali's default arsenal as well:
 
 <img width="1782" height="274" alt="2026-05-07-15:26:48" src="https://github.com/user-attachments/assets/5f1300c9-9b54-42ab-b1e3-0166fc0c2a7e" />
 
-It does say it's the `jumbo` version so we'll go ahead with this one and see how it works out! We can always compile the latest version from source later on!
+It does say it's the `jumbo` version so we'll go ahead with this one and see how it works out! We can always compile the latest version from source later on if need be!
 
-Create the file to crack and compress it using encryption, when you pass the `-e` flag you'll be prompted for the password:
+Create the file to crack, compress it, and encrypt it. When you pass the `-e` flag you'll be prompted for the password:
 ```console
 ┌──(㉿)
 └─$ zip -e confidential.zip confidential.txt 
@@ -109,7 +109,6 @@ Now we have a file to play with. We extract the hash using `zip2john` and direct
 ```bash
 ┌──(㉿)
 └─zip2john confidential.zip > confidential.hash    
-ver 2.0 efh 5455 efh 7875 confidential.zip/confidential.txt PKZIP Encr: TS_chk, cmplen=104, decmplen=108, crc=5ECEF8EE ts=7C6F cs=7c6f type=8
 ```
 
 Using the hash file, we set John the Ripper out on a mission to crack it:
@@ -119,12 +118,18 @@ Using the hash file, we set John the Ripper out on a mission to crack it:
 Using default input encoding: UTF-8
 Loaded 1 password hash (PKZIP [32/64])
 Proceeding with wordlist:/usr/share/john/password.lst
+
 1234             (confidential.zip/confidential.txt)     # <--
 Session completed. 
 ```
 The command is very simple, `john` followed by the hash-file to crack. It then proceeds to extract the password = `1234`, which we use to `unzip` the file:
 
 <img width="1412" height="373" alt="2026-05-07-15:57:56" src="https://github.com/user-attachments/assets/2281627f-919b-46c7-a4ff-f66b622824c3" />
+
+
+
+
+-----------
 
 
 
