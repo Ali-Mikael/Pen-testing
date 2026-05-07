@@ -4,7 +4,7 @@
 - Add your own observation, question or idea
 
 ## X.1) [Cracking Passwords with Hashcat](<https://terokarvinen.com/2022/cracking-passwords-with-hashcat/>)
-- Systems store hashes, not original passwords
+- Systems store hashes, not original passwords (or at least they should)
 - Hashing is a one way function, you can't turn it back to a password
 - BUT, you can make a computer try every word in the dictionary and compare the hashes
 - Get going:
@@ -330,7 +330,7 @@ John's a good guy, he gets it! Let's take the win and move on. 🙏
 
 # G) Flag Preparation
 **Objective**
-- Prepare your machine for the course finale A.K.A Capture The Flag
+- Prepare your machine for the grand finalè A.K.A Capture The Flag
 - If you already have a working Kali VM on a normal (amd64) PC, you don't really have to do anything in this section
 
 
@@ -340,7 +340,7 @@ John's a good guy, he gets it! Let's take the win and move on. 🙏
 
 I do have to give my attacker some more storage!
 
-## Workflow
+## Resize Workflow
 1. Shut down the VM.
 2. Add some juice to the disk image:
 ```bash
@@ -348,7 +348,7 @@ I do have to give my attacker some more storage!
 Image resized.
 ```
 3. Power the VM back on
-4. `lsblk` to check if the disk grew:
+4. `lsblk` to confirm that the disk grew:
 ```bash
 ┌──(㉿)
 └─$ lsblk
@@ -365,13 +365,41 @@ It did! Now we can make it available to the system.
 ```bash
 $ sudo parted
 ```
-7. Type `print` to check layout
+7. Type `print` to confirm layout
 ```bash
 Number  Start   End     Size    Type      File system     Flags
  1      1049kB  40.7GB  40.7GB  primary   ext4            boot
  2      40.7GB  42.9GB  2239MB  extended                  lba
  5      40.7GB  42.9GB  2239MB  logical   linux-swap(v1)  swap
 ```
-9. `resizepart 1` in my case (/vda1)
-10. 
+> [!NOTE]
+> The order is problematic, as the swap partition comes after the root, solution:
+> ```bash
+> $ sudo swapoff -a
+> # Then delete the swap partition (we'll just create a swapfile later)
+> ```
+
+9. `resizepart 1` --> `100%` (Use 100% of available space)
+```console
+(parted) resizepart 1                                                     
+Warning: Partition /dev/vda1 is being used. Are you sure you want to continue?
+Yes/No? yes                                                               
+End?  [40.7GB]? 100%
+```
+10. Resize the filesystem
+```console
+┌──(㉿)
+└─$ sudo resize2fs /dev/vda1                          
+resize2fs 1.47.4 (6-Mar-2025)
+Filesystem at /dev/vda1 is mounted on /; on-line resizing required
+old_desc_blocks = 5, new_desc_blocks = 8
+The filesystem on /dev/vda1 is now 15728384 (4k) blocks long.
+```
+11. Done!
+```console
+vda    254:0    0   60G  0 disk 
+└─vda1 254:1    0   60G  0 part /
+```
+
+
 
