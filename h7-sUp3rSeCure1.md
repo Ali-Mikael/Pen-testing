@@ -30,7 +30,7 @@
 
 
 
-# Hashcat
+# A) Hashcat
 **Objective**
 - Install Hashcat
 - Test it by breaking an example password
@@ -96,7 +96,7 @@ John the Ripper is part of Kali's default arsenal as well:
 It does say it's the `jumbo` version so we'll go ahead with this one and see how it works out! We can always compile the latest version from source later on!
 
 Create the file to crack and compress it using encryption, when you pass the `-e` flag you'll be prompted for the password:
-```bash
+```console
 ┌──(㉿)
 └─$ zip -e confidential.zip confidential.txt 
 Enter password: 
@@ -134,7 +134,244 @@ The command is very simple, `john` followed by the hash-file to crack. It then p
 - Break the encryption
 - (some other format than the one you already tried)
 
-## File1
+## PDF
+I thought it'd be fun to crack a PDF, so I searched for ways to password protect PDFs and found a [blogpost](<https://www.baeldung.com/linux/file-pdf-set-password>) suggesting `pdftk`.
+
+The tool can be installed like so:
+```bash
+$ sudo apt update && sudo apt install pdftk
+```
+
+And the PDF can be encrypted like so:
+```bash
+$ pdftk bash-cheatsheet.pdf output confidential.pdf user_pw PROMPT
+```
+<img width="1657" height="760" alt="2026-05-07-17:30:48" src="https://github.com/user-attachments/assets/b26c5acc-b0fb-4fdb-b208-a970960eeacb" />
 
 
+Let's extract the hash from the file using `pdf2john` and save the output:
+```console
+┌──(㉿)
+└─$ pdf2john confidential.pdf > pdf.hash
+```
+
+Then put Ol John to work:
+```console
+┌──(㉿)
+└─$ john pdf.hash 
+```
+Well, it didn't actually work for some reason, it was huffing and puffing for about 10 minutes. I aborted the mission and changed the wordlist, when we went again it took less than a second!
+```console
+┌──(steve㉿flyingcarpet)-[~]
+└─$ john --wordlist=/usr/share/wordlists/rockyou.txt pdf.hash 
+Using default input encoding: UTF-8
+Loaded 1 password hash (PDF [MD5 SHA2 RC4/AES 32/64])
+
+password1234     (confidential.pdf)     
+```
+
+## Mission accomplished
+Now we can open the file again:
+```bash
+$ xdg-open confidential.pdf
+```
+<img width="1186" height="364" alt="2026-05-07-18:39:33" src="https://github.com/user-attachments/assets/bf9a4493-7be4-405d-83ee-f3e519590ac6" />
+
+<img width="913" height="761" alt="2026-05-07-18:40:53" src="https://github.com/user-attachments/assets/0e7ad1c5-95b9-4429-abf2-85816b353e9d" />
+
+
+
+----------------
+
+
+
+
+# D) Hash
+**Objective**
+- Create a password hash and break it
+- You can search online on crate your own
+- Use a different format than one you already tried
+
+
+## S3cret1234!
+So we did `SHA1` earlier, which is not really considered that secure anymore, so let's up the ante and use `SHA512` now!
+```console
+┌──(㉿)
+└─$ echo -n "S3cret1234\!" | sha512sum | awk '{print $1}' | tee secret.txt
+fd6372b5770b5b4c497ac62746dfb807fc4bf1d4ecc01c1787b0a8d6424af1d40c67db7f9e1f46a656ad759678817f2616eed20f2f509a5e68a6afda70769131
+```
+Yeeeeeeeeeahh that's a long hash right there, let's get cracking.
+
+See if `hashid` recognizes it:
+```console
+┌──(㉿)
+└─$ hashid secret.txt                              
+--File 'secret.txt'--
+Analyzing 'fd6372b5770b5b4c497ac62746dfb807fc4bf1d4ecc01c1787b0a8d6424af1d40c67db7f9e1f46a656ad759678817f2616eed20f2f509a5e68a6afda70769131'
+[+] SHA-512 
+[+] Whirlpool 
+[+] Salsa10 
+[+] Salsa20 
+[+] SHA3-512 
+[+] Skein-512 
+[+] Skein-1024(512) 
+--End of file 'secret.txt'--
+```
+There it is, first result!
+
+We'll try with `-m 1700` first I guess:
+
+<img width="1849" height="769" alt="2026-05-07-18:58:37" src="https://github.com/user-attachments/assets/379acc02-9921-4a18-8391-7fc794432c33" />
+
+```console
+┌──(㉿)
+└─$ hashcat -m 1700 secret.txt /usr/share/wordlists/rockyou.txt -o cracked -O
+hashcat (v7.1.2) starting
+```
+But it returned empty handed... Let's fix that by adding a new entry to rockyou:
+```console
+┌──(steve㉿flyingcarpet)-[~/box/secret]
+└─$ echo -n "S3cret1234\!" | sudo tee /usr/share/wordlists/rockyou.txt
+[sudo] password for steve: 
+S3cret1234!
+```
+And then run hashcat again:
+```console
+Session..........: hashcat
+Status...........: Cracked
+Hash.Mode........: 1700 (SHA2-512)
+Hash.Target......: fd6372b5770b5b4c497ac62746dfb807fc4bf1d4ecc01c1787b...769131
+Kernel.Feature...: Optimized Kernel (password length 0-31 bytes)
+Guess.Base.......: File (/usr/share/wordlists/rockyou.txt)
+Candidates.#01...: S3cret1234! -> S3cret1234!
+
+
+┌──(㉿)
+└─$ cat cracked
+fd6372b5770b5b4c497ac62746dfb807fc4bf1d4ecc01c1787b0a8d6424af1d40c67db7f9e1f46a656ad759678817f2616eed20f2f509a5e68a6afda70769131:S3cret1234!
+```
+And there you go, password recovered.
+
+
+I saw `RSA private key` when going through all the available formats for hashcat. I wanted to try it, so I created a new key:
+```console
+┌──(㉿)
+└─$ ssh-keygen -t rsa -N 'Sup3rsecret1234!'
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/steve/.ssh/id_rsa): ./my_key              
+Your identification has been saved in ./my_key
+Your public key has been saved in ./my_key.pub
+```
+We can verify it's password protected:
+
+<img width="1234" height="162" alt="2026-05-07-19:31:48" src="https://github.com/user-attachments/assets/d8ac603a-af4e-4397-8ae1-7099c11d5f5f" />
+
+The `-y` flag is used to read a private key and print the public key to `stdout` (source `ssh-keygen` man pages).
+
+Let's extract the password hash:
+```console
+┌──(㉿)
+└─$ ssh2john my_key > my_key.hash
+```
+And put `Hashcat` to work:
+```console
+┌──(㉿)
+└─$ hashcat -m 22911 my_key.hash /usr/share/wordlists/rockyou.txt -o keySecret   
+hashcat (v7.1.2) starting
+
+Hashfile 'my_key.hash' on line 1 (my_key...f0095940aad45d030aa605e0a$24$486): Token length exception
+
+* Token length exception: 1/1 hashes
+  This error happens if the wrong hash type is specified, if the hashes are
+  malformed, or if input is otherwise not as expected (for example, if the
+  --username or --dynamic-x option is used but no username or dynamic-tag is present)
+```
+But we get an error..
+
+I removed `my_key:` from the beginning of the file, but that didn't help. I generated the hash again and used the `--username` flag with hashcat but that didn't help either. I didn't know how to proceed, but then I thought: why make things complicated when they don't need to be. If John can do it let him finish the job!!
+```console
+┌──(㉿)
+└─$ john --wordlist=/usr/share/wordlists/rockyou.txt my_key.hash 
+
+Loaded 1 password hash (SSH, SSH private key [RSA/DSA/EC/OPENSSH 32/64])
+Cost 1 (KDF/cipher [0=MD5/AES 1=MD5/3DES 2=Bcrypt/AES]) is 2 for all loaded hashes
+Cost 2 (iteration count) is 24 for all loaded hashes
+
+0g 0:00:00:00 DONE S3cret1234!  # <-- Here we go
+Session completed.
+```
+John's a good guy, he gets it! Let's take the win and move on. 🙏
+
+
+
+
+---------------
+
+
+# E) Dictionary
+**Objective**
+- Demonstrate how you make a dictionary for `john` or `hashcat`
+
+
+--------------
+
+
+# F) Hash Rules
+**Objective**
+- Showcase Hashcat rules
+
+
+
+
+-------------
+
+
+
+
+# G) Flag Preparation
+**Objective**
+- Prepare your machine for the course finale A.K.A Capture The Flag
+- If you already have a working Kali VM on a normal (amd64) PC, you don't really have to do anything in this section
+
+
+## Kali
+<img width="1826" height="490" alt="2026-05-07-20:17:00" src="https://github.com/user-attachments/assets/ef6aceec-f331-4b3d-b831-3b42cea9874a" />
+
+
+I do have to give my attacker some more storage!
+
+## Workflow
+1. Shut down the VM.
+2. Add some juice to the disk image:
+```bash
+[ ~ ] ❯❯ sudo qemu-img resize /var/lib/libvirt/images/kali.qcow2 +20G
+Image resized.
+```
+3. Power the VM back on
+4. `lsblk` to check if the disk grew:
+```bash
+┌──(㉿)
+└─$ lsblk
+NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
+sr0     11:0    1 1024M  0 rom  
+vda    254:0    0   60G  0 disk 
+├─vda1 254:1    0 37.9G  0 part /
+├─vda2 254:2    0    1K  0 part 
+└─vda5 254:5    0  2.1G  0 part [SWAP]
+```
+It did! Now we can make it available to the system.
+
+5. Fire up the partition manipulation tool
+```bash
+$ sudo parted
+```
+7. Type `print` to check layout
+```bash
+Number  Start   End     Size    Type      File system     Flags
+ 1      1049kB  40.7GB  40.7GB  primary   ext4            boot
+ 2      40.7GB  42.9GB  2239MB  extended                  lba
+ 5      40.7GB  42.9GB  2239MB  logical   linux-swap(v1)  swap
+```
+9. `resizepart 1` in my case (/vda1)
+10. 
 
