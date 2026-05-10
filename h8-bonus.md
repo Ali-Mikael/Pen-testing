@@ -42,11 +42,12 @@ The boxes I've done in `HTB Labs` (the `sequel` box was done as part of H1):
 <img width="1378" height="458" alt="2026-05-10-19:05:50" src="https://github.com/user-attachments/assets/53bd5ff4-d28d-4f0d-8749-503796c7b9c0" />
 
 ## Pwn
-In [pwn.college](<https://pwn.college>) i've done the full [Linux Luminarium] dojo and started the `Computing 101`:
+In [pwn.college](<https://pwn.college>) i've done the full `Linux Luminarium` dojo and started already the `Computing 101`:
 
 <img width="1143" height="336" alt="2026-05-10-19:13:02" src="https://github.com/user-attachments/assets/61a31cfc-9146-4ad8-8a90-e0d68b17d239" />
 
 
+## CTF
 Last friday I attended H-T8's first CTF competition at Silverskin's office. Got 5 flags!
 
 
