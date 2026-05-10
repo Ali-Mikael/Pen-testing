@@ -16,10 +16,13 @@
 
 
 # B) Improved tasks
-[H6](<https://github.com/Ali-Mikael/Pen-testing/blob/main/h6-shells.md>) Somebody complained about not having a reference list at the end. So I made references more clearer. If I remember correctly, if you have all sources written down, you don't need to do a complete listing at the end, I remember reading "ei tarvitse olla libguides ohjeiden mukainen", as long as it's clear in the text what piece of information you took from where. This is the logic I've been using, but I finally had enough of the complaining, so I spent like 30 minutes trying to do the sources and references as well as I possibly could, so that it follows the criteria:
-- Clear and easy to follow what source was used and where
-- Doesn't clutter the rest of the report
-- Easy to look up
+[H6](<https://github.com/Ali-Mikael/Pen-testing/blob/main/h6-shells.md>) Somebody complained about not having a reference list at the end. So I made references more clearer. 
+
+Allthough: If I remember correctly, if you have all sources written down, you don't need to do a complete listing at the end.
+**As long as it's clear in the text what piece of information you took from where**. This is the logic I've been using. 
+
+And I personally think that for a homework report like this, as long as you have all references clearly written down and it's easy to see what you took from where, it's enough! But apparently that's just my opinion? 🤷‍♂️
+
 
 # C) Hacking challenges outside of the course
 Done 60% of the Linux module in `HTB Academy`:
