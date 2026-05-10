@@ -95,7 +95,7 @@ It does say it's the `jumbo` version so we'll go ahead with this one and see how
 
 Create the file to crack, compress it, and encrypt it. When you pass the `-e` flag you'll be prompted for the password:
 ```bash
-└─$ zip -e confidential.zip confidential.txt 
+$ zip -e confidential.zip confidential.txt 
 Enter password: 
 Verify password: 
   adding: confidential.txt (deflated 15%)
@@ -104,12 +104,12 @@ Verify password:
 
 Now we have a file to play with. We extract the hash using `zip2john` and store it in a new file:
 ```bash
-└─$ zip2john confidential.zip > confidential.hash    
+$ zip2john confidential.zip > confidential.hash    
 ```
 
 Using the hash file, we set John the Ripper out on a mission to crack it:
 ```bash
-└─$ john confidential.hash
+$ john confidential.hash
 
 # Some output redacted for clarity #
 Loaded 1 password hash (PKZIP [32/64])
@@ -152,12 +152,12 @@ $ pdftk bash-cheatsheet.pdf output confidential.pdf user_pw PROMPT
 
 Let's extract the hash from the file using `pdf2john` and save the output:
 ```bash
-└─$ pdf2john confidential.pdf > pdf.hash
+$ pdf2john confidential.pdf > pdf.hash
 ```
 
 Then put Ol' John to work:
 ```bash
-└─$ john pdf.hash 
+$ john pdf.hash 
 ```
 Well, it didn't actually work for some reason, it was huffing and puffing for about 10 minutes. I aborted the mission and changed the `wordlist`. 
 
@@ -206,8 +206,7 @@ Yeeeeeeeeeahh that's a long hash right there, let's get cracking.
 
 See if `hashid` recognizes it:
 ```bash
-┌──(㉿)
-└─$ hashid secret.txt                              
+$ hashid secret.txt                              
 --File 'secret.txt'--
 Analyzing 'fd6372b5770b5b4c497ac62746dfb807fc4bf1d4ecc01c1787b0a8d6424af1d40c67db7f9e1f46a656ad759678817f2616eed20f2f509a5e68a6afda70769131'
 [+] SHA-512 
@@ -226,13 +225,11 @@ We'll try with `-m 1700` first I guess:
 <img width="1849" height="769" alt="2026-05-07-18:58:37" src="https://github.com/user-attachments/assets/379acc02-9921-4a18-8391-7fc794432c33" />
 
 ```bash
-└─$ hashcat -m 1700 secret.txt /usr/share/wordlists/rockyou.txt -o cracked -O
-hashcat (v7.1.2) starting
+$ hashcat -m 1700 secret.txt /usr/share/wordlists/rockyou.txt -o cracked -O
 ```
 But it returns empty handed... Let's fix that by adding a new entry to rockyou:
 ```bash
-┌──(㉿)
-└─$ echo -n "S3cret1234\!" | sudo tee /usr/share/wordlists/rockyou.txt 
+$ echo -n "S3cret1234\!" | sudo tee /usr/share/wordlists/rockyou.txt 
 S3cret1234!
 ```
 And then run hashcat again:
@@ -256,8 +253,7 @@ And there you go, password recovered.
 ## SSH private keys?
 I saw `RSA private key` when going through all the available formats for hashcat. I wanted to try it, so I created a new password protected key:
 ```bash
-┌──(㉿)
-└─$ ssh-keygen -t rsa -N 'Sup3rsecret1234!'
+$ ssh-keygen -t rsa -N 'Sup3rsecret1234!'
 
 # Some output redacted #
 Generating public/private rsa key pair.
@@ -271,8 +267,7 @@ The `-y` flag is used to read a private key and print the public key to `stdout`
 
 Let's extract the password hash:
 ```bash
-┌──(㉿)
-└─$ ssh2john my_key > my_key.hash
+$ ssh2john my_key > my_key.hash
 ```
 And put `Hashcat` to work:
 ```console
@@ -287,11 +282,11 @@ Hashfile 'my_key.hash' on line 1 (my_key...f0095940aad45d030aa605e0a$24$486): To
   malformed, or if input is otherwise not as expected (for example, if the
   --username or --dynamic-x option is used but no username or dynamic-tag is present)
 ```
-But we get an error..
+But we get a `Token length exception` error..
 
 I removed `my_key:` from the beginning of the file ...but that didn't help. 
 
-I then generated the hash again and used the `--username` flag with `hashcat`, ...but that didn't help either. 
+I then generated the hash again and used the `--username` flag with `hashcat` ...but that didn't help either. 
 
 I didn't know how to proceed, but then I thought: why make things complicated when they don't need to be. If John can do it let him finish the job!!
 ```bash
@@ -335,8 +330,7 @@ The description from man pages: _"Generate dictionaries for attacks from persona
 
 You can provide all the information interactively:
 ```
-┌──(㉿)
-└─$ cupp -i
+$ cupp -i
 ```
 <img width="1800" height="800" alt="2026-05-10-13:47:39" src="https://github.com/user-attachments/assets/00880b78-f35d-47b4-98b9-f99f814baee0" />
 
@@ -434,8 +428,7 @@ If you give the `-h` flag to `cewl`, it will give you a short but comprehensive 
 
 I used the long form of the flags so it would be easy to understand the options used, here's the command:
 ```bash
-┌──(㉿)
-└─$ cewl --min_word_length 6 -a --meta_file marcusMeta.txt --max_word_length 16 --write marcusAutomatic.txt https://en.wikipedia.org/wiki/Marcus_Aurelius
+$ cewl --min_word_length 6 -a --meta_file marcusMeta.txt --max_word_length 16 --write marcusAutomatic.txt https://en.wikipedia.org/wiki/Marcus_Aurelius
 ```
 The default depth the spider will crawl is 2 links from the main site.
 
@@ -445,8 +438,7 @@ It was going on for about 11 minutes, I thought something was wrong so I `ctrl+c
 ```
 Apparently it was still busy working, but luckily it did save all the work. The `meta` file which was supposed to store all `meta data` was empty, but the wordlist was populated:
 ```bash
-┌──(㉿)
-└─$ wc -l marcusAutomatic.txt 
+$ wc -l marcusAutomatic.txt 
 34122 marcusAutomatic.txt
 ```
 Here's a snippet of arbitrarily chosen words from the list:
@@ -532,18 +524,16 @@ Let's spice things up a bit and pass the wordlist to `cupp` like so:
 Our improved dictionary:
 ```bash
 # Renaming the file
-┌──(㉿)
 └─$ mv marcusAutomatic.txt.cupp.txt marcusEnhanced2p0.txt
 
 # Word count
-┌──(㉿)
 └─$ wc -l marcusEnhanced2p0.txt                                       
 17170463 marcusEnhanced2p0.txt
 ```
 That's a pretty hefty dictionary right there.. 😆 If we're not cracking the password with this one, we were never gonna get it to begin with.
 
 Here's a quick snippet:
-```
+```console
 Cl4r3nc3
 Cl4r3nc3!
 Cl4r3nc3!!
@@ -588,7 +578,7 @@ I wasn't sure what it was refering to, so I had to locate it first:
 ```bash
 $ locate hashcat | grep -i rule
 ```
-And found my way to `/usr/share/hashcat/rules`:
+I found the target directory:
 ```bash
 ┌──(㉿)-[/usr/share/hashcat/rules]
 └─$ ls
@@ -609,14 +599,14 @@ There were a lot of very illustrative examples I took inspiration from when crea
 Only by trying stuff out do we actually learn, so let's start by creating the target for this attack:
 ```bash
 # Create the password hash
-$ echo -n "SuperS3cretPassword123" | sha256sum | awk '{print $1}' | tee secret.txt
+└─$ echo -n "SuperS3cretPassword123" | sha256sum | awk '{print $1}' | tee secret.txt
 ca0a0a9af0ba1c6b6ec5c3adb855016c3f8450ef91bcca6135bb50c5f76dbf1f
 
 # Create the wordlist
-$ echo "password\nsecret\nsecretpassword\nsupersecret\nsupersecretpassword" > wlist.txt
+└─$ echo "password\nsecret\nsecretpassword\nsupersecret\nsupersecretpassword" > wlist.txt
 
 # Verify
-$ cat wlist.txt 
+└─$ cat wlist.txt 
 password
 secret
 secretpassword
