@@ -43,14 +43,13 @@ Or you can navigate to hashcats [Github repo](<https://github.com/hashcat/hashca
 
 Let's create a hash we can try to crack like so:
 ```bash
-┌──(㉿)
-└─$ echo -n password | sha1sum | tee secret.txt
+$ echo -n "password" | sha1sum | tee secret.txt
 5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8  -
 ```
 `-n` flag omits trailing newline, command in the middle of the pipeline computes the hash using the `SHA1` algorithm. Last part of the pipeline prints the result to `stdout` and saves it to a file called `secret.txt`.
 
 > [!NOTE]
-> It's good to note that the trailing hyphen (-) is going to cause problems when trying to crack the hash.
+> The trailing hyphen (-) is going to cause problems when trying to crack the hash.
 >
 > We can either **manually** remove it **or**:
 > ```bash
@@ -59,7 +58,8 @@ Let's create a hash we can try to crack like so:
 
 We recall the options for Hashcat by skimming its manual pages and build the following command:
 ```bash
-hashcat -m 100 secret.txt /usr/share/wordlists/rockyou.txt -o cracked -O --quiet
+┌──(㉿)
+└─$ hashcat -m 100 secret.txt /usr/share/wordlists/rockyou.txt -o cracked -O --quiet
 ```
 - `-m`: Hash type (100 = SHA1)
 - `secret.txt`: Input file
@@ -68,8 +68,7 @@ hashcat -m 100 secret.txt /usr/share/wordlists/rockyou.txt -o cracked -O --quiet
 
 The last flag `--quiet` suppresses the verbose output, we're only here for the password!
 ```bash
-┌──(㉿)
-└─$ cat cracked 
+$ cat cracked 
 5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8:password
 ```
 
@@ -85,7 +84,7 @@ The last flag `--quiet` suppresses the verbose output, we're only here for the p
 # B) John
 **Objective**
 - Install John the Ripper
-- Crack the password for an example file
+- Crack the password of an example file
 
 ## Hidden content
 John the Ripper is part of Kali's default arsenal as well:
@@ -96,7 +95,6 @@ It does say it's the `jumbo` version so we'll go ahead with this one and see how
 
 Create the file to crack, compress it, and encrypt it. When you pass the `-e` flag you'll be prompted for the password:
 ```bash
-┌──(㉿)
 └─$ zip -e confidential.zip confidential.txt 
 Enter password: 
 Verify password: 
@@ -106,13 +104,11 @@ Verify password:
 
 Now we have a file to play with. We extract the hash using `zip2john` and store it in a new file:
 ```bash
-┌──(㉿)
-└─zip2john confidential.zip > confidential.hash    
+└─$ zip2john confidential.zip > confidential.hash    
 ```
 
 Using the hash file, we set John the Ripper out on a mission to crack it:
 ```bash
-┌──(㉿)
 └─$ john confidential.hash
 
 # Some output redacted for clarity #
@@ -135,7 +131,7 @@ The command is very simple, `john` followed by the hash-file to crack. It then p
 
 # C) File
 **Objective**
-- Create an encrypted file or search for one online
+- Create an encrypted file (or search and download one online)
 - Break the encryption
 - (some other format than the one you already tried)
 
@@ -156,16 +152,16 @@ $ pdftk bash-cheatsheet.pdf output confidential.pdf user_pw PROMPT
 
 Let's extract the hash from the file using `pdf2john` and save the output:
 ```bash
-┌──(㉿)
 └─$ pdf2john confidential.pdf > pdf.hash
 ```
 
-Then put Ol John to work:
+Then put Ol' John to work:
 ```bash
-┌──(㉿)
 └─$ john pdf.hash 
 ```
-Well, it didn't actually work for some reason, it was huffing and puffing for about 10 minutes. I aborted the mission and changed the wordlist. When we went again it took less than a second!
+Well, it didn't actually work for some reason, it was huffing and puffing for about 10 minutes. I aborted the mission and changed the `wordlist`. 
+
+When we went again it took less than a second!
 ```bash
 ┌──(㉿)
 └─$ john --wordlist=/usr/share/wordlists/rockyou.txt pdf.hash
@@ -202,15 +198,14 @@ $ xdg-open confidential.pdf
 
 ## S3cret1234!
 We did `SHA1` earlier, which is not really considered that secure anymore, so let's up the ante and try `SHA512` now!
-```console
-┌──(㉿)
-└─$ echo -n "S3cret1234\!" | sha512sum | awk '{print $1}' | tee secret.txt
+```bash
+$ echo -n "S3cret1234\!" | sha512sum | awk '{print $1}' | tee secret.txt
 fd6372b5770b5b4c497ac62746dfb807fc4bf1d4ecc01c1787b0a8d6424af1d40c67db7f9e1f46a656ad759678817f2616eed20f2f509a5e68a6afda70769131
 ```
 Yeeeeeeeeeahh that's a long hash right there, let's get cracking.
 
 See if `hashid` recognizes it:
-```console
+```bash
 ┌──(㉿)
 └─$ hashid secret.txt                              
 --File 'secret.txt'--
@@ -231,13 +226,12 @@ We'll try with `-m 1700` first I guess:
 <img width="1849" height="769" alt="2026-05-07-18:58:37" src="https://github.com/user-attachments/assets/379acc02-9921-4a18-8391-7fc794432c33" />
 
 ```bash
-┌──(㉿)
 └─$ hashcat -m 1700 secret.txt /usr/share/wordlists/rockyou.txt -o cracked -O
 hashcat (v7.1.2) starting
 ```
 But it returns empty handed... Let's fix that by adding a new entry to rockyou:
 ```bash
-┌──(steve㉿flyingcarpet)-[~/box/secret]
+┌──(㉿)
 └─$ echo -n "S3cret1234\!" | sudo tee /usr/share/wordlists/rockyou.txt 
 S3cret1234!
 ```
@@ -273,10 +267,10 @@ Verify it works as intended by providing the wrong password:
 
 <img width="1234" height="162" alt="2026-05-07-19:31:48" src="https://github.com/user-attachments/assets/d8ac603a-af4e-4397-8ae1-7099c11d5f5f" />
 
-The `-y` flag is used to read a private key and print the public key to `stdout` (source `ssh-keygen` man pages).
+The `-y` flag is used to read a private key and print the public key to `stdout` (Source: `ssh-keygen` man pages).
 
 Let's extract the password hash:
-```console
+```bash
 ┌──(㉿)
 └─$ ssh2john my_key > my_key.hash
 ```
@@ -295,8 +289,12 @@ Hashfile 'my_key.hash' on line 1 (my_key...f0095940aad45d030aa605e0a$24$486): To
 ```
 But we get an error..
 
-I removed `my_key:` from the beginning of the file ...but that didn't help. I then generated the hash again and used the `--username` flag with `hashcat`, ...but that didn't help either. I didn't know how to proceed, but then I thought: why make things complicated when they don't need to be. If John can do it let him finish the job!!
-```console
+I removed `my_key:` from the beginning of the file ...but that didn't help. 
+
+I then generated the hash again and used the `--username` flag with `hashcat`, ...but that didn't help either. 
+
+I didn't know how to proceed, but then I thought: why make things complicated when they don't need to be. If John can do it let him finish the job!!
+```bash
 ┌──(㉿)
 └─$ john --wordlist=/usr/share/wordlists/rockyou.txt my_key.hash 
 
@@ -327,7 +325,9 @@ John's a good guy, he gets it! Let's take the win and move on. 🙏
 - Demonstrate how to make a dictionary for `john` or `hashcat`
 
 ## BYOD (Bring Your Own Dictionary)
-I searched for ways to create your own wordlists and stumbled upon the tool `cupp`, it can be installed on Kali:
+I searched for ways to create your own wordlists and stumbled upon the tool `cupp`. 
+
+It can be installed on Kali:
 ```
 $ sudo apt update && sudo apt install cupp -y
 ```
@@ -384,7 +384,7 @@ You can provide all the information interactively:
 [+] Saving dictionary to marcus.txt, counting 45074 words.
 [+] Now load your pistolero with marcus.txt and shoot! Good luck!
 ```
-We now have a dictionary of `45073` words, here's a snippet of that file (words chosen arbitrarily):
+We now have a wordlist with `45073` entries, here's a snippet of that file (words chosen arbitrarily):
 ```console
 rome_61214
 rome_621
@@ -399,11 +399,11 @@ stoicism!!@
 3mp1r3_21
 3mp1r3_2104
 ```
-Marcus not really being a computer wizard, I think we would crack his password relatively quickly with this list!
+Marcus not really being a computer wizard, I think we would crack his password relatively quickly with this one!
 
 ## Further modding
 In the configuration file `/etc/cupp.cfg` you can control how the words are generated, for example, changing `leet` mode:
-```
+```console
 [leet]
 a=4
 i=1
@@ -414,7 +414,7 @@ s=5
 g=9
 z=2
 ```
-This is an actual entry in the file, if you've seen the victim substituting `L` as `/` for some reason, you can go ahead and add a new entry for it!
+If you've seen the victim substituting `L` as `/` for some reason, you can go ahead and add a new entry for it!
 
 Here's 2 other examples for specifying special characters and random numbers -->
 ```console
@@ -428,7 +428,7 @@ to=100
 
 
 ## Automation
-I wanted to build on this list by using `cewl` ([Custom Word List generator](<https://github.com/digininja/CeWL>)). It intrigued me for it's ability to crawl URLs you give it, at a specified depth, and return with a list of words. Let's try it out by giving it the wikipedia page of [Marcus Aurelius](<https://en.wikipedia.org/wiki/Marcus_Aurelius>).
+I wanted to build on this list by using `cewl` ([Custom Word List generator](<https://github.com/digininja/CeWL>)). It intrigued me for it's ability to crawl URLs you give it, at a specified depth, and return with a list of words. Let's try it out by giving it the Wikipedia page of [Marcus Aurelius](<https://en.wikipedia.org/wiki/Marcus_Aurelius>).
 
 If you give the `-h` flag to `cewl`, it will give you a short but comprehensive list on all the options (funny enough it was more comprehensive than the man pages this time).
 
@@ -443,13 +443,13 @@ It was going on for about 11 minutes, I thought something was wrong so I `ctrl+c
 ```console
 ^CHold on, stopping here ...
 ```
-Apparently it was still busy working, but luckily it did save all the work. The `meta` file which was supposed to store all meta information was empty, but the wordlist was populated:
+Apparently it was still busy working, but luckily it did save all the work. The `meta` file which was supposed to store all `meta data` was empty, but the wordlist was populated:
 ```bash
 ┌──(㉿)
 └─$ wc -l marcusAutomatic.txt 
 34122 marcusAutomatic.txt
 ```
-All of `34122` words! Here's a snippet of arbitrarily chosen words from the list:
+Here's a snippet of arbitrarily chosen words from the list:
 ```console
 Marcus
 Wikipedia
@@ -504,10 +504,10 @@ upwards
 ```
 
 ## Joining forces
-I started thinking, could we combine the `cupp` permutation functionality with the vanilla wordlist generated by `cewl`? Turns out we can! 
+I started thinking, could we combine the `cupp` **permutation functionality** with the vanilla wordlist generated by `cewl`? Turns out we can! 
 
 Let's spice things up a bit and pass the wordlist to `cupp` like so:
-```
+```console
 ┌──(㉿)
 └─$ cupp -w marcusAutomatic.txt 
 
@@ -530,10 +530,12 @@ Let's spice things up a bit and pass the wordlist to `cupp` like so:
 [+] Now load your pistolero with marcusAutomatic.txt.cupp.txt and shoot! Good luck!
 ```
 Our improved dictionary:
-```
+```bash
+# Renaming the file
 ┌──(㉿)
 └─$ mv marcusAutomatic.txt.cupp.txt marcusEnhanced2p0.txt
-                                                                                                                              
+
+# Word count
 ┌──(㉿)
 └─$ wc -l marcusEnhanced2p0.txt                                       
 17170463 marcusEnhanced2p0.txt
@@ -580,7 +582,9 @@ Cl4r3nc3&&%
 
 ## Rule based attack
 The man pages made me none the wiser on the use of rules in hashcat, so I navigated to the hashcat [wiki](<https://hashcat.net/wiki/doku.php?id=rule_based_attack>). 
-I read through the wiki and got some idea on how to create rules. The wiki guided me further to check out the `rules/` folder, so I did
+I read through the wiki and got some idea on how to create rules. The wiki guided me further to check out the `rules/` folder.
+
+I wasn't sure what it was refering to, so I had to locate it first:
 ```bash
 $ locate hashcat | grep -i rule
 ```
@@ -602,19 +606,17 @@ InsidePro-PasswordsPro.rule  T0XlC-insert_top_100_passwords_1_G.rule
 There were a lot of very illustrative examples I took inspiration from when creating my own ruleset.
 
 
-Only by trying stuff out do we actually learn, so let's start by creating the basis for this attack:
+Only by trying stuff out do we actually learn, so let's start by creating the target for this attack:
 ```bash
 # Create the password hash
-┌──(㉿)
-└─$ echo -n "SuperS3cretPassword123" | sha256sum | awk '{print $1}' | tee secret.txt
+$ echo -n "SuperS3cretPassword123" | sha256sum | awk '{print $1}' | tee secret.txt
 ca0a0a9af0ba1c6b6ec5c3adb855016c3f8450ef91bcca6135bb50c5f76dbf1f
 
 # Create the wordlist
-┌──(㉿)
-└─$ echo "password\nsecret\nsecretpassword\nsupersecret\nsupersecretpassword" > wlist.txt
-                                                                                                                              
-┌──(㉿)
-└─$ cat wlist.txt 
+$ echo "password\nsecret\nsecretpassword\nsupersecret\nsupersecretpassword" > wlist.txt
+
+# Verify
+$ cat wlist.txt 
 password
 secret
 secretpassword
@@ -661,8 +663,7 @@ We're including some basics like `case toggle`, `number appending` and `leet`. C
 ## Executing the attack
 Identify the hash
 ```bash
-┌──(㉿)
-└─$ hashid secret.txt 
+$ hashid secret.txt 
 --File 'secret.txt'--
 Analyzing 'ca0a0a9af0ba1c6b6ec5c3adb855016c3f8450ef91bcca6135bb50c5f76dbf1f'
 [+] Snefru-256 
@@ -707,7 +708,7 @@ Candidates.#01...: password123 -> SuperS3cretPassword123
 ca0a0a9af0ba1c6b6ec5c3adb855016c3f8450ef91bcca6135bb50c5f76dbf1f:SuperS3cretPassword123
 ```
 **Explained**
-- Our rule file hac a bunch of rules, but the one that cracked the password was the last line
+- Our rule file has a bunch of rules, but the one that cracked the password was the last line
 ```
 T0 T5 TB o63 $1$2$3
 ```
@@ -717,6 +718,8 @@ T0 T5 TB o63 $1$2$3
   - Example: `o1X` transforms `waddup` to `wXddup`
 - `$X`: **Append X**
   - Example: `$!` transforms `waddup` to `waddup!`
+- Source:
+  - The wiki page
 
 
 -------------
@@ -740,14 +743,14 @@ I do have to give my attacker some room to grow!
 1. Shut down the VM.
 2. Add some juice to the disk image:
 ```bash
+# On the host machine:
 [ ~ ] ❯❯ sudo qemu-img resize /var/lib/libvirt/images/kali.qcow2 +20G
 Image resized.
 ```
 3. Power the VM back on
-4. `lsblk` to confirm that the disk grew:
 ```bash
-┌──(㉿)
-└─$ lsblk
+# Confirm that the disk grew
+$ lsblk
 NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
 sr0     11:0    1 1024M  0 rom  
 vda    254:0    0   60G  0 disk 
@@ -769,10 +772,11 @@ Number  Start   End     Size    Type      File system     Flags
  5      40.7GB  42.9GB  2239MB  logical   linux-swap(v1)  swap
 ```
 > [!NOTE]
-> The order is problematic, as the swap partition comes **after** the root. We can't really use the `100%` paramater to make the partition use all the newly made available space :/
+> The order is problematic, as the `swap partition` comes **after** the `root`. We can't easily expand it to use `100%` of available space. (I tried but got an error that the swap partition is in the way)
 >
 > My solution:
 > ```bash
+> # Turn off the swap space
 > $ sudo swapoff -a
 > # Then delete the swap partition (we'll just create a swapfile later)
 > (parted) rm 2
@@ -787,18 +791,20 @@ End?  [40.7GB]? 100%
 ```
 10. Resize the filesystem
 ```bash
-┌──(㉿)
-└─$ sudo resize2fs /dev/vda1                          
+$ sudo resize2fs /dev/vda1                          
 resize2fs 1.47.4 (6-Mar-2025)
 Filesystem at /dev/vda1 is mounted on /; on-line resizing required
 old_desc_blocks = 5, new_desc_blocks = 8
 The filesystem on /dev/vda1 is now 15728384 (4k) blocks long.
 ```
-11. Done!
-```bash
+11. Verify
+```console
 vda    254:0    0   60G  0 disk 
 └─vda1 254:1    0   60G  0 part /
 ```
+12. Enjoy!
+<img width="706" height="72" alt="2026-05-10-17:28:58" src="https://github.com/user-attachments/assets/3a400dc0-407e-43f9-bcec-6edf74aaea0f" />
+
 
 
 
