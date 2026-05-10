@@ -702,7 +702,6 @@ I do have to give my attacker some room to grow!
 ```bash
 # On the host machine:
 [ ~ ] ❯❯ sudo qemu-img resize /var/lib/libvirt/images/kali.qcow2 +20G
-Image resized.
 ```
 3. Power the VM back on
 ```bash
@@ -715,8 +714,6 @@ vda    254:0    0   60G  0 disk
 ├─vda2 254:2    0    1K  0 part 
 └─vda5 254:5    0  2.1G  0 part [SWAP]
 ```
-It did! Now we can make it available to the system.
-
 5. Fire up the `partition manipulation tool`
 ```bash
 $ sudo parted
