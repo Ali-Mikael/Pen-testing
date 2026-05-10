@@ -1,6 +1,6 @@
-# List & Link
+# List & Link..
 
-# A) Voluntary bonus tasks
+# A) ..Voluntary bonus tasks
 **H2**
 - F) [Breaking into metasploitable](<https://github.com/Ali-Mikael/Pen-testing/blob/main/h2-dora.md#f-bonus-break-in-and-enter>)
 
@@ -15,7 +15,7 @@
 
 
 
-# B) Improved tasks
+# B) ..Improved tasks
 [H6](<https://github.com/Ali-Mikael/Pen-testing/blob/main/h6-shells.md>) Somebody complained about not having a reference list at the end. So I made references more clearer. 
 
 Allthough: If I remember correctly, if you have all sources written down, you don't need to do a complete listing at the end.
@@ -24,7 +24,7 @@ Allthough: If I remember correctly, if you have all sources written down, you do
 And I personally think that for a homework report like this, as long as you have all references clearly written down and it's easy to see what you took from where, it's enough! But apparently that's just my opinion? 🤷‍♂️
 
 
-# C) Hacking challenges outside of the course
+# C) ..Hacking challenges outside the course
 ## Academy
 Done 60% of the Linux module in `HTB Academy`:
 
@@ -41,7 +41,7 @@ The boxes I've done in `HTB Labs` (the `sequel` box was done as part of H1):
 
 <img width="1378" height="458" alt="2026-05-10-19:05:50" src="https://github.com/user-attachments/assets/53bd5ff4-d28d-4f0d-8749-503796c7b9c0" />
 
-
+## Pwn
 In [pwn.college](<https://pwn.college>) i've done the full [Linux Luminarium] dojo and started the `Computing 101`:
 
 <img width="1143" height="336" alt="2026-05-10-19:13:02" src="https://github.com/user-attachments/assets/61a31cfc-9146-4ad8-8a90-e0d68b17d239" />
