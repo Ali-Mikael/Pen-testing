@@ -708,15 +708,15 @@ Candidates.#01...: password123 -> SuperS3cretPassword123
 ca0a0a9af0ba1c6b6ec5c3adb855016c3f8450ef91bcca6135bb50c5f76dbf1f:SuperS3cretPassword123
 ```
 **Explained**
-- Our rule file had a bunch of rules, but the one that cracked the password was the last line
+- Our rule file hac a bunch of rules, but the one that cracked the password was the last line
 ```
 T0 T5 TB o63 $1$2$3
 ```
-- `TX`: Toggle case at position X
+- `TX`: **Toggle case at position X**
   - Example: `T0 T5` transforms `waddup` to `WadduP`
-- `oXY`: Overwrite char at position X with Y
+- `oXY`: **Overwrite char at position X with Y**
   - Example: `o1X` transforms `waddup` to `wXddup`
-- `$X`: Append X
+- `$X`: **Append X**
   - Example: `$!` transforms `waddup` to `waddup!`
 
 
@@ -763,7 +763,7 @@ It did! Now we can make it available to the system.
 $ sudo parted
 ```
 7. Type `print` to confirm layout
-```bash
+```console
 Number  Start   End     Size    Type      File system     Flags
  1      1049kB  40.7GB  40.7GB  primary   ext4            boot
  2      40.7GB  42.9GB  2239MB  extended                  lba
@@ -787,7 +787,7 @@ Yes/No? yes
 End?  [40.7GB]? 100%
 ```
 10. Resize the filesystem
-```console
+```bash
 ┌──(㉿)
 └─$ sudo resize2fs /dev/vda1                          
 resize2fs 1.47.4 (6-Mar-2025)
@@ -796,7 +796,7 @@ old_desc_blocks = 5, new_desc_blocks = 8
 The filesystem on /dev/vda1 is now 15728384 (4k) blocks long.
 ```
 11. Done!
-```console
+```bash
 vda    254:0    0   60G  0 disk 
 └─vda1 254:1    0   60G  0 part /
 ```
