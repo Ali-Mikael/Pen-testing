@@ -2,7 +2,7 @@
 **Objective**
 - A few bullet points per section is enough to summarize
 
-## X.1) [Cracking Passwords with Hashcat](<https://terokarvinen.com/2022/cracking-passwords-with-hashcat/>)
+## X.1) [Cracking Passwords with Hashcat](<https://terokarvinen.com/2022/cracking-passwords-with-hashcat/>)[1]
 - Systems store hashes, not original passwords (or at least they should)
 - Hashing is a one way function, you can't turn it back to a password
 - BUT, you can make a computer try every word in the dictionary and compare the hashes
@@ -12,7 +12,7 @@
   - Identify hash type by using `hashid` for example
   - Then give hashcat the type, the hash and the output file and fire away
  
-## X.2) [Crack File Password With John](<https://terokarvinen.com/2023/crack-file-password-with-john/>)
+## X.2) [Crack File Password With John](<https://terokarvinen.com/2023/crack-file-password-with-john/>)[2]
 - File formats might support password protected encryption, John the Ripper on the other hand might be able to crack these passwords with a dictionary attack
 - Get the latest version of John source code without the fluff by using the `--depth=1` flag in your git `git clone` command
 - Compile the project
@@ -39,7 +39,7 @@ Hashcat is part of Kali's default arsenal. If you're using Kali and for some rea
 ```bash
 $ sudo apt update && sudo apt install hashcat -y
 ```
-Or you can navigate to hashcats [Github repo](<https://github.com/hashcat/hashcat>) and look for instuctions on compiling from source!
+Or you can navigate to hashcats [Github repo](<https://github.com/hashcat/hashcat>) and look for instuctions on compiling from source![3]
 
 Let's create a hash we can try to crack like so:
 ```bash
@@ -114,7 +114,7 @@ $ john confidential.hash
 Loaded 1 password hash (PKZIP [32/64])
 Proceeding with wordlist:/usr/share/john/password.lst
 
-1234             (confidential.zip/confidential.txt)     # <--
+1234             (confidential.zip/confidential.txt)     # <-- Here we go!
 Session completed. 
 ```
 The command is very simple, `john` followed by the hash-file to crack. It then proceeds to extract the password = `1234`, which we use to `unzip` the file:
@@ -135,7 +135,7 @@ The command is very simple, `john` followed by the hash-file to crack. It then p
 - (some other format than the one you already tried)
 
 ## PDF
-I thought it'd be fun to crack a PDF, so I searched for ways to encrypt PDFs and found a [blogpost](<https://www.baeldung.com/linux/file-pdf-set-password>) suggesting `pdftk`.
+I thought it'd be fun to crack a PDF, so I searched for ways to encrypt PDFs and found a [blogpost](<https://www.baeldung.com/linux/file-pdf-set-password>) suggesting `pdftk`.[4]
 
 The tool can be installed like so:
 ```bash
@@ -162,12 +162,7 @@ Well, it didn't actually work for some reason, it was huffing and puffing for ab
 
 When we went again it took less than a second!
 ```bash
-┌──(㉿)
-└─$ john --wordlist=/usr/share/wordlists/rockyou.txt pdf.hash
-
-# Some output redacted for clarity #
-Using default input encoding: UTF-8
-Loaded 1 password hash (PDF [MD5 SHA2 RC4/AES 32/64])
+$ john --wordlist=/usr/share/wordlists/rockyou.txt pdf.hash
 
 password1234     (confidential.pdf)     
 ```
@@ -223,6 +218,7 @@ We'll try with `-m 1700` first I guess:
 
 <img width="1849" height="769" alt="2026-05-07-18:58:37" src="https://github.com/user-attachments/assets/379acc02-9921-4a18-8391-7fc794432c33" />
 
+There's a few options for the same algorithm (V2 & V3), so I thought let's try the first one (V2):
 ```bash
 $ hashcat -m 1700 secret.txt /usr/share/wordlists/rockyou.txt -o cracked -O
 ```
@@ -270,9 +266,7 @@ $ ssh2john my_key > my_key.hash
 ```
 And put `Hashcat` to work:
 ```console
-┌──(㉿)
-└─$ hashcat -m 22911 my_key.hash /usr/share/wordlists/rockyou.txt -o keySecret   
-hashcat (v7.1.2) starting
+$ hashcat -m 22911 my_key.hash /usr/share/wordlists/rockyou.txt -o keySecret
 
 Hashfile 'my_key.hash' on line 1 (my_key...f0095940aad45d030aa605e0a$24$486): Token length exception
 
@@ -289,8 +283,7 @@ I then generated the hash again and used the `--username` flag with `hashcat` ..
 
 I didn't know how to proceed, but then I thought: why make things complicated when they don't need to be. If John can do it let him finish the job!!
 ```bash
-┌──(㉿)
-└─$ john --wordlist=/usr/share/wordlists/rockyou.txt my_key.hash 
+$ john --wordlist=/usr/share/wordlists/rockyou.txt my_key.hash 
 
 Loaded 1 password hash (SSH, SSH private key [RSA/DSA/EC/OPENSSH 32/64])
 Cost 1 (KDF/cipher [0=MD5/AES 1=MD5/3DES 2=Bcrypt/AES]) is 2 for all loaded hashes
@@ -421,7 +414,7 @@ to=100
 
 
 ## Automation
-I wanted to build on this list by using `cewl` ([Custom Word List generator](<https://github.com/digininja/CeWL>)). It intrigued me for it's ability to crawl URLs you give it, at a specified depth, and return with a list of words. Let's try it out by giving it the Wikipedia page of [Marcus Aurelius](<https://en.wikipedia.org/wiki/Marcus_Aurelius>).
+I wanted to build on this list by using `cewl` ([Custom Word List generator](<https://github.com/digininja/CeWL>)). It intrigued me for it's ability to crawl URLs you give it, at a specified depth, and return with a list of words. Let's try it out by giving it the Wikipedia page of [Marcus Aurelius](<https://en.wikipedia.org/wiki/Marcus_Aurelius>).[5][6]
 
 If you give the `-h` flag to `cewl`, it will give you a short but comprehensive list on all the options (funny enough it was more comprehensive than the man pages this time).
 
@@ -454,10 +447,6 @@ Category
 Birley
 Hadrian
 Lucius
-btitle
-Abookrft
-aulast
-aufirst
 University
 Antoninus
 philosophy
@@ -469,29 +458,10 @@ Faustina
 dynasty
 Ancient
 template
-Trajan
-International
-Carrera
 Romanism
 philosophizing
-constituents
-hollow
-lookout
-columnae
-expressive
-clumsier
-worsen
-expecting
-Pitholaus
-hemmed
-Onesicrates
 plight
 fatigue
-scorched
-interposition
-enchantments
-performances
-upwards
 ```
 
 ## Joining forces
@@ -523,10 +493,10 @@ Let's spice things up a bit and pass the wordlist to `cupp` like so:
 Our improved dictionary:
 ```bash
 # Renaming the file
-└─$ mv marcusAutomatic.txt.cupp.txt marcusEnhanced2p0.txt
+$ mv marcusAutomatic.txt.cupp.txt marcusEnhanced2p0.txt
 
 # Word count
-└─$ wc -l marcusEnhanced2p0.txt                                       
+$ wc -l marcusEnhanced2p0.txt                                       
 17170463 marcusEnhanced2p0.txt
 ```
 That's a pretty hefty dictionary right there.. 😆 If we're not cracking the password with this one, we were never gonna get it to begin with.
@@ -570,7 +540,8 @@ Cl4r3nc3&&%
 - Showcase Hashcat rules
 
 ## Rule based attack
-The man pages made me none the wiser on the use of rules in hashcat, so I navigated to the hashcat [wiki](<https://hashcat.net/wiki/doku.php?id=rule_based_attack>). 
+The man pages made me none the wiser on the use of rules in hashcat, so I navigated to the hashcat [wiki](<https://hashcat.net/wiki/doku.php?id=rule_based_attack>).[7] 
+
 I read through the wiki and got some idea on how to create rules. The wiki guided me further to check out the `rules/` folder.
 
 I wasn't sure what it was refering to, so I had to locate it first:
@@ -598,14 +569,14 @@ There were a lot of very illustrative examples I took inspiration from when crea
 Only by trying stuff out do we actually learn, so let's start by creating the target for this attack:
 ```bash
 # Create the password hash
-└─$ echo -n "SuperS3cretPassword123" | sha256sum | awk '{print $1}' | tee secret.txt
+$ echo -n "SuperS3cretPassword123" | sha256sum | awk '{print $1}' | tee secret.txt
 ca0a0a9af0ba1c6b6ec5c3adb855016c3f8450ef91bcca6135bb50c5f76dbf1f
 
 # Create the wordlist
-└─$ echo "password\nsecret\nsecretpassword\nsupersecret\nsupersecretpassword" > wlist.txt
+$ echo "password\nsecret\nsecretpassword\nsupersecret\nsupersecretpassword" > wlist.txt
 
 # Verify
-└─$ cat wlist.txt 
+$ cat wlist.txt 
 password
 secret
 secretpassword
@@ -613,7 +584,7 @@ supersecret
 supersecretpassword                                                    
 ```
 
-Now for the rule creation, I created a `rules` file and populated it with the following:
+Now for the rule creation, I created a `rules` file with the following rules:
 ```console
 :
 u
@@ -647,7 +618,7 @@ so0 si1 se3 $1$2$3$4$!
 ## The winner ->
 T0 T5 TB o63 $1$2$3
 ```
-We're including some basics like `case toggle`, `number appending` and `leet`. Check out the rule section in the [wiki](<https://hashcat.net/wiki/doku.php?id=rule_based_attack>) if you want to understand this better!
+We're including some basics like `case toggle`, `number appending` and `leet`. Check out the rule section in the [wiki](<https://hashcat.net/wiki/doku.php?id=rule_based_attack>) if you want to understand this better![8]
 
 ## Executing the attack
 Identify the hash
@@ -668,16 +639,14 @@ Analyzing 'ca0a0a9af0ba1c6b6ec5c3adb855016c3f8450ef91bcca6135bb50c5f76dbf1f'
 ```
 `SHA256` is the most likely candidate.
 
+## Rules are meant to be broken, or meant to be used for breaking?
 Use the rules to crack the password:
 ```bash
-┌──(㉿)
-└─$ hashcat -a 0 -m 1400 -r rules secret.txt wlist.txt -o cracked -O
-
-#--Some output redacted!--#
-
-Hashes: 1 digests; 1 unique digests, 1 unique salts
-Bitmaps: 16 bits, 65536 entries, 0x0000ffff mask, 262144 bytes, 5/13 rotates
-Rules: 27
+$ hashcat -a 0 -m 1400 -r rules secret.txt wlist.txt -o cracked -O
+```
+The result:
+```console
+#--Some output redacted--#
                                              
 Session..........: hashcat
 Status...........: Cracked
@@ -688,7 +657,6 @@ Kernel.Feature...: Optimized Kernel (password length 0-31 bytes)
 Guess.Base.......: File (wlist.txt)
 Guess.Mod........: Rules (rules)
 
-Candidate.Engine.: Device Generator
 Candidates.#01...: password123 -> SuperS3cretPassword123
 
 
@@ -697,18 +665,18 @@ Candidates.#01...: password123 -> SuperS3cretPassword123
 ca0a0a9af0ba1c6b6ec5c3adb855016c3f8450ef91bcca6135bb50c5f76dbf1f:SuperS3cretPassword123
 ```
 **Explained**
-- Our rule file has a bunch of rules, but the one that cracked the password was the last line
+- Our rule file has a bunch of entries, but the one that cracked the password was the last one:
 ```
 T0 T5 TB o63 $1$2$3
 ```
-- `TX`: **Toggle case at position X**
+- `TX` **Toggle case at position X**
   - Example: `T0 T5` transforms `waddup` to `WadduP`
-- `oXY`: **Overwrite char at position X with Y**
+- `oXY` **Overwrite char at position X with Y**
   - Example: `o1X` transforms `waddup` to `wXddup`
-- `$X`: **Append X**
+- `$X` **Append X**
   - Example: `$!` transforms `waddup` to `waddup!`
 - Source:
-  - The wiki page
+  - The hashcat rules wiki page[8]
 
 
 -------------
@@ -793,6 +761,32 @@ vda    254:0    0   60G  0 disk
 ```
 12. Enjoy!
 <img width="706" height="72" alt="2026-05-10-17:28:58" src="https://github.com/user-attachments/assets/3a400dc0-407e-43f9-bcec-6edf74aaea0f" />
+
+
+
+# It works on my machine:
+<img width="1690" height="788" alt="2026-05-10-20:42:51" src="https://github.com/user-attachments/assets/4ded047d-5101-42a8-afe5-27fbab99600e" />
+
+<img width="1574" height="666" alt="2026-05-10-20:48:29" src="https://github.com/user-attachments/assets/af132160-6019-493b-b898-2bfa4ef13ccc" />
+
+<img width="832" height="61" alt="2026-05-10-20:46:01" src="https://github.com/user-attachments/assets/57ea3b42-9339-4f32-adb6-8f4eb0318ff0" />
+
+<img width="1524" height="32" alt="2026-05-10-20:47:32" src="https://github.com/user-attachments/assets/dc5d2815-1ea9-4a42-a95a-6a0c0379105a" />
+
+<img width="484" height="84" alt="2026-05-10-20:49:36" src="https://github.com/user-attachments/assets/30317f74-a8c8-455c-9790-6c723462a892" />
+
+<img width="1005" height="284" alt="2026-05-10-20:50:04" src="https://github.com/user-attachments/assets/e5c5a97a-15fb-4507-aa74-173606e8ed64" />
+
+
+# Src & Ref
+- [1] <https://terokarvinen.com/2022/cracking-passwords-with-hashcat/>
+- [2] <https://terokarvinen.com/2023/crack-file-password-with-john/>
+- [3] <https://github.com/hashcat/hashcat>
+- [4] <https://www.baeldung.com/linux/file-pdf-set-password>
+- [5] <https://github.com/digininja/CeWL>
+- [6] <https://en.wikipedia.org/wiki/Marcus_Aurelius>
+- [7] <https://hashcat.net/wiki/doku.php?id=rule_based_attack>
+- [8] <https://hashcat.net/wiki/doku.php?id=rule_based_attack>
 
 
 
