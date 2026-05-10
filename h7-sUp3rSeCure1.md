@@ -745,7 +745,8 @@ End?  [40.7GB]? 100%
 ```
 10. Resize the filesystem
 ```bash
-$ sudo resize2fs /dev/vda1                          
+$ sudo resize2fs /dev/vda1
+                  
 resize2fs 1.47.4 (6-Mar-2025)
 Filesystem at /dev/vda1 is mounted on /; on-line resizing required
 old_desc_blocks = 5, new_desc_blocks = 8
