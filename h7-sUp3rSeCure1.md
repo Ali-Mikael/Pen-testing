@@ -58,8 +58,7 @@ $ echo -n "password" | sha1sum | tee secret.txt
 
 We recall the options for Hashcat by skimming its manual pages and build the following command:
 ```bash
-┌──(㉿)
-└─$ hashcat -m 100 secret.txt /usr/share/wordlists/rockyou.txt -o cracked -O --quiet
+$ hashcat -m 100 secret.txt /usr/share/wordlists/rockyou.txt -o cracked -O --quiet
 ```
 - `-m`: Hash type (100 = SHA1)
 - `secret.txt`: Input file
