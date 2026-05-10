@@ -1,7 +1,6 @@
 # X) Read/Watch/Listen & Summarize
 **Objective**
 - A few bullet points per section is enough to summarize
-- Add your own observation, question or idea
 
 ## X.1) [Cracking Passwords with Hashcat](<https://terokarvinen.com/2022/cracking-passwords-with-hashcat/>)
 - Systems store hashes, not original passwords (or at least they should)
@@ -40,6 +39,7 @@ Hashcat is part of Kali's default arsenal. If you're using Kali and for some rea
 ```bash
 $ sudo apt update && sudo apt install hashcat -y
 ```
+Or you can navigate to hashcats [Github repo](<https://github.com/hashcat/hashcat>) and look for instuctions on compiling from source!
 
 Let's create a hash we can try to crack like so:
 ```bash
@@ -50,17 +50,16 @@ Let's create a hash we can try to crack like so:
 `-n` flag omits trailing newline, command in the middle of the pipeline computes the hash using the `SHA1` algorithm. Last part of the pipeline prints the result to `stdout` and saves it to a file called `secret.txt`.
 
 > [!NOTE]
-> It's good to note that the hyphen (-) at the end of the output is going to cause problems when trying to crack the hash.
+> It's good to note that the trailing hyphen (-) is going to cause problems when trying to crack the hash.
 >
-> We can either manually remove it or:
+> We can either **manually** remove it **or**:
 > ```bash
-> $ echo -n password | sha1sum | awk '{print $1}' | tee secret.txt
+> $ echo -n password | sha1sum | awk '{print $1}' > secret.txt
 > ```
 
-We recall the options for Hashcat by skimming its manual pages and end up with the following command:
+We recall the options for Hashcat by skimming its manual pages and build the following command:
 ```bash
-┌──(㉿)
-└─$ hashcat -m 100 secret.txt /usr/share/wordlists/rockyou.txt -o cracked -O --quiet
+hashcat -m 100 secret.txt /usr/share/wordlists/rockyou.txt -o cracked -O --quiet
 ```
 - `-m`: Hash type (100 = SHA1)
 - `secret.txt`: Input file
