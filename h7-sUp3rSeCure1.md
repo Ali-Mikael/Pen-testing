@@ -767,15 +767,28 @@ vda    254:0    0   60G  0 disk
 # It works on my machine:
 <img width="1690" height="788" alt="2026-05-10-20:42:51" src="https://github.com/user-attachments/assets/4ded047d-5101-42a8-afe5-27fbab99600e" />
 
+### Kali, hashid & hashcat
 <img width="1574" height="666" alt="2026-05-10-20:48:29" src="https://github.com/user-attachments/assets/af132160-6019-493b-b898-2bfa4ef13ccc" />
 
+### cupp
 <img width="832" height="61" alt="2026-05-10-20:46:01" src="https://github.com/user-attachments/assets/57ea3b42-9339-4f32-adb6-8f4eb0318ff0" />
 
+### John The Ripper
 <img width="1524" height="32" alt="2026-05-10-20:47:32" src="https://github.com/user-attachments/assets/dc5d2815-1ea9-4a42-a95a-6a0c0379105a" />
 
+### shasum
 <img width="484" height="84" alt="2026-05-10-20:49:36" src="https://github.com/user-attachments/assets/30317f74-a8c8-455c-9790-6c723462a892" />
 
-<img width="1005" height="284" alt="2026-05-10-20:50:04" src="https://github.com/user-attachments/assets/e5c5a97a-15fb-4507-aa74-173606e8ed64" />
+### ZIP
+<img width="434" height="84" alt="2026-05-10-21:10:25" src="https://github.com/user-attachments/assets/154ffe8e-24de-451b-a3a5-daa3ac1fcb80" />
+
+<img width="625" height="53" alt="2026-05-10-21:10:34" src="https://github.com/user-attachments/assets/0612d7ae-00af-4922-ae31-3fd783167525" />
+
+
+
+### pdtk
+<img width="326" height="54" alt="2026-05-10-21:07:50" src="https://github.com/user-attachments/assets/6fedec8f-a4f5-404a-a0ea-3d36783d98a3" />
+
 
 
 # Src & Ref
