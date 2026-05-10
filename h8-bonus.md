@@ -31,7 +31,7 @@ Done 60% of the Linux module in `HTB Academy`:
 <img width="1352" height="271" alt="2026-05-10-19:03:56" src="https://github.com/user-attachments/assets/f44a97e8-c0b1-4f4c-a96a-9d64b4b12eec" />
 
 ## Labs
-Can't remember which one I did in H1 (or was it H2), but here are the boxes I've done in `HTB Labs`:
+The boxes I've done in `HTB Labs` (the `sequel` box was done as part of H1):
 
 **Tier 0**
 
