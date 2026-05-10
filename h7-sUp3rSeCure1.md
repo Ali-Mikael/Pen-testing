@@ -36,7 +36,7 @@
 - Test it by breaking an example password
 
 ## Password1234
-Hashcat is part of Kali's default arsenal. If for some reason you're using Kali and don't have it:
+Hashcat is part of Kali's default arsenal. If you're using Kali and for some reason don't have it:
 ```bash
 $ sudo apt update && sudo apt install hashcat -y
 ```
@@ -67,7 +67,7 @@ We recall the options for Hashcat by skimming its manual pages and end up with t
 - `-o cracked`: Output file
 - `-O`: Enable optimized kernel (don't know what it actually does under the hood but hashcat suggested it so why not 😂)
 
-The last flag `--quiet` suppresses the verbose output, we're only here for the password:
+The last flag `--quiet` suppresses the verbose output, we're only here for the password!
 ```bash
 ┌──(㉿)
 └─$ cat cracked 
@@ -313,22 +313,411 @@ John's a good guy, he gets it! Let's take the win and move on. 🙏
 
 
 
+
+
 ---------------
+
+
+
+
+
 
 
 # E) Dictionary
 **Objective**
-- Demonstrate how you make a dictionary for `john` or `hashcat`
+- Demonstrate how to make a dictionary for `john` or `hashcat`
+
+## BYOD (Bring Your Own Dictionary)
+I searched for ways to create your own wordlists and stumbled upon the tool `cupp`, it can be installed on Kali:
+```
+$ sudo apt update && sudo apt install cupp -y
+```
+The description from man pages: _"Generate dictionaries for attacks from personal data"_. This intrigued me, as you can give it personal information on someone, and it will then go ahead and create you a word list based on the info you provided.
+
+You can provide all the information interactively:
+```
+┌──(㉿)
+└─$ cupp -i
+```
+<img width="1800" height="800" alt="2026-05-10-13:47:39" src="https://github.com/user-attachments/assets/00880b78-f35d-47b4-98b9-f99f814baee0" />
+
+```console
+   cupp.py!                 # Common
+      \                     # User
+       \   ,__,             # Passwords
+        \  (oo)____         # Profiler
+           (__)    )\   
+              ||--|| *      [ Muris Kurgas | j0rgan@remote-exploit.org ]
+                            [ Mebus | https://github.com/Mebus/]
+
+
+[+] Insert the information about the victim to make a dictionary
+[+] If you don't know all the info, just hit enter when asked! ;)
+
+> First Name: Marcus
+> Surname: Aurelius
+> Nickname: Marky
+> Birthdate (DDMMYYYY): 26040121
+
+
+> Partners) name: Annia Galeria Faustina
+> Partners) nickname: Fauzia
+> Partners) birthdate (DDMMYYYY): 01010130
+
+
+> Child's name: Lucilla
+> Child's nickname: Lucy
+> Child's birthdate (DDMMYYYY): 01010130
+
+
+> Pet's name: Doggy
+> Company name: Roman empire
+
+
+> Do you want to add some key words about the victim? Y/[N]: y
+> Please enter the words, separated by comma. [i.e. hacker,juice,black], spaces will be removed: meditations,thinker,philosophy,empire,rome,romanEmpire,stoicism,logic,reason,physics,god,Domitia,Calvilla 
+> Do you want to add special chars at the end of words? Y/[N]: y
+> Do you want to add some random numbers at the end of words? Y/[N]:Y
+> Leet mode? (i.e. leet = 1337) Y/[N]: Y
+
+[+] Now making a dictionary...
+[+] Sorting list and removing duplicates...
+[+] Saving dictionary to marcus.txt, counting 45074 words.
+[+] Now load your pistolero with marcus.txt and shoot! Good luck!
+```
+We now have a dictionary of `45073` words, here's a snippet of that file (words chosen arbitrarily):
+```console
+rome_61214
+rome_621
+stoicism
+stoicism!
+stoicism!!$
+stoicism!!*
+stoicism!!@
+3mp1r3_2009
+3mp1r3_2010
+3mp1r3_2011
+3mp1r3_21
+3mp1r3_2104
+```
+Marcus not really being a computer wizard, I think we would crack his password relatively quickly with this list!
+
+## Further modding
+In the configuration file `/etc/cupp.cfg` you can control how the words are generated, for example, changing `leet` mode:
+```
+[leet]
+a=4
+i=1
+e=3
+t=7
+o=0
+s=5
+g=9
+z=2
+```
+This is an actual entry in the file, if you've seen the victim substituting `L` as `/` for some reason, you can go ahead and add a new entry for it!
+
+Here's 2 other examples for specifying special characters and random numbers -->
+```console
+[specialchars]
+chars=!,@,'#',$,%%,&,*
+
+[nums]
+from=0
+to=100
+```
+
+
+## Automation
+I wanted to build on this list by using `cewl` ([Custom Word List generator](<https://github.com/digininja/CeWL>)). It intrigued me for it's ability to crawl URLs you give it, at a specified depth, and return with a list of words. Let's try it out by giving it the wikipedia page of [Marcus Aurelius](<https://en.wikipedia.org/wiki/Marcus_Aurelius>).
+
+If you give the `-h` flag to `cewl`, it will give you a short but comprehensive list on all the options (funny enough it was more comprehensive than the man pages this time).
+
+I used the long form of the flags so it would be easy to understand the options used, here's the command:
+```bash
+┌──(㉿)
+└─$ cewl --min_word_length 6 -a --meta_file marcusMeta.txt --max_word_length 16 --write marcusAutomatic.txt https://en.wikipedia.org/wiki/Marcus_Aurelius
+```
+The default depth the spider will crawl is 2 links from the main site.
+
+It was going on for about 11 minutes, I thought something was wrong so I `ctrl+c`'d the operation
+```console
+^CHold on, stopping here ...
+```
+Apparently it was still busy working, but luckily it did save all the work. The `meta` file which was supposed to store all meta information was empty, but the wordlist was populated:
+```bash
+┌──(㉿)
+└─$ wc -l marcusAutomatic.txt 
+34122 marcusAutomatic.txt
+```
+All of `34122` words! Here's a snippet of arbitrarily chosen words from the list:
+```console
+Marcus
+Wikipedia
+Aurelius
+Empire
+Special
+Template
+wikipedia
+identifier
+Category
+Birley
+Hadrian
+Lucius
+btitle
+Abookrft
+aulast
+aufirst
+University
+Antoninus
+philosophy
+BookSources
+emperor
+History
+bookrft
+Faustina
+dynasty
+Ancient
+template
+Trajan
+International
+Carrera
+Romanism
+philosophizing
+constituents
+hollow
+lookout
+columnae
+expressive
+clumsier
+worsen
+expecting
+Pitholaus
+hemmed
+Onesicrates
+plight
+fatigue
+scorched
+interposition
+enchantments
+performances
+upwards
+```
+
+## Joining forces
+I started thinking, could we combine the `cupp` permutation functionality with the vanilla wordlist generated by `cewl`? Turns out we can! 
+
+Let's spice things up a bit and pass the wordlist to `cupp` like so:
+```
+┌──(㉿)
+└─$ cupp -w marcusAutomatic.txt 
+
+   cupp.py!            
+      \                
+       \   ,__,       
+        \  (oo)____    
+           (__)    )\   
+              ||--|| *      
+
+
+> Do you want to concatenate all words from wordlist? Y/[N]: n
+> Do you want to add special chars at the end of words? Y/[N]: Y
+> Do you want to add some random numbers at the end of words? Y/[N]:Y
+> Leet mode? (i.e. leet = 1337) Y/[N]: Y
+
+[+] Now making a dictionary...
+[+] Sorting list and removing duplicates...
+[+] Saving dictionary to marcusAutomatic.txt.cupp.txt, counting 17170464 words.
+[+] Now load your pistolero with marcusAutomatic.txt.cupp.txt and shoot! Good luck!
+```
+Our improved dictionary:
+```
+┌──(㉿)
+└─$ mv marcusAutomatic.txt.cupp.txt marcusEnhanced2p0.txt
+                                                                                                                              
+┌──(㉿)
+└─$ wc -l marcusEnhanced2p0.txt                                       
+17170463 marcusEnhanced2p0.txt
+```
+That's a pretty hefty dictionary right there.. 😆 If we're not cracking the password with this one, we were never gonna get it to begin with.
+
+Here's a quick snippet:
+```
+Cl4r3nc3
+Cl4r3nc3!
+Cl4r3nc3!!
+Cl4r3nc3!!!
+Cl4r3nc3!$!
+Cl4r3nc3!*
+Cl4r3nc3!@%
+Cl4r3nc3$$*
+Cl4r3nc3$$@
+Cl4r3nc3%*$
+Cl4r3nc3%@
+Cl4r3nc3%@!
+Cl4r3nc3&!!
+Cl4r3nc3&!$
+Cl4r3nc3&&%
+```
+
+
+
+
+
 
 
 --------------
+
+
+
+
+
+
 
 
 # F) Hash Rules
 **Objective**
 - Showcase Hashcat rules
 
+## Rule based attack
+The man pages made me none the wiser on the use of rules in hashcat, so I navigated to the hashcat [wiki](<https://hashcat.net/wiki/doku.php?id=rule_based_attack>). 
+I read through the wiki and got some idea on how to create rules. The wiki guided me further to check out the `rules/` folder, so I did
+```bash
+$ locate hashcat | grep -i rule
+```
+And found my way to `/usr/share/hashcat/rules`:
+```bash
+┌──(㉿)-[/usr/share/hashcat/rules]
+└─$ ls
+best66.rule                  leetspeak.rule                                  T0XlC.rule
+combinator.rule              oscommerce.rule                                 T0XlCv2.rule
+d3ad0ne.rule                 rockyou-30000.rule                              toggles1.rule
+dive.rule                    specific.rule                                   toggles2.rule
+generated2.rule              stacking58.rule                                 toggles3.rule
+generated.rule               T0XlC_3_rule.rule                               toggles4.rule
+hybrid                       T0XlC-insert_00-99_1950-2050_toprules_0_F.rule  toggles5.rule
+Incisive-leetspeak.rule      T0XlC_insert_HTML_entities_0_Z.rule             top10_2025.rule
+InsidePro-HashManager.rule   T0XlC-insert_space_and_special_0_F.rule         unix-ninja-leetspeak.rule
+InsidePro-PasswordsPro.rule  T0XlC-insert_top_100_passwords_1_G.rule
+```
+There were a lot of very illustrative examples I took inspiration from when creating my own ruleset.
 
+
+Only by trying stuff out do we actually learn, so let's start by creating the basis for this attack:
+```bash
+# Create the password hash
+┌──(㉿)
+└─$ echo -n "SuperS3cretPassword123" | sha256sum | awk '{print $1}' | tee secret.txt
+ca0a0a9af0ba1c6b6ec5c3adb855016c3f8450ef91bcca6135bb50c5f76dbf1f
+
+# Create the wordlist
+┌──(㉿)
+└─$ echo "password\nsecret\nsecretpassword\nsupersecret\nsupersecretpassword" > wlist.txt
+                                                                                                                              
+┌──(㉿)
+└─$ cat wlist.txt 
+password
+secret
+secretpassword
+supersecret
+supersecretpassword                                                    
+```
+
+Now for the rule creation, I created a `rules` file and populated it with the following:
+```console
+:
+u
+c
+t
+T0
+
+$0
+$1
+$2
+$3
+$4
+$5
+$6
+$7
+$8
+$9
+$1$2
+$1$2$3
+$1$2$3$4
+
+so0
+si1
+se3
+sa@
+so0 si1 se3 sa@
+so0 si1 se3 $1$2$3
+so0 si1 se3 $1$2$3$4
+so0 si1 se3 $1$2$3$4$!
+
+## The winner ->
+T0 T5 TB o63 $1$2$3
+```
+We're including some basics like `case toggle`, `number appending` and `leet`. Check out the rule section in the [wiki](<https://hashcat.net/wiki/doku.php?id=rule_based_attack>) if you want to understand this better!
+
+## Executing the attack
+Identify the hash
+```bash
+┌──(㉿)
+└─$ hashid secret.txt 
+--File 'secret.txt'--
+Analyzing 'ca0a0a9af0ba1c6b6ec5c3adb855016c3f8450ef91bcca6135bb50c5f76dbf1f'
+[+] Snefru-256 
+[+] SHA-256 
+[+] RIPEMD-256 
+[+] Haval-256 
+[+] GOST R 34.11-94 
+[+] GOST CryptoPro S-Box 
+[+] SHA3-256 
+[+] Skein-256 
+[+] Skein-512(256) 
+--End of file 'secret.txt'--     
+```
+`SHA256` is the most likely candidate.
+
+Use the rules to crack the password:
+```bash
+┌──(㉿)
+└─$ hashcat -a 0 -m 1400 -r rules secret.txt wlist.txt -o cracked -O
+
+#--Some output redacted!--#
+
+Hashes: 1 digests; 1 unique digests, 1 unique salts
+Bitmaps: 16 bits, 65536 entries, 0x0000ffff mask, 262144 bytes, 5/13 rotates
+Rules: 27
+                                             
+Session..........: hashcat
+Status...........: Cracked
+Hash.Mode........: 1400 (SHA2-256)
+Hash.Target......: ca0a0a9af0ba1c6b6ec5c3adb855016c3f8450ef91bcca6135b...6dbf1f
+
+Kernel.Feature...: Optimized Kernel (password length 0-31 bytes)
+Guess.Base.......: File (wlist.txt)
+Guess.Mod........: Rules (rules)
+
+Candidate.Engine.: Device Generator
+Candidates.#01...: password123 -> SuperS3cretPassword123
+
+
+┌──(㉿)
+└─$ cat cracked          
+ca0a0a9af0ba1c6b6ec5c3adb855016c3f8450ef91bcca6135bb50c5f76dbf1f:SuperS3cretPassword123
+```
+**Explained**
+- Our rule file had a bunch of rules, but the one that cracked the password was the last line
+```
+T0 T5 TB o63 $1$2$3
+```
+- `TX`: Toggle case at position X
+  - Example: `T0 T5` transforms `waddup` to `WadduP`
+- `oXY`: Overwrite char at position X with Y
+  - Example: `o1X` transforms `waddup` to `wXddup`
+- `$X`: Append X
+  - Example: `$!` transforms `waddup` to `waddup!`
 
 
 -------------
@@ -346,7 +735,7 @@ John's a good guy, he gets it! Let's take the win and move on. 🙏
 <img width="1826" height="490" alt="2026-05-07-20:17:00" src="https://github.com/user-attachments/assets/ef6aceec-f331-4b3d-b831-3b42cea9874a" />
 
 
-I do have to give my attacker some more storage!
+I do have to give my attacker some room to grow!
 
 ## Resize Workflow
 1. Shut down the VM.
@@ -369,7 +758,7 @@ vda    254:0    0   60G  0 disk
 ```
 It did! Now we can make it available to the system.
 
-5. Fire up the partition manipulation tool
+5. Fire up the `partition manipulation tool`
 ```bash
 $ sudo parted
 ```
@@ -381,10 +770,13 @@ Number  Start   End     Size    Type      File system     Flags
  5      40.7GB  42.9GB  2239MB  logical   linux-swap(v1)  swap
 ```
 > [!NOTE]
-> The order is problematic, as the swap partition comes after the root, solution:
+> The order is problematic, as the swap partition comes **after** the root. We can't really use the `100%` paramater to make the partition use all the newly made available space :/
+>
+> My solution:
 > ```bash
 > $ sudo swapoff -a
 > # Then delete the swap partition (we'll just create a swapfile later)
+> (parted) rm 2
 > ```
 
 9. `resizepart 1` --> `100%` (Use 100% of available space)
