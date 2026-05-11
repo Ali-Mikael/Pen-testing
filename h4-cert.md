@@ -78,10 +78,12 @@ Install and start it on Kali:
 $ sudo apt install zaproxy
 $ zaproxy
 ```
-From this point on there's two ways we can go about this. Because ZAP [generates](<https://www.zaproxy.org/docs/desktop/addons/network/options/servercertificates/#generate>) a Root CA certificate for us, we can either:
-1. Use the cert automatically
-or
-2. Import the cert to our browser
+> [!NOTE]
+> From this point on there's two ways we can go about this.
+>
+> Because ZAP [generates](<https://www.zaproxy.org/docs/desktop/addons/network/options/servercertificates/#generate>) a `Root CA certificate` for us, we can either:
+> 1. Use the cert automatically
+> 2. Import the cert to our browser
 
 The first option is perfect for quickly testing a website or for one-offs. We do this by launching the browser through ZAP like so:
 
@@ -96,7 +98,7 @@ Back on the ZAP interface we can see all the requests and replies:
 <img width="1911" height="1129" alt="2026-04-17-17:19:36" src="https://github.com/user-attachments/assets/2b1233fe-4107-49f5-a330-79ed6626d978" />
 
 
-The second method you're going to see next!
+The second method of setting up ZAP you're going to see next!
 
 
 
