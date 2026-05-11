@@ -1234,8 +1234,6 @@ ERROR:
 
 
 # Src & Ref
-**In Order of Appearance**
-
 - [1] <https://github.com/rapid7/metasploitable3>
 - [2] <https://github.com/Ali-Mikael/Pen-testing/blob/main/h3-EternalExploit.md#setting-up>
 - [3] <https://sliver.sh/>
